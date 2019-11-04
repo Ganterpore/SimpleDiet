@@ -1,4 +1,4 @@
-package com.ganterpore.simplediet;
+package com.ganterpore.simplediet.View;
 
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
@@ -9,9 +9,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ganterpore.simplediet.Controller.DailyMeals;
+import com.ganterpore.simplediet.Controller.DailyMealsInterface;
 import com.ganterpore.simplediet.Model.Meal;
+import com.ganterpore.simplediet.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -21,8 +25,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DailyMealsInterface {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -32,6 +37,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+        new DailyMeals(this);
     }
 
     @Override
@@ -136,5 +146,27 @@ public class MainActivity extends AppCompatActivity {
                         });
             }
         }).show();
+    }
+
+    @Override
+    public void updateDailyMeals(DailyMeals day) {
+        TextView vegTV = findViewById(R.id.veg_count);
+        TextView proteinTV = findViewById(R.id.protein_count);
+        TextView dairyTV = findViewById(R.id.dairy_count);
+        TextView grainTV = findViewById(R.id.grain_count);
+        TextView fruitTV = findViewById(R.id.fruit_count);
+        TextView waterTV = findViewById(R.id.water_count);
+        TextView excessTV = findViewById(R.id.excess_serves_count);
+        TextView cheatTV = findViewById(R.id.cheat_count);
+
+        vegTV.setText(Integer.toString(day.getVegCount()));
+        proteinTV.setText(Integer.toString(day.getProteinCount()));
+        dairyTV.setText(Integer.toString(day.getDairyCount()));
+        grainTV.setText(Integer.toString(day.getGrainCount()));
+        fruitTV.setText(Integer.toString(day.getFruitCount()));
+        waterTV.setText(Integer.toString(day.getWaterCount()));
+        excessTV.setText(Integer.toString(day.getExcessServes()));
+        cheatTV.setText(Integer.toString(day.getTotalCheats()));
+
     }
 }
