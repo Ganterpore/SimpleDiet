@@ -99,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Cheats Count"/>
+            android:text="Weekly cheats Count"/>
 
         <TextView
             android:id="@+id/cheat_count"

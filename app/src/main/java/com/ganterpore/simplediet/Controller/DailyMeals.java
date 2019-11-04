@@ -101,7 +101,9 @@ public class DailyMeals {
     }
 
     public void addListener(DailyMealsInterface listener) {
-        listeners.add(listener);
+        if(listener != null) {
+            listeners.add(listener);
+        }
     }
 
     public List<DocumentSnapshot> getMeals() {
