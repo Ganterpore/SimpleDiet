@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class WeeklyMeals implements DailyMealsInterface{
+public class WeeklyMeals implements DailyMeals.DailyMealsInterface {
     private List<DailyMeals> week;
     private  List<WeeklyMealsInterface> listeners;
 
@@ -49,6 +49,15 @@ public class WeeklyMeals implements DailyMealsInterface{
         }
         updateListeners();
     }
+
+    public interface WeeklyMealsInterface {
+        /**
+         * This method is called whenever the week object is updated
+         * @param week, the week object that was updated
+         */
+        void updateWeeklyMeals(WeeklyMeals week);
+    }
+
 
     public void addListener(WeeklyMealsInterface listener) {
         if(listener != null) {

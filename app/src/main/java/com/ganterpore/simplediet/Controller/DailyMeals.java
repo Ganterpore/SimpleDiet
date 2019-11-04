@@ -197,6 +197,15 @@ public class DailyMeals {
         }
     }
 
+    public interface DailyMealsInterface {
+        /**
+         * This method is called whenever the day object is updated
+         * @param day, the day object that was updated
+         */
+        void updateDailyMeals(DailyMeals day);
+    }
+
+
     /**
      * get a date representing the start time of a given day
      * @param date, the date with which you want the start time of the day from
