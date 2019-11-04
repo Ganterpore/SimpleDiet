@@ -1,7 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class WeeklyMeals implements DailyMeals.DailyMealsInterface {

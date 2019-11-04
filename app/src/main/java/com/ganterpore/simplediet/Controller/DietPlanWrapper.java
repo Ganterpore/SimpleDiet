@@ -1,9 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
-import android.support.annotation.NonNull;
-
 import com.ganterpore.simplediet.Model.DietPlan;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -25,7 +22,7 @@ public class DietPlanWrapper {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         listeners = new ArrayList<>();
         addListener(listener);
-        //temporary diet plan wjilst loading
+        //temporary diet plan whilst loading
         dietPlan = new DietPlan(0,0,0,0,0,0,0,"");
         db.collection(DietPlan.COLLECTION_NAME).document(user).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
