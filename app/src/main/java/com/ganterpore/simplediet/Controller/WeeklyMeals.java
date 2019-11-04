@@ -10,9 +10,19 @@ public class WeeklyMeals implements DailyMealsInterface{
 
     private int weeklyCheats;
 
+    /**
+     * Gets the weekly meals from the past week
+     * @param listener, listener to update when the data changes
+     */
     public WeeklyMeals(WeeklyMealsInterface listener) {
         this(listener, 0);
     }
+
+    /**
+     * Gets the weekly meals from the week ending daysOffset days ago
+     * @param listener, listener to update when the data changes
+     * @param daysOffset, number of days ago the week ended
+     */
     public WeeklyMeals(WeeklyMealsInterface listener, int daysOffset) {
         listeners = new ArrayList<>();
         addListener(listener);
