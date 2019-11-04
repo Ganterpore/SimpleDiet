@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements DailyMealsInterfa
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
         db.setFirestoreSettings(settings);
+
+        //instantiating a day to track
         new DailyMeals(this);
     }
 
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements DailyMealsInterfa
         FirebaseUser currentUser = mAuth.getCurrentUser();
         Log.d("A", "onStart: checking user");
         if(currentUser==null) {
+            //if no user, then create an anonymous account
             Log.d("A", "onStart: no user");
             new AlertDialog.Builder(this)
                     .setTitle("No account detected")
@@ -100,7 +103,13 @@ public class MainActivity extends AppCompatActivity implements DailyMealsInterfa
                 });
     }
 
+    /**
+     * opens a dialogue box recieving information on the meal to be added
+     * then adds the meal to the database
+     * @param view of the object that called the method
+     */
     public void addMeal(View view) {
+        //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         View addMealLayout = layoutInflater.inflate(R.layout.dialog_box_meal, null);
         final EditText vegCountET= addMealLayout.findViewById(R.id.veg_count);
@@ -112,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements DailyMealsInterfa
         final EditText excessCountET = addMealLayout.findViewById(R.id.excess_count);
         final EditText cheatScoreET = addMealLayout.findViewById(R.id.cheat_score);
 
+        //Build the dialog box
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(this);
         addMealDialog.setTitle("Add Meal");
         addMealDialog.setView(addMealLayout);
@@ -119,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements DailyMealsInterfa
         addMealDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                //create a meal object from the dialog box data
                 Meal todaysMeal = new Meal(
                         Integer.parseInt(vegCountET.getText().toString()),
                         Integer.parseInt(proteinCountET.getText().toString()),
@@ -131,7 +142,8 @@ public class MainActivity extends AppCompatActivity implements DailyMealsInterfa
                         System.currentTimeMillis(),
                         mAuth.getCurrentUser().getUid()
                 );
-                db.collection("Meals").add(todaysMeal)
+
+                todaysMeal.pushToDB()
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {

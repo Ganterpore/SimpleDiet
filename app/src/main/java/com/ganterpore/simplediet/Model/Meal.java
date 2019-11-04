@@ -1,5 +1,9 @@
 package com.ganterpore.simplediet.Model;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class Meal {
     private int vegCount;
     private int proteinCount;
@@ -25,6 +29,15 @@ public class Meal {
         this.cheatScore = cheatScore;
         this.day = day;
         this.user = user;
+    }
+
+    /**
+     * pushes the current meal object to the database
+     * @return a task for the database add
+     */
+    public Task<DocumentReference> pushToDB() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        return db.collection("Meals").add(this);
     }
 
     public Meal() {
