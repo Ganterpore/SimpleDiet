@@ -37,11 +37,19 @@ public class Recipe {
     public Recipe() {
     }
 
+    /**
+     * pushes the current recipe object to the database
+     * @return a task for the database add
+     */
     public Task<DocumentReference> pushToDB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         return db.collection(RECIPES).add(this);
     }
 
+    /**
+     * returns the text format of the number of serves of each food type
+     * @return the string
+     */
     public String serveCountText() {
         return "V:" + getVegCount()
                 + "    P:" + getProteinCount()
@@ -52,6 +60,10 @@ public class Recipe {
                 + "    Cheats:" + getCheatScore();
     }
 
+    /**
+     * Converts the recipe object into a meal object
+     * @return a meal instance of the given recipe
+     */
     public Meal convertToMeal() {
         Meal meal = new Meal(vegCount, proteinCount, dairyCount, grainCount, fruitCount, waterCount,
                 excessServes, cheatScore, System.currentTimeMillis(), user);

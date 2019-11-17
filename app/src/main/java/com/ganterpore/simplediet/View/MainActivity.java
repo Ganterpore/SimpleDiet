@@ -1,13 +1,12 @@
 package com.ganterpore.simplediet.View;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,7 +66,6 @@ public class MainActivity extends AppCompatActivity
         today = new DailyMeals(this);
         thisWeek = new WeeklyMeals(this);
         diet = new DietPlanWrapper(this, mAuth.getCurrentUser().getUid());
-
     }
 
     @Override
@@ -75,10 +73,10 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        Log.d("A", "onStart: checking user");
+        Log.d(TAG, "onStart: checking user");
         if(currentUser==null) {
             //if no user, then create an anonymous account
-            Log.d("A", "onStart: no user");
+            Log.d(TAG, "onStart: no user");
             new AlertDialog.Builder(this)
                     .setTitle("No account detected")
                     .setMessage("Create new anonymous account?")
@@ -142,6 +140,11 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
+    /**
+     * called when a user taps the add food button
+     * allows the user  to choose what type of food they want to add.
+     * @param view, the view that called the function
+     */
     public void addFood(final View view) {
         final String[] choices = {"add Meal", "open Recipe Book"};
         new AlertDialog.Builder(this)
@@ -161,12 +164,17 @@ public class MainActivity extends AppCompatActivity
         }).show();
     }
 
+    /**
+     * opens a dialog containing the users recipe book, where they can add one of their meals to eat,
+     * or create a new recipe.
+     */
     private void openRecipeBook() {
         //inflating the views
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         View recipeBookLayout = layoutInflater.inflate(R.layout.dialog_box_recipe_book, null);
         final Context context = this;
 
+        //creating the Dialog box
         final AlertDialog.Builder recipeBookDialogBuilder = new AlertDialog.Builder(this);
         recipeBookDialogBuilder.setTitle("Recipe Book");
         recipeBookDialogBuilder.setView(recipeBookLayout);
@@ -178,6 +186,7 @@ public class MainActivity extends AppCompatActivity
         });
         final AlertDialog recipeBookDialog = recipeBookDialogBuilder.show();
 
+        //Creating the recyclerView of the list of recipes
         RecyclerView allRecipes = recipeBookLayout.findViewById(R.id.recipe_list);
         Query getRecipes = RecipeBookController.getAllRecipes();
 
@@ -188,7 +197,6 @@ public class MainActivity extends AppCompatActivity
         adapter = new FirestoreRecyclerAdapter<Recipe, RecipeViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull RecipeViewHolder holder, int position, @NonNull Recipe recipe) {
-                Log.d(TAG, "onBindViewHolder: " + recipe.getName());
                 holder.build(recipe);
             }
 
@@ -205,10 +213,15 @@ public class MainActivity extends AppCompatActivity
         adapter.startListening();
     }
 
+    /**
+     * creates dialog box to allow the creation of a new recipe
+     */
     public void newRecipe() {
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         View newRecipeLayout = layoutInflater.inflate(R.layout.dialog_box_recipe, null);
+
+        //getting all the text boxes from the view
         final EditText recipeName = newRecipeLayout.findViewById(R.id.recipe_name);
         final EditText vegCountET= newRecipeLayout.findViewById(R.id.veg_count);
         final EditText proteinCountET= newRecipeLayout.findViewById(R.id.protein_count);
@@ -227,7 +240,7 @@ public class MainActivity extends AppCompatActivity
         addMealDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //create a meal object from the dialog box data
+                //create a recipe object from the dialog box data
                 Recipe newRecipe = new Recipe(
                         recipeName.getText().toString(),
                         Double.parseDouble(vegCountET.getText().toString()),
@@ -267,6 +280,8 @@ public class MainActivity extends AppCompatActivity
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         View addMealLayout = layoutInflater.inflate(R.layout.dialog_box_meal, null);
+
+        //getting all the text boxes from the view
         final EditText vegCountET= addMealLayout.findViewById(R.id.veg_count);
         final EditText proteinCountET= addMealLayout.findViewById(R.id.protein_count);
         final EditText dairyCountET = addMealLayout.findViewById(R.id.dairy_count);
@@ -324,6 +339,8 @@ public class MainActivity extends AppCompatActivity
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         View updateDietLayout = layoutInflater.inflate(R.layout.dialog_box_diet_plan, null);
         final EditText vegCountET= updateDietLayout.findViewById(R.id.veg_count);
+
+        //getting the text boxes from the view
         final EditText proteinCountET= updateDietLayout.findViewById(R.id.protein_count);
         final EditText dairyCountET = updateDietLayout.findViewById(R.id.dairy_count);
         final EditText grainCountET= updateDietLayout.findViewById(R.id.grain_count);
@@ -339,7 +356,7 @@ public class MainActivity extends AppCompatActivity
         addMealDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //create a meal object from the dialog box data
+                //create a diet object from the dialog box data
                 DietPlan plan = new DietPlan(
                         Double.parseDouble(vegCountET.getText().toString()),
                         Double.parseDouble(proteinCountET.getText().toString()),
@@ -367,6 +384,9 @@ public class MainActivity extends AppCompatActivity
         }).show();
     }
 
+    /*** methods called by various interfaces. All used to update the display when information is
+    updated ***/
+
     @Override
     public void updateDailyMeals(DailyMeals day) {
         updateDisplayValues();
@@ -386,6 +406,7 @@ public class MainActivity extends AppCompatActivity
     private void updateDisplayValues() {
         DietPlan dietPlan = diet.getDietPlan();
 
+        //get the text views from the main activity
         TextView vegTV = findViewById(R.id.veg_count);
         TextView proteinTV = findViewById(R.id.protein_count);
         TextView dairyTV = findViewById(R.id.dairy_count);
@@ -395,12 +416,14 @@ public class MainActivity extends AppCompatActivity
         TextView excessTV = findViewById(R.id.excess_serves_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
 
+        //creating arrays of the text views to update
         TextView[] textViews = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
                             today.getGrainCount(), today.getFruitCount(), today.getWaterCount()};
         double[] plans = {dietPlan.getDailyVeges(), dietPlan.getDailyProtein(), dietPlan.getDailyDairy(),
                             dietPlan.getDailyGrain(), dietPlan.getDailyFruit(), dietPlan.getDailyWater()};
 
+        //updating text for all the main food groups
         for(int i=0;i<textViews.length;i++) {
             TextView textView = textViews[i];
             double count = counts[i];
@@ -418,19 +441,14 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-//        vegTV.setText(today.getVegCount() + "/" + dietPlan.getDailyVeges());
-//        proteinTV.setText(today.getProteinCount() + "/" + dietPlan.getDailyProtein());
-//        dairyTV.setText(today.getDairyCount() + "/" + dietPlan.getDailyDairy());
-//        grainTV.setText(today.getGrainCount() + "/" + dietPlan.getDailyGrain());
-//        fruitTV.setText(today.getFruitCount() + "/" + dietPlan.getDailyFruit());
-//        waterTV.setText(today.getWaterCount() + "/" + dietPlan.getDailyWater());
-
-
+        //updating text on other texts
         excessTV.setText(today.getExcessServes() + "");
         cheatTV.setText(thisWeek.getWeeklyCheats() + "/" + dietPlan.getWeeklyCheats());
-
     }
 
+    /**
+     * ViewHolder for the recipe list items in the recipe book recyclerView
+     */
     public static class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         View itemView;
         Recipe recipe;
@@ -460,6 +478,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onClick(View v) {
+            //when the list item is clicked, create a dialog to add the meal
             AlertDialog.Builder confirmMeal = new AlertDialog.Builder(context);
             confirmMeal.setTitle("Would you like to add " + recipe.getName() + "?");
             confirmMeal.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
@@ -467,14 +486,15 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int which) {
                     Meal recipeMeal = recipe.convertToMeal();
                     recipeMeal.pushToDB();
-                    closeParent();
+                    //close the recipe book dialog if a meal is added
+                    closeRecipeBook();
                 }
             });
             confirmMeal.setNegativeButton("Cancel", null);
             confirmMeal.show();
         }
 
-        public void closeParent() {
+        public void closeRecipeBook() {
             dialog.dismiss();
         }
     }
