@@ -3,18 +3,18 @@ package com.ganterpore.simplediet.Model;
 public class DietPlan {
     public static final String COLLECTION_NAME = "DietPlans";
 
-    private int dailyVeges;
-    private int dailyProtein;
-    private int dailyDairy;
-    private int dailyGrain;
-    private int dailyFruit;
-    private int dailyWater;
-    private int weeklyCheats;
+    private double dailyVeges;
+    private double dailyProtein;
+    private double dailyDairy;
+    private double dailyGrain;
+    private double dailyFruit;
+    private double dailyWater;
+    private double weeklyCheats;
 
     private String user;
 
-    public DietPlan(int dailyVeges, int dailyProtein, int dailyDairy, int dailyGrain,
-                    int dailyFruit, int dailyWater, int weeklyCheats, String user) {
+    public DietPlan(double dailyVeges, double dailyProtein, double dailyDairy, double dailyGrain,
+                    double dailyFruit, double dailyWater, double weeklyCheats, String user) {
         this.dailyVeges = dailyVeges;
         this.dailyProtein = dailyProtein;
         this.dailyDairy = dailyDairy;
@@ -28,59 +28,59 @@ public class DietPlan {
     public DietPlan() {
     }
 
-    public int getDailyVeges() {
+    public double getDailyVeges() {
         return dailyVeges;
     }
 
-    public void setDailyVeges(int dailyVeges) {
+    public void setDailyVeges(double dailyVeges) {
         this.dailyVeges = dailyVeges;
     }
 
-    public int getDailyProtein() {
+    public double getDailyProtein() {
         return dailyProtein;
     }
 
-    public void setDailyProtein(int dailyProtein) {
+    public void setDailyProtein(double dailyProtein) {
         this.dailyProtein = dailyProtein;
     }
 
-    public int getDailyDairy() {
+    public double getDailyDairy() {
         return dailyDairy;
     }
 
-    public void setDailyDairy(int dailyDairy) {
+    public void setDailyDairy(double dailyDairy) {
         this.dailyDairy = dailyDairy;
     }
 
-    public int getDailyGrain() {
+    public double getDailyGrain() {
         return dailyGrain;
     }
 
-    public void setDailyGrain(int dailyGrain) {
+    public void setDailyGrain(double dailyGrain) {
         this.dailyGrain = dailyGrain;
     }
 
-    public int getDailyFruit() {
+    public double getDailyFruit() {
         return dailyFruit;
     }
 
-    public void setDailyFruit(int dailyFruit) {
+    public void setDailyFruit(double dailyFruit) {
         this.dailyFruit = dailyFruit;
     }
 
-    public int getDailyWater() {
+    public double getDailyWater() {
         return dailyWater;
     }
 
-    public void setDailyWater(int dailyWater) {
+    public void setDailyWater(double dailyWater) {
         this.dailyWater = dailyWater;
     }
 
-    public int getWeeklyCheats() {
+    public double getWeeklyCheats() {
         return weeklyCheats;
     }
 
-    public void setWeeklyCheats(int weeklyCheats) {
+    public void setWeeklyCheats(double weeklyCheats) {
         this.weeklyCheats = weeklyCheats;
     }
 

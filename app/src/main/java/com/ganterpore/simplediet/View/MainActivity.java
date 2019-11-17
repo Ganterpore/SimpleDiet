@@ -1,25 +1,34 @@
 package com.ganterpore.simplediet.View;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietPlanWrapper;
+import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Controller.WeeklyMeals;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
+import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,9 +40,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.Query;
 
 public class MainActivity extends AppCompatActivity
         implements DailyMeals.DailyMealsInterface, WeeklyMeals.WeeklyMealsInterface, DietPlanWrapper.DietPlanInterface {
+    private static final String TAG = "MainActivity";
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -131,6 +142,122 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
+    public void addFood(final View view) {
+        final String[] choices = {"add Meal", "open Recipe Book"};
+        new AlertDialog.Builder(this)
+                .setTitle("new Meal or recipe?")
+                .setItems(choices, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (choices[which]) {
+                            case "add Meal":
+                                addMeal(view);
+                                break;
+                            case "open Recipe Book":
+                                openRecipeBook();
+                                break;
+                    }
+                }
+        }).show();
+    }
+
+    private void openRecipeBook() {
+        //inflating the views
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View recipeBookLayout = layoutInflater.inflate(R.layout.dialog_box_recipe_book, null);
+        final Context context = this;
+
+        final AlertDialog.Builder recipeBookDialogBuilder = new AlertDialog.Builder(this);
+        recipeBookDialogBuilder.setTitle("Recipe Book");
+        recipeBookDialogBuilder.setView(recipeBookLayout);
+        recipeBookDialogBuilder.setNeutralButton("Create New Recipe", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newRecipe();
+            }
+        });
+        final AlertDialog recipeBookDialog = recipeBookDialogBuilder.show();
+
+        RecyclerView allRecipes = recipeBookLayout.findViewById(R.id.recipe_list);
+        Query getRecipes = RecipeBookController.getAllRecipes();
+
+        FirestoreRecyclerOptions<Recipe> options = new FirestoreRecyclerOptions.Builder<Recipe>()
+                .setQuery(getRecipes, Recipe.class).build();
+
+        FirestoreRecyclerAdapter<Recipe, RecipeViewHolder> adapter;
+        adapter = new FirestoreRecyclerAdapter<Recipe, RecipeViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull RecipeViewHolder holder, int position, @NonNull Recipe recipe) {
+                Log.d(TAG, "onBindViewHolder: " + recipe.getName());
+                holder.build(recipe);
+            }
+
+            @NonNull
+            @Override
+            public RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+                View recipeListItem = LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.list_item_recipe, viewGroup, false);
+                return new RecipeViewHolder(recipeListItem, recipeBookDialog, context);
+            }
+        };
+        adapter.notifyDataSetChanged();
+        allRecipes.setAdapter(adapter);
+        adapter.startListening();
+    }
+
+    public void newRecipe() {
+        //inflate the dialog box view and get the text fields
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View newRecipeLayout = layoutInflater.inflate(R.layout.dialog_box_recipe, null);
+        final EditText recipeName = newRecipeLayout.findViewById(R.id.recipe_name);
+        final EditText vegCountET= newRecipeLayout.findViewById(R.id.veg_count);
+        final EditText proteinCountET= newRecipeLayout.findViewById(R.id.protein_count);
+        final EditText dairyCountET = newRecipeLayout.findViewById(R.id.dairy_count);
+        final EditText grainCountET= newRecipeLayout.findViewById(R.id.grain_count);
+        final EditText fruitCountET = newRecipeLayout.findViewById(R.id.fruit_count);
+        final EditText waterCountET = newRecipeLayout.findViewById(R.id.water_count);
+        final EditText excessCountET = newRecipeLayout.findViewById(R.id.excess_count);
+        final EditText cheatScoreET = newRecipeLayout.findViewById(R.id.cheat_score);
+
+        //Build the dialog box
+        AlertDialog.Builder addMealDialog = new AlertDialog.Builder(this);
+        addMealDialog.setTitle("Add Meal");
+        addMealDialog.setView(newRecipeLayout);
+        addMealDialog.setNegativeButton("Cancel", null);
+        addMealDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //create a meal object from the dialog box data
+                Recipe newRecipe = new Recipe(
+                        recipeName.getText().toString(),
+                        Double.parseDouble(vegCountET.getText().toString()),
+                        Double.parseDouble(proteinCountET.getText().toString()),
+                        Double.parseDouble(dairyCountET.getText().toString()),
+                        Double.parseDouble(grainCountET.getText().toString()),
+                        Double.parseDouble(fruitCountET.getText().toString()),
+                        Double.parseDouble(waterCountET.getText().toString()),
+                        Double.parseDouble(excessCountET.getText().toString()),
+                        Double.parseDouble(cheatScoreET.getText().toString()),
+                        mAuth.getCurrentUser().getUid()
+                );
+
+                newRecipe.pushToDB()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Toast.makeText(MainActivity.this, "Added Recipe", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(MainActivity.this, "Recipe add fail", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        }).show();
+    }
+
     /**
      * opens a dialogue box recieving information on the meal to be added
      * then adds the meal to the database
@@ -159,14 +286,14 @@ public class MainActivity extends AppCompatActivity
             public void onClick(DialogInterface dialog, int which) {
                 //create a meal object from the dialog box data
                 Meal todaysMeal = new Meal(
-                        Integer.parseInt(vegCountET.getText().toString()),
-                        Integer.parseInt(proteinCountET.getText().toString()),
-                        Integer.parseInt(dairyCountET.getText().toString()),
-                        Integer.parseInt(grainCountET.getText().toString()),
-                        Integer.parseInt(fruitCountET.getText().toString()),
-                        Integer.parseInt(waterCountET.getText().toString()),
-                        Integer.parseInt(excessCountET.getText().toString()),
-                        Integer.parseInt(cheatScoreET.getText().toString()),
+                        Double.parseDouble(vegCountET.getText().toString()),
+                        Double.parseDouble(proteinCountET.getText().toString()),
+                        Double.parseDouble(dairyCountET.getText().toString()),
+                        Double.parseDouble(grainCountET.getText().toString()),
+                        Double.parseDouble(fruitCountET.getText().toString()),
+                        Double.parseDouble(waterCountET.getText().toString()),
+                        Double.parseDouble(excessCountET.getText().toString()),
+                        Double.parseDouble(cheatScoreET.getText().toString()),
                         System.currentTimeMillis(),
                         mAuth.getCurrentUser().getUid()
                 );
@@ -214,13 +341,13 @@ public class MainActivity extends AppCompatActivity
             public void onClick(DialogInterface dialog, int which) {
                 //create a meal object from the dialog box data
                 DietPlan plan = new DietPlan(
-                        Integer.parseInt(vegCountET.getText().toString()),
-                        Integer.parseInt(proteinCountET.getText().toString()),
-                        Integer.parseInt(dairyCountET.getText().toString()),
-                        Integer.parseInt(grainCountET.getText().toString()),
-                        Integer.parseInt(fruitCountET.getText().toString()),
-                        Integer.parseInt(waterCountET.getText().toString()),
-                        Integer.parseInt(cheatScoreET.getText().toString()),
+                        Double.parseDouble(vegCountET.getText().toString()),
+                        Double.parseDouble(proteinCountET.getText().toString()),
+                        Double.parseDouble(dairyCountET.getText().toString()),
+                        Double.parseDouble(grainCountET.getText().toString()),
+                        Double.parseDouble(fruitCountET.getText().toString()),
+                        Double.parseDouble(waterCountET.getText().toString()),
+                        Double.parseDouble(cheatScoreET.getText().toString()),
                         mAuth.getCurrentUser().getUid()
                 );
                 diet.updateDietPlan(plan)
@@ -268,15 +395,87 @@ public class MainActivity extends AppCompatActivity
         TextView excessTV = findViewById(R.id.excess_serves_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
 
+        TextView[] textViews = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
+        double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
+                            today.getGrainCount(), today.getFruitCount(), today.getWaterCount()};
+        double[] plans = {dietPlan.getDailyVeges(), dietPlan.getDailyProtein(), dietPlan.getDailyDairy(),
+                            dietPlan.getDailyGrain(), dietPlan.getDailyFruit(), dietPlan.getDailyWater()};
 
-        vegTV.setText(today.getVegCount() + "/" + dietPlan.getDailyVeges());
-        proteinTV.setText(today.getProteinCount() + "/" + dietPlan.getDailyProtein());
-        dairyTV.setText(today.getDairyCount() + "/" + dietPlan.getDailyDairy());
-        grainTV.setText(today.getGrainCount() + "/" + dietPlan.getDailyGrain());
-        fruitTV.setText(today.getFruitCount() + "/" + dietPlan.getDailyFruit());
-        waterTV.setText(today.getWaterCount() + "/" + dietPlan.getDailyWater());
+        for(int i=0;i<textViews.length;i++) {
+            TextView textView = textViews[i];
+            double count = counts[i];
+            double plan = plans[i];
+            double servesLeft = plan - count;
+
+            if(servesLeft <= 0.2) {
+                textView.setText(count + "/" + plan + " - Completed!");
+                textView.setTextColor(Color.GREEN);
+            } else {
+                textView.setText(count + "/" + plan + " - " + servesLeft + " serves to go");
+                textView.setTextColor(Color.BLACK);
+            }
+
+
+        }
+
+//        vegTV.setText(today.getVegCount() + "/" + dietPlan.getDailyVeges());
+//        proteinTV.setText(today.getProteinCount() + "/" + dietPlan.getDailyProtein());
+//        dairyTV.setText(today.getDairyCount() + "/" + dietPlan.getDailyDairy());
+//        grainTV.setText(today.getGrainCount() + "/" + dietPlan.getDailyGrain());
+//        fruitTV.setText(today.getFruitCount() + "/" + dietPlan.getDailyFruit());
+//        waterTV.setText(today.getWaterCount() + "/" + dietPlan.getDailyWater());
+
+
         excessTV.setText(today.getExcessServes() + "");
         cheatTV.setText(thisWeek.getWeeklyCheats() + "/" + dietPlan.getWeeklyCheats());
 
+    }
+
+    public static class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        View itemView;
+        Recipe recipe;
+        Context context;
+        AlertDialog dialog;
+
+        RecipeViewHolder(View itemView, AlertDialog dialog, Context context) {
+            super(itemView);
+            this.itemView = itemView;
+            this.setIsRecyclable(false);
+            this.context = context;
+            this.dialog = dialog;
+            itemView.setOnClickListener(this);
+        }
+
+        /**
+         * Builds the view based on the recipe given
+         * @param recipe, the recipe to build around
+         */
+        void build(final Recipe recipe) {
+            this.recipe = recipe;
+            TextView recipeName = itemView.findViewById(R.id.recipe_name);
+            TextView servingCount = itemView.findViewById(R.id.serving_count);
+            recipeName.setText(recipe.getName());
+            servingCount.setText(recipe.serveCountText());
+        }
+
+        @Override
+        public void onClick(View v) {
+            AlertDialog.Builder confirmMeal = new AlertDialog.Builder(context);
+            confirmMeal.setTitle("Would you like to add " + recipe.getName() + "?");
+            confirmMeal.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Meal recipeMeal = recipe.convertToMeal();
+                    recipeMeal.pushToDB();
+                    closeParent();
+                }
+            });
+            confirmMeal.setNegativeButton("Cancel", null);
+            confirmMeal.show();
+        }
+
+        public void closeParent() {
+            dialog.dismiss();
+        }
     }
 }

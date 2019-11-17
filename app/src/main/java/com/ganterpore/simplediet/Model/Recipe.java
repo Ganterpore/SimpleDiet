@@ -4,7 +4,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class Meal {
+public class Recipe {
+    public static final String RECIPES = "Recipes";
+    private String name;
+
     private double vegCount;
     private double proteinCount;
     private double dairyCount;
@@ -14,12 +17,12 @@ public class Meal {
     private double excessServes;
 
     private double cheatScore;
-    private long day;
 
     private String user;
 
-    public Meal(double vegCount, double proteinCount, double dairyCount, double grainCount, double fruitCount,
-                double waterCount, double excessServes, double cheatScore, long day, String user) {
+    public Recipe(String name, double vegCount, double proteinCount, double dairyCount, double grainCount,
+                  double fruitCount, double waterCount, double excessServes, double cheatScore, String user) {
+        this.name = name;
         this.vegCount = vegCount;
         this.proteinCount = proteinCount;
         this.dairyCount = dairyCount;
@@ -28,20 +31,39 @@ public class Meal {
         this.waterCount = waterCount;
         this.excessServes = excessServes;
         this.cheatScore = cheatScore;
-        this.day = day;
         this.user = user;
     }
 
-    /**
-     * pushes the current meal object to the database
-     * @return a task for the database add
-     */
-    public Task<DocumentReference> pushToDB() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        return db.collection("Meals").add(this);
+    public Recipe() {
     }
 
-    public Meal() {
+    public Task<DocumentReference> pushToDB() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        return db.collection(RECIPES).add(this);
+    }
+
+    public String serveCountText() {
+        return "V:" + getVegCount()
+                + "    P:" + getProteinCount()
+                + "    D:" + getDairyCount()
+                + "    G:" + getGrainCount()
+                + "    F:" + getFruitCount()
+                + "    Ex:" + getExcessServes()
+                + "    Cheats:" + getCheatScore();
+    }
+
+    public Meal convertToMeal() {
+        Meal meal = new Meal(vegCount, proteinCount, dairyCount, grainCount, fruitCount, waterCount,
+                excessServes, cheatScore, System.currentTimeMillis(), user);
+        return meal;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public double getVegCount() {
@@ -106,14 +128,6 @@ public class Meal {
 
     public void setCheatScore(double cheatScore) {
         this.cheatScore = cheatScore;
-    }
-
-    public long getDay() {
-        return day;
-    }
-
-    public void setDay(long day) {
-        this.day = day;
     }
 
     public String getUser() {

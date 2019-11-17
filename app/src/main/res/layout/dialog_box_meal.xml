@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter number of serves of veges:"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter number of serves of meat:"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter number of serves of dairy:"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter number of serves of grain:"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -61,7 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter number of serves of fruit:"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter number of serves of water:"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -85,7 +85,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter number of excess serves:"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -97,7 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter cheat score (0-3):"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </android.support.design.widget.TextInputLayout>
 

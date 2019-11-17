@@ -28,15 +28,15 @@ public class DailyMeals {
     private List<DailyMealsInterface> listeners;
     private List<DocumentSnapshot> meals;
 
-    private int vegCount;
-    private int proteinCount;
-    private int dairyCount;
-    private int grainCount;
-    private int fruitCount;
-    private int waterCount;
-    private int excessServes;
+    private double vegCount;
+    private double proteinCount;
+    private double dairyCount;
+    private double grainCount;
+    private double fruitCount;
+    private double waterCount;
+    private double excessServes;
 
-    private int totalCheats;
+    private double totalCheats;
 
     /**
      * Constructor for getting todays meals
@@ -110,40 +110,40 @@ public class DailyMeals {
         return meals;
     }
 
-    public int getTotalServes() {
+    public double getTotalServes() {
         return vegCount + proteinCount + dairyCount + grainCount
                 + fruitCount + excessServes;
     }
 
-    public int getVegCount() {
+    public double getVegCount() {
         return vegCount;
     }
 
-    public int getProteinCount() {
+    public double getProteinCount() {
         return proteinCount;
     }
 
-    public int getDairyCount() {
+    public double getDairyCount() {
         return dairyCount;
     }
 
-    public int getGrainCount() {
+    public double getGrainCount() {
         return grainCount;
     }
 
-    public int getFruitCount() {
+    public double getFruitCount() {
         return fruitCount;
     }
 
-    public int getWaterCount() {
+    public double getWaterCount() {
         return waterCount;
     }
 
-    public int getExcessServes() {
+    public double getExcessServes() {
         return excessServes;
     }
 
-    public int getTotalCheats() {
+    public double getTotalCheats() {
         return totalCheats;
     }
 
@@ -165,15 +165,15 @@ public class DailyMeals {
         totalCheats = 0;
         //iterate through all meals and add the days data
         for(DocumentSnapshot meal : meals) {
-            int serveCount = 0;
-            int cheatScore = meal.getLong("cheatScore").intValue();
-            int mealVegCount  = meal.getLong("vegCount").intValue();
-            int mealProteinCount = meal.getLong("proteinCount").intValue();
-            int mealDairyCount = meal.getLong("dairyCount").intValue();
-            int mealGrainCount = meal.getLong("grainCount").intValue();
-            int mealFruitCount = meal.getLong("fruitCount").intValue();
-            int mealWaterCount = meal.getLong("waterCount").intValue();
-            int mealExcessServes = meal.getLong("excessServes").intValue();
+            double serveCount = 0;
+            double cheatScore = meal.getDouble("cheatScore");
+            double mealVegCount  = meal.getDouble("vegCount");
+            double mealProteinCount = meal.getDouble("proteinCount");
+            double mealDairyCount = meal.getDouble("dairyCount");
+            double mealGrainCount = meal.getDouble("grainCount");
+            double mealFruitCount = meal.getDouble("fruitCount");
+            double mealWaterCount = meal.getDouble("waterCount");
+            double mealExcessServes = meal.getDouble("excessServes");
 
             serveCount = mealVegCount + mealProteinCount + mealDairyCount
                     + mealGrainCount + mealFruitCount + mealWaterCount + mealExcessServes;
