@@ -2,6 +2,7 @@ package com.ganterpore.simplediet.Model;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Meal {
@@ -17,6 +18,7 @@ public class Meal {
     private long day;
 
     private String user;
+    private String name; //optional
 
     public Meal(double vegCount, double proteinCount, double dairyCount, double grainCount, double fruitCount,
                 double waterCount, double excessServes, double cheatScore, long day, String user) {
@@ -42,6 +44,34 @@ public class Meal {
     }
 
     public Meal() {
+    }
+
+    public Meal(DocumentSnapshot docMeal) {
+        this.cheatScore = docMeal.getDouble("cheatScore");
+        this.vegCount  = docMeal.getDouble("vegCount");
+        this.proteinCount = docMeal.getDouble("proteinCount");
+        this.dairyCount = docMeal.getDouble("dairyCount");
+        this.grainCount = docMeal.getDouble("grainCount");
+        this.fruitCount = docMeal.getDouble("fruitCount");
+        this.waterCount = docMeal.getDouble("waterCount");
+        this.excessServes = docMeal.getDouble("excessServes");
+        this.day = docMeal.getLong("day");
+        this.user = docMeal.getString("user");
+        this.name = docMeal.getString("name");
+    }
+
+    /**
+     * returns the text format of the number of serves of each food type
+     * @return the string
+     */
+    public String serveCountText() {
+        return "V:" + getVegCount()
+                + "    P:" + getProteinCount()
+                + "    D:" + getDairyCount()
+                + "    G:" + getGrainCount()
+                + "    F:" + getFruitCount()
+                + "    Ex:" + getExcessServes()
+                + "    Cheats:" + getCheatScore();
     }
 
     public double getVegCount() {
@@ -122,5 +152,13 @@ public class Meal {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

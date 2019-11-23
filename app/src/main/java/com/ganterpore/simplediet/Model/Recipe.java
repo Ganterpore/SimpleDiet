@@ -67,6 +67,7 @@ public class Recipe {
     public Meal convertToMeal() {
         Meal meal = new Meal(vegCount, proteinCount, dairyCount, grainCount, fruitCount, waterCount,
                 excessServes, cheatScore, System.currentTimeMillis(), user);
+        meal.setName(name);
         return meal;
     }
 

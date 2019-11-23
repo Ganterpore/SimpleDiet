@@ -1,8 +1,11 @@
 package com.ganterpore.simplediet.View;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -16,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +45,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
         implements DailyMeals.DailyMealsInterface, WeeklyMeals.WeeklyMealsInterface, DietPlanWrapper.DietPlanInterface {
     private static final String TAG = "MainActivity";
@@ -63,9 +72,12 @@ public class MainActivity extends AppCompatActivity
         db.setFirestoreSettings(settings);
 
         //instantiating a day and week to track
-        today = new DailyMeals(this);
-        thisWeek = new WeeklyMeals(this);
+        today = new DailyMeals(this, FirebaseAuth.getInstance().getCurrentUser().getUid());
+        thisWeek = new WeeklyMeals(this, FirebaseAuth.getInstance().getCurrentUser().getUid());
         diet = new DietPlanWrapper(this, mAuth.getCurrentUser().getUid());
+
+        RecyclerView history = findViewById(R.id.day_history_list);
+        history.setAdapter(new DayHistoryAdapter(this, 7));
     }
 
     @Override
@@ -496,6 +508,140 @@ public class MainActivity extends AppCompatActivity
 
         public void closeRecipeBook() {
             dialog.dismiss();
+        }
+    }
+
+    public class DayHistoryViewHolder extends RecyclerView.ViewHolder {
+        View itemView;
+        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        Activity activity;
+
+        public DayHistoryViewHolder(Activity activity, @NonNull View itemView) {
+            super(itemView);
+            this.itemView = itemView;
+            this.activity = activity;
+        }
+
+        public void build(DailyMeals day) {
+            TextView dateTV = itemView.findViewById(R.id.date);
+            DayHistoryItemView completedFoodTV = itemView.findViewById(R.id.completed_food);
+            DayHistoryItemView completedWaterTV = itemView.findViewById(R.id.completed_water);
+            DayHistoryItemView didntCheatTV = itemView.findViewById(R.id.didnt_cheat);
+
+            dateTV.setText(dateFormat.format(day.getDate()));
+            completedFoodTV.setCompleted(day.isFoodCompleted());
+            completedWaterTV.setCompleted(day.isWaterCompleted());
+            didntCheatTV.setCompleted(day.isOverCheatScore());
+
+            final RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
+            mealsList.setAdapter(new MealsAdapter(activity, day.getMeals()));
+
+            final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
+            dropdownButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onClick: Clicked!");
+                    if(mealsList.getVisibility() == View.GONE) {
+                        mealsList.setVisibility(View.VISIBLE);
+                        dropdownButton.setImageDrawable(getResources().getDrawable(android.R.drawable.arrow_up_float));
+                    } else {
+                        mealsList.setVisibility(View.GONE);
+                        dropdownButton.setImageDrawable(getResources().getDrawable(android.R.drawable.arrow_down_float));
+                    }
+                }
+            });
+        }
+    }
+
+    public class MealsAdapter extends RecyclerView.Adapter<MealsViewHolder> {
+
+        private Activity activity;
+        private List<Meal> meals;
+
+        public MealsAdapter(Activity activity, List<Meal> meals) {
+            this.activity = activity;
+            this.meals = meals;
+        }
+
+        @NonNull
+        @Override
+        public MealsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            View view;
+            if(meals.get(i).getName() != null) {
+                view = LayoutInflater.from(activity).inflate(R.layout.list_item_meal, viewGroup, false);
+            } else {
+                view = LayoutInflater.from(activity).inflate(R.layout.list_item_meal_no_name, viewGroup, false);
+            }
+            return new MealsViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull MealsViewHolder mealsViewHolder, int i) {
+            mealsViewHolder.build(meals.get(i));
+        }
+
+        @Override
+        public int getItemCount() {
+            if(meals == null) {
+                return 0;
+            } else {
+                return meals.size();
+            }
+        }
+    }
+
+    public class MealsViewHolder extends RecyclerView.ViewHolder {
+
+        public MealsViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+
+        public void build(Meal meal) {
+            if(meal.getName() != null) {
+                TextView mealNameTV = itemView.findViewById(R.id.meal_name);
+                mealNameTV.setText(meal.getName());
+            }
+            TextView servingCountTV = itemView.findViewById(R.id.serving_count);
+            servingCountTV.setText(meal.serveCountText());
+        }
+    }
+
+    public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder>
+                                            implements DailyMeals.DailyMealsInterface{
+
+        List<DailyMeals> days;
+        Activity activity;
+
+        public DayHistoryAdapter(Activity activity, int nDays) {
+            days = new ArrayList<>();
+            this.activity = activity;
+
+            for(int i=0;i<nDays;i++) {
+                days.add(new DailyMeals(this, FirebaseAuth.getInstance().getCurrentUser().getUid(), i));
+            }
+
+        }
+
+        @NonNull
+        @Override
+        public DayHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            View view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_history, viewGroup, false);
+            return new DayHistoryViewHolder(activity, view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DayHistoryViewHolder dayHistoryViewHolder, int i) {
+            dayHistoryViewHolder.build(days.get(i));
+        }
+
+        @Override
+        public int getItemCount() {
+            return days.size();
+        }
+
+        @Override
+        public void updateDailyMeals(DailyMeals day) {
+            this.notifyDataSetChanged();
         }
     }
 }

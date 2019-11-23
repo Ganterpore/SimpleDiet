@@ -13,8 +13,8 @@ public class WeeklyMeals implements DailyMeals.DailyMealsInterface {
      * Gets the weekly meals from the past week
      * @param listener, listener to update when the data changes
      */
-    public WeeklyMeals(WeeklyMealsInterface listener) {
-        this(listener, 0);
+    public WeeklyMeals(WeeklyMealsInterface listener, String user) {
+        this(listener, user, 0);
     }
 
     /**
@@ -22,13 +22,13 @@ public class WeeklyMeals implements DailyMeals.DailyMealsInterface {
      * @param listener, listener to update when the data changes
      * @param daysOffset, number of days ago the week ended
      */
-    public WeeklyMeals(WeeklyMealsInterface listener, int daysOffset) {
+    public WeeklyMeals(WeeklyMealsInterface listener, String user, int daysOffset) {
         listeners = new ArrayList<>();
         addListener(listener);
 
         week = new ArrayList<>();
         for(int daysAgo=daysOffset;daysAgo<7+daysOffset;daysAgo++) {
-            week.add(new DailyMeals(this, daysAgo));
+            week.add(new DailyMeals(this, user, daysAgo));
         }
     }
 
