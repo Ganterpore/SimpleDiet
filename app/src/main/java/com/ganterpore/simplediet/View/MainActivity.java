@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -46,6 +44,8 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity
         thisWeek = new WeeklyMeals(this, FirebaseAuth.getInstance().getCurrentUser().getUid());
         diet = new DietPlanWrapper(this, mAuth.getCurrentUser().getUid());
 
+        //Creating the history view
         RecyclerView history = findViewById(R.id.day_history_list);
         history.setAdapter(new DayHistoryAdapter(this, 7));
     }
@@ -415,6 +416,9 @@ public class MainActivity extends AppCompatActivity
         updateDisplayValues();
     }
 
+    /**
+     * updates the values of all the views on the screen to up to date values
+     */
     private void updateDisplayValues() {
         DietPlan dietPlan = diet.getDietPlan();
 
@@ -435,6 +439,8 @@ public class MainActivity extends AppCompatActivity
         double[] plans = {dietPlan.getDailyVeges(), dietPlan.getDailyProtein(), dietPlan.getDailyDairy(),
                             dietPlan.getDailyGrain(), dietPlan.getDailyFruit(), dietPlan.getDailyWater()};
 
+        NumberFormat df = new DecimalFormat("##.##");
+
         //updating text for all the main food groups
         for(int i=0;i<textViews.length;i++) {
             TextView textView = textViews[i];
@@ -443,10 +449,10 @@ public class MainActivity extends AppCompatActivity
             double servesLeft = plan - count;
 
             if(servesLeft <= 0.2) {
-                textView.setText(count + "/" + plan + " - Completed!");
+                textView.setText(df.format(count) + "/" + df.format(plan) + " - Completed!");
                 textView.setTextColor(Color.GREEN);
             } else {
-                textView.setText(count + "/" + plan + " - " + servesLeft + " serves to go");
+                textView.setText(df.format(count) + "/" + df.format(plan) + " - " + df.format(servesLeft) + " serves to go");
                 textView.setTextColor(Color.BLACK);
             }
 
@@ -454,8 +460,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         //updating text on other texts
-        excessTV.setText(today.getExcessServes() + "");
-        cheatTV.setText(thisWeek.getWeeklyCheats() + "/" + dietPlan.getWeeklyCheats());
+        excessTV.setText(df.format(today.getExcessServes()) + "");
+        cheatTV.setText(df.format(thisWeek.getWeeklyCheats()) + "/" + df.format(dietPlan.getWeeklyCheats()));
     }
 
     /**
@@ -511,6 +517,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * View Holder for the information about a day.
+     */
     public class DayHistoryViewHolder extends RecyclerView.ViewHolder {
         View itemView;
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
@@ -523,19 +532,22 @@ public class MainActivity extends AppCompatActivity
         }
 
         public void build(DailyMeals day) {
+            //getting and updating values for the views
             TextView dateTV = itemView.findViewById(R.id.date);
-            DayHistoryItemView completedFoodTV = itemView.findViewById(R.id.completed_food);
-            DayHistoryItemView completedWaterTV = itemView.findViewById(R.id.completed_water);
-            DayHistoryItemView didntCheatTV = itemView.findViewById(R.id.didnt_cheat);
+            CompletableItemView completedFoodTV = itemView.findViewById(R.id.completed_food);
+            CompletableItemView completedWaterTV = itemView.findViewById(R.id.completed_water);
+            CompletableItemView didntCheatTV = itemView.findViewById(R.id.didnt_cheat);
 
             dateTV.setText(dateFormat.format(day.getDate()));
             completedFoodTV.setCompleted(day.isFoodCompleted());
             completedWaterTV.setCompleted(day.isWaterCompleted());
             didntCheatTV.setCompleted(day.isOverCheatScore());
 
+            //creating a list of the meals eaten that day
             final RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
             mealsList.setAdapter(new MealsAdapter(activity, day.getMeals()));
 
+            //creating functionality for the button that shows meals eaten that day
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
             dropdownButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -553,6 +565,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * adapter for the meals list item, showing meals eaten on a day.
+     */
     public class MealsAdapter extends RecyclerView.Adapter<MealsViewHolder> {
 
         private Activity activity;
@@ -567,6 +582,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public MealsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             View view;
+            //differentiate the view based on whether the meal has a name or not.
             if(meals.get(i).getName() != null) {
                 view = LayoutInflater.from(activity).inflate(R.layout.list_item_meal, viewGroup, false);
             } else {
@@ -590,6 +606,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * View holder for the meal list item
+     */
     public class MealsViewHolder extends RecyclerView.ViewHolder {
 
         public MealsViewHolder(@NonNull View itemView) {
@@ -606,6 +625,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * adapter for the day history list.
+     */
     public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder>
                                             implements DailyMeals.DailyMealsInterface{
 
@@ -616,6 +638,7 @@ public class MainActivity extends AppCompatActivity
             days = new ArrayList<>();
             this.activity = activity;
 
+            //create a view for each day, up to nDay's ago
             for(int i=0;i<nDays;i++) {
                 days.add(new DailyMeals(this, FirebaseAuth.getInstance().getCurrentUser().getUid(), i));
             }

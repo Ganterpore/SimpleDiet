@@ -5,6 +5,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 public class Meal {
     private double vegCount;
     private double proteinCount;
@@ -65,13 +68,30 @@ public class Meal {
      * @return the string
      */
     public String serveCountText() {
-        return "V:" + getVegCount()
-                + "    P:" + getProteinCount()
-                + "    D:" + getDairyCount()
-                + "    G:" + getGrainCount()
-                + "    F:" + getFruitCount()
-                + "    Ex:" + getExcessServes()
-                + "    Cheats:" + getCheatScore();
+        NumberFormat df = new DecimalFormat("##.##");
+        String output = "";
+
+        if(getVegCount() > 0){
+            output += "    V:" + df.format(getVegCount());
+        }
+        if(getProteinCount() > 0){
+            output += "    P:" + df.format(getProteinCount());
+        }
+        if(getDairyCount() > 0){
+            output += "    D:" + df.format(getDairyCount());
+        }
+        if(getGrainCount() > 0){
+            output += "    G:" + df.format(getGrainCount());
+        }
+        if(getFruitCount() > 0){
+            output += "    F:" + df.format(getFruitCount());
+        }
+        if(getExcessServes() > 0){
+            output += "    Ex:" + df.format(getExcessServes());
+        }
+        output += "    Cheats:" + df.format(getCheatScore());
+
+        return output.trim();
     }
 
     public double getVegCount() {

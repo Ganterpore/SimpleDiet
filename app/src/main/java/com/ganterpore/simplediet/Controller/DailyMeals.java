@@ -86,6 +86,7 @@ public class DailyMeals implements DietPlanWrapper.DietPlanInterface {
                 .whereLessThan("day", nextDay.getTime())
                 .whereEqualTo("user", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
+        //access documents for meals from the past week
         Query lastWeeksMeals = meals.whereGreaterThanOrEqualTo("day", weekAgo.getTime())
                 .whereLessThan("day", nextDay.getTime())
                 .whereEqualTo("user", FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -115,6 +116,7 @@ public class DailyMeals implements DietPlanWrapper.DietPlanInterface {
             }
         });
 
+        //updating the number of cheat points consumed in the past week
         lastWeeksMeals.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -145,10 +147,12 @@ public class DailyMeals implements DietPlanWrapper.DietPlanInterface {
         dietPlan = new DietPlanWrapper(this, user);
     }
 
+    //checks if enough water has been consumed for this day
     public boolean isWaterCompleted() {
         return waterCount >= dietPlan.getDietPlan().getDailyWater();
     }
 
+    //checks if enough food has been consumed for this dat
     public boolean isFoodCompleted() {
         return vegCount >= dietPlan.getDietPlan().getDailyVeges()
                 & proteinCount >= dietPlan.getDietPlan().getDailyProtein()
@@ -157,6 +161,7 @@ public class DailyMeals implements DietPlanWrapper.DietPlanInterface {
                 & fruitCount >= dietPlan.getDietPlan().getDailyFruit();
     }
 
+    //checks if have gone over the weekly cheat amount allowable
     public boolean isOverCheatScore() {
         return weeklyCheats > dietPlan.getDietPlan().getWeeklyCheats();
     }

@@ -6,13 +6,16 @@ import android.widget.TextView;
 
 import com.ganterpore.simplediet.R;
 
-public class DayHistoryItemView extends android.support.v7.widget.AppCompatTextView {
+/**
+ * Represents a View object that can be in the state of either complete or incomplete.
+ */
+public class CompletableItemView extends android.support.v7.widget.AppCompatTextView {
 
     private static final int[] STATE_COMPLETED = {R.attr.state_completed};
 
     private boolean completed = false;
 
-    public DayHistoryItemView(Context context, AttributeSet attrs) {
+    public CompletableItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
