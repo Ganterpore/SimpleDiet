@@ -36,7 +36,7 @@
             android:layout_weight="2" >
         </Space>
 
-        <com.ganterpore.simplediet.View.CompletableItemView
+        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
             android:id="@+id/completed_water"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             android:layout_weight="1" >
         </Space>
 
-        <com.ganterpore.simplediet.View.CompletableItemView
+        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
             android:id="@+id/completed_food"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
             android:layout_weight="1" >
         </Space>
 
-        <com.ganterpore.simplediet.View.CompletableItemView
+        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
             android:id="@+id/didnt_cheat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

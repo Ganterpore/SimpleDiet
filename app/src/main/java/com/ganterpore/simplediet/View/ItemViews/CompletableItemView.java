@@ -1,4 +1,4 @@
-package com.ganterpore.simplediet.View;
+package com.ganterpore.simplediet.View.ItemViews;
 
 import android.content.Context;
 import android.util.AttributeSet;

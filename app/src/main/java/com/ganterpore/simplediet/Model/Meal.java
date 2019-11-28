@@ -5,8 +5,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 
 public class Meal {
     private double vegCount;
@@ -22,6 +24,8 @@ public class Meal {
 
     private String user;
     private String name; //optional
+
+    private DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyy");
 
     public Meal(double vegCount, double proteinCount, double dairyCount, double grainCount, double fruitCount,
                 double waterCount, double excessServes, double cheatScore, long day, String user) {
@@ -64,6 +68,16 @@ public class Meal {
     }
 
     /**
+     * Calculates the total cheat points acquired from this meal
+     * @return the value of the cheat points
+     */
+    public double calculateTotalCheats() {
+        double serveCount = vegCount + proteinCount + dairyCount
+                + grainCount + fruitCount + waterCount + excessServes;
+        return serveCount * cheatScore;
+    }
+
+    /**
      * returns the text format of the number of serves of each food type
      * @return the string
      */
@@ -89,9 +103,13 @@ public class Meal {
         if(getExcessServes() > 0){
             output += "    Ex:" + df.format(getExcessServes());
         }
-        output += "    Cheats:" + df.format(getCheatScore());
+        output += "    Total Cheats:" + df.format(calculateTotalCheats());
 
         return output.trim();
+    }
+
+    public String dateAsString() {
+        return dateFormat.format(day);
     }
 
     public double getVegCount() {
