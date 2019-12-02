@@ -9,11 +9,13 @@ public interface DietController {
      * @return object containing todays meals
      */
     DailyMeals getTodaysMeals();
+    DailyMeals getDaysMeals(int nDaysAgo);
 
     /**
      * Gets the diet plan expected for today. aka, how many of each food group to be eaten today
      */
     DietPlan getTodaysDietPlan();
+    DietPlan getDaysDietPlan(int nDaysAgo);
 
     /**
      * Gets the generic diet plan the user has set up
@@ -30,16 +32,19 @@ public interface DietController {
      * @return if the user has eaten all food groups
      */
     boolean isFoodCompleted();
+    boolean isFoodCompleted(int nDaysAgo);
 
     /**
      * @return if the user has had all their water
      */
     boolean isWaterCompleted();
+    boolean isWaterCompleted(int nDaysAgo);
 
     /**
      * @return if the user has gone over their cheat limit
      */
     boolean isOverCheatScore();
+    boolean isOverCheatScore(int nDaysAgo);
 
     /**
      * Update the listener to the diet controller of a change
