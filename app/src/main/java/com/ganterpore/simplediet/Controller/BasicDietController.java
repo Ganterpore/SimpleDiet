@@ -1,6 +1,8 @@
 package com.ganterpore.simplediet.Controller;
 
 import android.app.Activity;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -12,6 +14,9 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 public class BasicDietController implements DietController,
@@ -22,6 +27,9 @@ public class BasicDietController implements DietController,
     DailyMeals todaysMeals;
     DietPlan todaysDiet;
     FirebaseFirestore db;
+//    Map<Integer, DailyMeals>
+    SparseArray<DailyMeals> daysAgoMeals;
+//    SparseIntArray daysAgoDiets;
 
     public BasicDietController(DietControllerListener listener) {
         this.db = FirebaseFirestore.getInstance();
@@ -31,6 +39,9 @@ public class BasicDietController implements DietController,
         //creating a blank dietplan
         todaysDiet = new DietPlan(0,0,0,0,0,0,0,"");
         getCurrentDietPlanFromDB();
+//        daysAgoDiets = new SparseIntArray();
+        daysAgoMeals = new SparseArray<>();
+        daysAgoMeals.append(0, todaysMeals);
     }
 
     /**
@@ -62,10 +73,23 @@ public class BasicDietController implements DietController,
     public DailyMeals getTodaysMeals() {
         return todaysMeals;
     }
+    @Override
+    public DailyMeals getDaysMeals(int nDaysAgo) {
+        DailyMeals daysMeal = daysAgoMeals.get(nDaysAgo);
+        if(daysMeal == null) {
+            daysMeal = new DailyMeals(this, user, nDaysAgo);
+            daysAgoMeals.append(nDaysAgo, daysMeal);
+        }
+        return daysMeal;
+    }
 
     @Override
     public DietPlan getTodaysDietPlan() {
         return todaysDiet;
+    }
+    @Override
+    public DietPlan getDaysDietPlan(int nDaysAgo) {
+        return getTodaysDietPlan(); //For the BasicDietController, both todays and the overall diet plan are the same
     }
 
     @Override
@@ -92,21 +116,42 @@ public class BasicDietController implements DietController,
 
     @Override
     public boolean isFoodCompleted() {
-        return todaysMeals.getVegCount ()>= todaysDiet.getDailyVeges()
-                & todaysMeals.getProteinCount ()>= todaysDiet.getDailyProtein()
-                & todaysMeals.getDairyCount ()>= todaysDiet.getDailyDairy()
-                & todaysMeals.getGrainCount ()>= todaysDiet.getDailyGrain()
-                & todaysMeals.getFruitCount ()>= todaysDiet.getDailyFruit();
+        return isFoodCompleted(todaysMeals);
+    }
+    @Override
+    public boolean isFoodCompleted(int nDaysAgo) {
+        return isFoodCompleted(getDaysMeals(nDaysAgo));
+    }
+    private boolean isFoodCompleted(DailyMeals meal) {
+        return meal.getVegCount ()>= todaysDiet.getDailyVeges()
+                & meal.getProteinCount ()>= todaysDiet.getDailyProtein()
+                & meal.getDairyCount ()>= todaysDiet.getDailyDairy()
+                & meal.getGrainCount ()>= todaysDiet.getDailyGrain()
+                & meal.getFruitCount ()>= todaysDiet.getDailyFruit();
     }
 
     @Override
     public boolean isWaterCompleted() {
-        return todaysMeals.getWaterCount() >= todaysDiet.getDailyWater();
+        return isWaterCompleted(todaysMeals);
+    }
+    @Override
+    public boolean isWaterCompleted(int nDaysAgo) {
+        return isWaterCompleted(getDaysMeals(nDaysAgo));
+    }
+    private boolean isWaterCompleted(DailyMeals meals) {
+        return meals.getWaterCount() >= todaysDiet.getDailyWater();
     }
 
     @Override
     public boolean isOverCheatScore() {
-        return todaysMeals.getWeeklyCheats() > todaysDiet.getWeeklyCheats();
+        return isOverCheatScore(todaysMeals);
+    }
+    @Override
+    public boolean isOverCheatScore(int nDaysAgo) {
+        return isOverCheatScore(getDaysMeals(nDaysAgo));
+    }
+    private boolean isOverCheatScore(DailyMeals meals) {
+        return meals.getWeeklyCheats() > todaysDiet.getWeeklyCheats();
     }
 
     @Override

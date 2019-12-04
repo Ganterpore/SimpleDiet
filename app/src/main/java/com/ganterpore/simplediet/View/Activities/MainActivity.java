@@ -203,5 +203,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         //updating text on other texts
         excessTV.setText(df.format(today.getExcessServes()) + "");
         cheatTV.setText(df.format(today.getWeeklyCheats()) + "/" + df.format(todaysDietPlan.getWeeklyCheats()));
+
+        mealView.refresh();
     }
 }

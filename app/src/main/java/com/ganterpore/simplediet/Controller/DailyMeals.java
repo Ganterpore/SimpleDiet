@@ -51,7 +51,7 @@ public class DailyMeals {
     /**
      * Constructor for getting todays meals
      */
-    public DailyMeals(DailyMealsInterface listener, String user) {
+    DailyMeals(DailyMealsInterface listener, String user) {
         //todays meals, aka zero days ago
         this(listener, user, 0);
     }
@@ -60,7 +60,7 @@ public class DailyMeals {
      * Constructor for getting meals from previous days
      * @param daysAgo, the number of days ago to get meals from
      */
-    public DailyMeals(DailyMealsInterface listener, String user, int daysAgo) {
+    DailyMeals(DailyMealsInterface listener, String user, int daysAgo) {
         this(listener, user, new Date(System.currentTimeMillis() - (daysAgo * DateUtils.DAY_IN_MILLIS)));
     }
 
@@ -68,7 +68,7 @@ public class DailyMeals {
      * Get the daily update from meals on the given date
      * @param day, date to look at meals from
      */
-    public DailyMeals(DailyMealsInterface listener, String user, Date day) {
+    DailyMeals(DailyMealsInterface listener, String user, Date day) {
         listeners = new ArrayList<>();
         addListener(listener);
 

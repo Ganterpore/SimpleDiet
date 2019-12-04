@@ -15,23 +15,64 @@ import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
-public class MealHistoryDisplay {
+public class MealHistoryDisplay  {
     public static final String TAG = "MealHistoryDisplay";
     private Activity activity;
     private DietController dietController;
+    private RecyclerView history;
 
     public MealHistoryDisplay(Activity activity, DietController dietController) {
         this.activity = activity;
         this.dietController = dietController;
         RecyclerView history = activity.findViewById(R.id.day_history_list);
         history.setAdapter(new DayHistoryAdapter(activity, 7));
+        this.history = history;
+    }
+
+   public void refresh() {
+        history.getAdapter().notifyDataSetChanged();
+   }
+
+    /**
+     * adapter for the day history list.
+     */
+    public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder>
+            implements DailyMeals.DailyMealsInterface{
+
+        int nDays;
+        Activity activity;
+
+        public DayHistoryAdapter(Activity activity, int nDays) {
+            this.activity = activity;
+            this.nDays = nDays;
+        }
+
+        @NonNull
+        @Override
+        public DayHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            View view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_history, viewGroup, false);
+            return new DayHistoryViewHolder(activity, view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DayHistoryViewHolder dayHistoryViewHolder, int i) {
+            dayHistoryViewHolder.build(i);
+        }
+
+        @Override
+        public int getItemCount() {
+            return nDays;
+        }
+
+        @Override
+        public void updateDailyMeals(DailyMeals day) {
+            this.notifyDataSetChanged();
+        }
     }
 
     /**
@@ -48,7 +89,8 @@ public class MealHistoryDisplay {
             this.activity = activity;
         }
 
-        public void build(DailyMeals day) {
+        public void build(int nDaysAgo) {
+            DailyMeals day = dietController.getDaysMeals(nDaysAgo);
             //getting and updating values for the views
             TextView dateTV = itemView.findViewById(R.id.date);
             CompletableItemView completedFoodTV = itemView.findViewById(R.id.completed_food);
@@ -56,9 +98,9 @@ public class MealHistoryDisplay {
             CompletableItemView didntCheatTV = itemView.findViewById(R.id.didnt_cheat);
 
             dateTV.setText(dateFormat.format(day.getDate()));
-            completedFoodTV.setCompleted(dietController.isFoodCompleted());
-            completedWaterTV.setCompleted(dietController.isWaterCompleted());
-            didntCheatTV.setCompleted(dietController.isOverCheatScore());
+            completedFoodTV.setCompleted(dietController.isFoodCompleted(nDaysAgo));
+            completedWaterTV.setCompleted(dietController.isWaterCompleted(nDaysAgo));
+            didntCheatTV.setCompleted(dietController.isOverCheatScore(nDaysAgo));
 
             //creating a list of the meals eaten that day
             final RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
@@ -154,46 +196,5 @@ public class MealHistoryDisplay {
         }
     }
 
-    /**
-     * adapter for the day history list.
-     */
-    public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder>
-            implements DailyMeals.DailyMealsInterface{
 
-        List<DailyMeals> days;
-        Activity activity;
-
-        public DayHistoryAdapter(Activity activity, int nDays) {
-            days = new ArrayList<>();
-            this.activity = activity;
-
-            //create a view for each day, up to nDay's ago
-            for(int i=0;i<nDays;i++) {
-                days.add(new DailyMeals(this, FirebaseAuth.getInstance().getCurrentUser().getUid(), i));
-            }
-
-        }
-
-        @NonNull
-        @Override
-        public DayHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_history, viewGroup, false);
-            return new DayHistoryViewHolder(activity, view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull DayHistoryViewHolder dayHistoryViewHolder, int i) {
-            dayHistoryViewHolder.build(days.get(i));
-        }
-
-        @Override
-        public int getItemCount() {
-            return days.size();
-        }
-
-        @Override
-        public void updateDailyMeals(DailyMeals day) {
-            this.notifyDataSetChanged();
-        }
-    }
 }
