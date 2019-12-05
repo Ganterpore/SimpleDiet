@@ -30,10 +30,7 @@ public class DailyMeals {
     private List<DailyMealsInterface> listeners;
 
     private List<Meal> todaysMeals;
-//    private List<Meal> yesterdaysMeals;
-//    private List<Meal> theDayBeforesMeals;
     private List<Meal> thisWeeksMeals;
-//    private List<Meal> tomorrowsMeals;
 
     private double vegCount;
     private double proteinCount;
@@ -97,7 +94,7 @@ public class DailyMeals {
                     Log.e(TAG, "onEvent: exception " + e.getLocalizedMessage());
                 } else {
                     List<DocumentSnapshot> meals = queryDocumentSnapshots.getDocuments();
-                    sortMeals(meals, finalDay, nextDay, yesterDay, dayBeforeYest, weekAgo, endOfNextDay);
+                    sortMeals(meals, finalDay, nextDay, weekAgo);
                     updateData();
                     updateListeners();
                 }
@@ -110,38 +107,28 @@ public class DailyMeals {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()) {
                     List<DocumentSnapshot> meals = task.getResult().getDocuments();
-                    sortMeals(meals, finalDay, nextDay, yesterDay, dayBeforeYest, weekAgo, endOfNextDay);
+                    sortMeals(meals, finalDay, nextDay, weekAgo);
                     updateData();
                     updateListeners();
                 }
             }
         });
-//        dietPlan = new DietPlanWrapper(this, user);
     }
 
-    private void sortMeals(List<DocumentSnapshot> meals, Date finalDay, Date nextDay, Date yesterDay, Date dayBeforeYest, Date weekAgo, Date endOfNextDay) {
+    /**
+     * Takes a list of meals, and a list of days, and sorts the meals into the different days
+     */
+    private void sortMeals(List<DocumentSnapshot> meals, Date finalDay, Date nextDay, Date weekAgo) {
         todaysMeals = new ArrayList<>();
-//        yesterdaysMeals =  new ArrayList<>();
-//        theDayBeforesMeals = new ArrayList<>();
         thisWeeksMeals = new ArrayList<>();
-//        tomorrowsMeals = new ArrayList<>();
         for(DocumentSnapshot mealDS : meals) {
             Meal meal = new Meal(mealDS);
             if(meal.getDay() >= finalDay.getTime() && meal.getDay() < nextDay.getTime()) {
                 todaysMeals.add(meal);
             }
-//            if(meal.getDay() >= yesterDay.getTime() && meal.getDay() < finalDay.getTime()) {
-//                yesterdaysMeals.add(meal);
-//            }
-//            if(meal.getDay() >= dayBeforeYest.getTime() && meal.getDay() < yesterDay.getTime()) {
-//                theDayBeforesMeals.add(meal);
-//            }
             if(meal.getDay() >= weekAgo.getTime() && meal.getDay() < nextDay.getTime()) {
                 thisWeeksMeals.add(meal);
             }
-//            if(meal.getDay() >= nextDay.getTime() && meal.getDay() < endOfNextDay.getTime()) {
-//                tomorrowsMeals.add(meal);
-//            }
         }
     }
 
@@ -170,6 +157,7 @@ public class DailyMeals {
             waterCount += meal.getWaterCount();
             excessServes += meal.getExcessServes();
         }
+        //iterate through all the weeks meals and get the cheat data
         weeklyCheats = 0;
         int i =0;
         for(Meal meal : thisWeeksMeals) {

@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class MealHistoryDisplay  {
-    public static final String TAG = "MealHistoryDisplay";
+    private static final String TAG = "MealHistoryDisplay";
     private Activity activity;
     private DietController dietController;
     private RecyclerView history;

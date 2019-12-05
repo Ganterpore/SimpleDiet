@@ -1,8 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
-import android.app.Activity;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -14,32 +12,25 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.Nullable;
 
-public class BasicDietController implements DietController,
-        DailyMeals.DailyMealsInterface { //, DietPlanWrapper.DietPlanInterface {
+public class BasicDietController implements DietController, DailyMeals.DailyMealsInterface {
 
-    DietControllerListener listener;
-    String user;
-    DailyMeals todaysMeals;
-    DietPlan todaysDiet;
-    FirebaseFirestore db;
-//    Map<Integer, DailyMeals>
-    SparseArray<DailyMeals> daysAgoMeals;
-//    SparseIntArray daysAgoDiets;
+    private DietControllerListener listener;
+    private String user;
+    private DailyMeals todaysMeals;
+    private DietPlan todaysDiet;
+    private FirebaseFirestore db;
+    private SparseArray<DailyMeals> daysAgoMeals;
 
     public BasicDietController(DietControllerListener listener) {
+        //initialising variabls
         this.db = FirebaseFirestore.getInstance();
         this.listener = listener;
         this.user = FirebaseAuth.getInstance().getCurrentUser().getUid();
         todaysMeals = new DailyMeals(this, user);
-        //creating a blank dietplan
         todaysDiet = new DietPlan(0,0,0,0,0,0,0,"");
         getCurrentDietPlanFromDB();
-//        daysAgoDiets = new SparseIntArray();
         daysAgoMeals = new SparseArray<>();
         daysAgoMeals.append(0, todaysMeals);
     }
@@ -115,7 +106,7 @@ public class BasicDietController implements DietController,
     }
 
     @Override
-    public boolean isFoodCompleted() {
+    public boolean isFoodCompletedToday() {
         return isFoodCompleted(todaysMeals);
     }
     @Override
@@ -131,7 +122,7 @@ public class BasicDietController implements DietController,
     }
 
     @Override
-    public boolean isWaterCompleted() {
+    public boolean isWaterCompletedToday() {
         return isWaterCompleted(todaysMeals);
     }
     @Override
@@ -143,7 +134,7 @@ public class BasicDietController implements DietController,
     }
 
     @Override
-    public boolean isOverCheatScore() {
+    public boolean isOverCheatScoreToday() {
         return isOverCheatScore(todaysMeals);
     }
     @Override

@@ -2,6 +2,7 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DietController;
+import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
@@ -36,6 +38,7 @@ import java.text.NumberFormat;
 
 public class MainActivity extends AppCompatActivity implements DietController.DietControllerListener {
     private static final String TAG = "MainActivity";
+    public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -43,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
     private DailyMeals today;
     private MealHistoryDisplay mealView;
+
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +60,17 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 .build();
         db.setFirestoreSettings(settings);
 
-        dietController = new BasicDietController(this);
+        preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        if (!preferences.contains("over_under_eating")) {
+            preferences.edit().putBoolean("over_under_eating", false).apply();
+        }
+        boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
+        if (overUnderEatingFunctionality) {
+            dietController = new OverUnderEatingDietController(this);
+        } else {
+            dietController = new BasicDietController(this);
+        }
+        dietController = new OverUnderEatingDietController(this);
 
         //instantiating a day to track
         today = dietController.getTodaysMeals();
@@ -89,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.over_under_eating_functionality_toggle).setChecked(
+                preferences.getBoolean("over_under_eating", false)
+        );
         return true;
     }
 
@@ -97,6 +115,21 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         switch(item.getItemId()) {
             case R.id.update_plan:
                 UpdateDietDialogBox.updateDiet(this, dietController);
+                return true;
+            case R.id.over_under_eating_functionality_toggle:
+                //if toggled, get the current value
+                boolean currentValue = preferences.getBoolean("over_under_eating", false);
+                //then set the value to the opposite and set the checkbox to the opposite
+                preferences.edit().putBoolean("over_under_eating", !currentValue).apply();
+                item.setChecked(!currentValue);
+                //if over/under eating functionality set, adjust to the correct controller
+                if(currentValue) {
+                    dietController = new BasicDietController(this);
+                } else {
+                    dietController = new OverUnderEatingDietController(this);
+                }
+                //update all the data
+                refresh();
                 return true;
         }
         return false;

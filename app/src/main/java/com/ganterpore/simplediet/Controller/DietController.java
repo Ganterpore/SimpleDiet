@@ -31,19 +31,19 @@ public interface DietController {
     /**
      * @return if the user has eaten all food groups
      */
-    boolean isFoodCompleted();
+    boolean isFoodCompletedToday();
     boolean isFoodCompleted(int nDaysAgo);
 
     /**
      * @return if the user has had all their water
      */
-    boolean isWaterCompleted();
+    boolean isWaterCompletedToday();
     boolean isWaterCompleted(int nDaysAgo);
 
     /**
      * @return if the user has gone over their cheat limit
      */
-    boolean isOverCheatScore();
+    boolean isOverCheatScoreToday();
     boolean isOverCheatScore(int nDaysAgo);
 
     /**
