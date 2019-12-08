@@ -1,5 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
+import android.text.format.DateUtils;
 import android.util.SparseArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
@@ -11,6 +12,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -107,6 +111,12 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
             //get the meals from the previous two days
             DailyMeals dayBeforesMeals = getDaysMeals(nDaysAgo + 1);
             DailyMeals twoDaysBeforeMeals = getDaysMeals(nDaysAgo + 2);
+
+            //if (essentially) no meals were eaten yesterday, assume that the user forgot to input
+            //data, rather than didn't eat, and therefore don't adjust diet to absurd numbers.
+            if(dayBeforesMeals.getTotalServes() < 0.5) {
+                daysAgoDiets.put(nDaysAgo, overallDiet);
+            }
 
             //adjust the diet counts based on the last few days meals
             double vegCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getVegCount(), twoDaysBeforeMeals.getVegCount(), overallDiet.getDailyVeges());
@@ -215,6 +225,240 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
     public boolean isOverCheatScore(int nDaysAgo) {
         return isOverCheatScore(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
+
+    @Override
+    public List<Recommendation> getRecommendations() {
+        ArrayList<Recommendation> recommendations = new ArrayList<>();
+        //get all recommendations
+        Recommendation overEatingRecommendation = getOverEatingRecommendation();
+        Recommendation underEatingRecommendation = getUnderEatingRecommendation();
+        Recommendation dietChangeRecommendation = getDietChangeRecommendation();
+        Recommendation cheatScoreRecommendation = getCheatScoreRecommendation();
+        //adding them to the list if they are not null
+        if(overEatingRecommendation != null) {
+            recommendations.add(overEatingRecommendation);
+        }
+        if(underEatingRecommendation != null) {
+            recommendations.add(underEatingRecommendation);
+        }
+        if(dietChangeRecommendation != null) {
+            recommendations.add(dietChangeRecommendation);
+        }
+        if(cheatScoreRecommendation != null) {
+            recommendations.add(cheatScoreRecommendation);
+        }
+        //returning the list of recommendations
+        return recommendations;
+    }
+
+    private Recommendation getOverEatingRecommendation() {
+        String id = "over_eating";
+        long expiry = DateUtils.DAY_IN_MILLIS;
+        String title = "Over eating";
+        String message = "Yesterday you ate too much ";
+        DietPlan todaysDietPlan = getTodaysDietPlan();
+        int count = 0;
+        if(todaysDietPlan.getDailyVeges() < overallDiet.getDailyVeges()) {
+            message += "veges, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyProtein() < overallDiet.getDailyProtein()) {
+            message += "proteins, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyDairy() < overallDiet.getDailyDairy()) {
+            message += "dairy, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyGrain() < overallDiet.getDailyGrain()) {
+            message += "grain, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyFruit() < overallDiet.getDailyFruit()) {
+            message += "fruit, ";
+            count++;
+        }
+        if(count > 0) {
+            message = message.substring(0, message.length() - 2);
+            message += ". Your recommended intake for today has been adjusted to compensate fot this.";
+            return new Recommendation(id, title, message, expiry);
+        }
+        return null;
+    }
+
+    private Recommendation getUnderEatingRecommendation() {
+        String id = "under_eating";
+        long expiry = DateUtils.DAY_IN_MILLIS;
+        String title = "Under eating";
+        String message = "Yesterday you ate too little ";
+        DietPlan todaysDietPlan = getTodaysDietPlan();
+        int count = 0;
+        if(todaysDietPlan.getDailyVeges() > overallDiet.getDailyVeges()) {
+            message += "veges, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyProtein() > overallDiet.getDailyProtein()) {
+            message += "proteins, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyDairy() > overallDiet.getDailyDairy()) {
+            message += "dairy, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyGrain() > overallDiet.getDailyGrain()) {
+            message += "grain, ";
+            count++;
+        }
+        if(todaysDietPlan.getDailyFruit() > overallDiet.getDailyFruit()) {
+            message += "fruit, ";
+            count++;
+        }
+        if(count > 0) {
+            message = message.substring(0, message.length() - 2);
+            message += ". Your recommended intake for today has been adjusted to compensate fot this.";
+            return new Recommendation(id, title, message, expiry);
+        }
+        return null;
+    }
+
+    private Recommendation getDietChangeRecommendation() {
+        String id = "diet_change";
+        long expiry = DateUtils.WEEK_IN_MILLIS * 2;
+        String title = "Recommendations for diet changes";
+        //over or under ate by a large degree over the past fortnight
+        double fortnightlyVeges = 0;
+        double fortnightlyProtein = 0;
+        double fortnightlyDairy = 0;
+        double fortnightlyGrain = 0;
+        double fortnightlyFruit = 0;
+        double fortnightlyWater = 0;
+        //getting the foor from the last fortnight
+        for(int i=0;i<14;i++) {
+            DailyMeals daysMeals = getDaysMeals(i);
+            fortnightlyVeges += daysMeals.getVegCount();
+            fortnightlyProtein += daysMeals.getProteinCount();
+            fortnightlyDairy += daysMeals.getDairyCount();
+            fortnightlyGrain += daysMeals.getGrainCount();
+            fortnightlyFruit += daysMeals.getFruitCount();
+            fortnightlyWater += daysMeals.getWaterCount();
+        }
+        //creating the message tot he user
+        String message = "Over the past two weeks you have been eating ";
+        boolean overAte = false;
+        String overAteMessage = "too much ";
+        if(fortnightlyVeges > (14*overallDiet.getDailyVeges() + 7)) {
+            overAte = true;
+            overAteMessage += "vegetables, ";
+        }
+        if(fortnightlyProtein > (14*overallDiet.getDailyProtein() + 7)) {
+            overAte = true;
+            overAteMessage += "meats, ";
+        }
+        if(fortnightlyDairy > (14*overallDiet.getDailyDairy() + 7)) {
+            overAte = true;
+            overAteMessage += "dairy, ";
+        }
+        if(fortnightlyGrain > (14*overallDiet.getDailyGrain() + 7)) {
+            overAte = true;
+            overAteMessage += "grains, ";
+        }
+        if(fortnightlyFruit > (14*overallDiet.getDailyFruit() + 7)) {
+            overAte = true;
+            overAteMessage += "fruits, ";
+        }
+
+        boolean underAte = false;
+        String underAteMessage = "too little ";
+        if(overAte) {
+            message += overAteMessage;
+            underAteMessage = "and too little ";
+        }
+
+        if(fortnightlyVeges < (14*overallDiet.getDailyVeges() - 7)) {
+            underAte = true;
+            underAteMessage += "vegetables, ";
+        }
+        if(fortnightlyProtein < (14*overallDiet.getDailyProtein() - 7)) {
+            underAte = true;
+            underAteMessage += "meats, ";
+        }
+        if(fortnightlyDairy < (14*overallDiet.getDailyDairy() - 7)) {
+            underAte = true;
+            underAteMessage += "dairy, ";
+        }
+        if(fortnightlyGrain < (14*overallDiet.getDailyGrain() - 7)) {
+            underAte = true;
+            underAteMessage += "grains, ";
+        }
+        if(fortnightlyFruit < (14*overallDiet.getDailyFruit() - 7)) {
+            underAte = true;
+            underAteMessage += "fruit, ";
+        }
+        if(fortnightlyWater < (14*overallDiet.getDailyWater() - 7)) {
+            underAte = true;
+            underAteMessage += "water, ";
+        }
+
+        if(underAte) {
+            message += underAteMessage;
+        }
+
+        //finalising the recommendation, or returning null if no recommendation
+        if(overAte || underAte) {
+            message = message.substring(0, message.length()-2) + ". ";
+            message += "Try to adjust your diet to make up for this. " +
+                    "Alternatively update your diet plan to reflect your actual planned diet";
+            return new Recommendation(id, title, message, expiry);
+        }
+        return null;
+    }
+
+    private Recommendation getCheatScoreRecommendation() {
+        String id = "cheat";
+        long expiry = DateUtils.DAY_IN_MILLIS;
+        String title = "";
+        String message = "";
+
+        DailyMeals todaysMeals = getTodaysMeals();
+        //checks if we are over the cheat score for the week
+        if(isOverCheatScoreToday()) {
+            title += "You have had too many cheat meals!";
+            //checks whether you will still be over the score tomorrow
+            double cheatsTomorrow = todaysMeals.getWeeklyCheats() - getDaysMeals(6).getTotalCheats();
+            if(cheatsTomorrow < overallDiet.getWeeklyCheats()) {
+                //if not, then advise how few cheat points to have to get back on track
+                message += "You will be back under your score tomorrow if you have less than ";
+                message += (overallDiet.getWeeklyCheats() - cheatsTomorrow);
+                message += " cheat points tomorrow";
+            } else {
+                //if not, how many days until you are under again
+                double currentCheats = todaysMeals.getWeeklyCheats();
+                for(int i=6;i>=0;i--) {
+                    currentCheats -= getDaysMeals(i).getTotalCheats();
+                    if(currentCheats < overallDiet.getWeeklyCheats()) {
+                        message += "You can be back on track within ";
+                        message += (7 - i);
+                        message += "days if you minimise the bad food you eat";
+                        break;
+                    }
+                }
+            }
+        } //if we are not over the cheat score, check if we are close
+        else if((todaysMeals.getWeeklyCheats() + (overallDiet.getWeeklyCheats()/7))
+                    >= overallDiet.getWeeklyCheats()){
+            title += "You are very close to going over your cheat score";
+            message += "If you have more than ";
+            message += overallDiet.getWeeklyCheats() - todaysMeals.getWeeklyCheats();
+            message += " cheat points today you will go over your maximum cheat score.";
+            message += "Try to eat healthily today";
+
+        } else {
+            //if we are not over, or close to going over, send no recomendation.
+            return null;
+        }
+        return new Recommendation(id, title, message, expiry);
+    }
+
     private boolean isOverCheatScore(DailyMeals meals, DietPlan dietPlan) {
         return meals.getWeeklyCheats() > dietPlan.getWeeklyCheats();
     }

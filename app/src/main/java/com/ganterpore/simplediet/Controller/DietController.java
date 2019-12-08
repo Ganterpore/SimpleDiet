@@ -3,6 +3,8 @@ package com.ganterpore.simplediet.Controller;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.google.android.gms.tasks.Task;
 
+import java.util.List;
+
 public interface DietController {
     /**
      * gets the meals that have been eaten today
@@ -47,6 +49,11 @@ public interface DietController {
     boolean isOverCheatScore(int nDaysAgo);
 
     /**
+     * @return a list of recommendations for the user
+     */
+    List<Recommendation> getRecommendations();
+
+    /**
      * Update the listener to the diet controller of a change
      */
     void updateListener();
@@ -56,5 +63,39 @@ public interface DietController {
      */
     interface DietControllerListener {
         void refresh();
+    }
+
+    /**
+     * Recommendation objects contain all the information needed to create a recommendation notification;
+     * These are used to display information to the user, and recommend changes to their diet.
+     */
+    class Recommendation {
+        private String id;
+        private String title;
+        private String message;
+        private long expiry;
+
+        public Recommendation(String id, String title, String message, long expiry) {
+            this.id = id;
+            this.title = title;
+            this.message = message;
+            this.expiry = expiry;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public long getExpiry() {
+            return expiry;
+        }
     }
 }
