@@ -15,13 +15,14 @@ import com.ganterpore.simplediet.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 
 public class UpdateDietDialogBox {
     /**
      * opens a dialogue box recieving information on diet plans
      * then adds the meal to the database
      */
-    public static void updateDiet(final Activity activity, final DietController dietController) {
+    public static void updateDiet(final Activity activity) {
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View updateDietLayout = layoutInflater.inflate(R.layout.dialog_box_diet_plan, null);
@@ -54,19 +55,20 @@ public class UpdateDietDialogBox {
                         Double.parseDouble(cheatScoreET.getText().toString()),
                         FirebaseAuth.getInstance().getCurrentUser().getUid()
                 );
-                dietController.updateDietPlan(plan)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                plan.pushToDB()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(activity, "Updated Diet Plan", Toast.LENGTH_SHORT).show();
-                            }
-                        })
+                            public void onSuccess(DocumentReference documentReference) {
+                                    Toast.makeText(activity, "Updated Diet Plan", Toast.LENGTH_SHORT).show();
+                                }
+                            })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(activity, "Diet Plan Update Failed", Toast.LENGTH_SHORT).show();
                             }
                         });
+
             }
         }).show();
     }

@@ -1,12 +1,15 @@
 package com.ganterpore.simplediet.View.Activities;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +21,8 @@ import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MealHistoryDisplay  {
@@ -44,29 +49,52 @@ public class MealHistoryDisplay  {
     public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder>
             implements DailyMeals.DailyMealsInterface{
 
+        public final static int RECOMMENDATION_VIEW = 1;
+        public final static int MEAL_HISTORY_VIEW = 2;
+
         int nDays;
         Activity activity;
+        List<DietController.Recommendation> recommendations;
 
         public DayHistoryAdapter(Activity activity, int nDays) {
             this.activity = activity;
             this.nDays = nDays;
+            this.recommendations = dietController.getRecommendations();
         }
 
         @NonNull
         @Override
-        public DayHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_history, viewGroup, false);
-            return new DayHistoryViewHolder(activity, view);
+        public DayHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+            View view;
+            if(viewType==RECOMMENDATION_VIEW) {
+                view = LayoutInflater.from(activity).inflate(R.layout.list_item_recommendation, viewGroup, false);
+            } else {
+                view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_history, viewGroup, false);
+            }
+            return new DayHistoryViewHolder(activity, view, viewType, recommendations);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull DayHistoryViewHolder dayHistoryViewHolder, int i) {
-            dayHistoryViewHolder.build(i);
+        public void onBindViewHolder(@NonNull DayHistoryViewHolder dayHistoryViewHolder, int position) {
+            int daysAgo = position - recommendations.size();
+            if(daysAgo<0) {
+                dayHistoryViewHolder.buildRecommendation(position);
+            } else {
+                dayHistoryViewHolder.buildMeal(daysAgo);
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if(position < recommendations.size()) {
+                return RECOMMENDATION_VIEW;
+            }
+            return MEAL_HISTORY_VIEW;
         }
 
         @Override
         public int getItemCount() {
-            return nDays;
+            return recommendations.size() + nDays;
         }
 
         @Override
@@ -79,17 +107,76 @@ public class MealHistoryDisplay  {
      * View Holder for the information about a day.
      */
     public class DayHistoryViewHolder extends RecyclerView.ViewHolder {
+        public static final String EXPIRY_TAG = "_expiry";
         View itemView;
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         Activity activity;
+        int viewType;
+        List<DietController.Recommendation> recommendations;
 
-        public DayHistoryViewHolder(Activity activity, @NonNull View itemView) {
+        public DayHistoryViewHolder(Activity activity, @NonNull View itemView,
+                                    int viewType, List<DietController.Recommendation> recommendations) {
             super(itemView);
             this.itemView = itemView;
             this.activity = activity;
+            this.viewType = viewType;
+            this.recommendations = recommendations;
         }
 
-        public void build(int nDaysAgo) {
+        private void buildRecommendation(int position) {
+            final DietController.Recommendation recommendation = recommendations.get(position);
+
+            //check if the recommendation is hidden, and its hide hasn't expired. If it should be hidden, hide it.
+            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            long hideNotificationExpiry = preferences.getLong(recommendation.getId() + EXPIRY_TAG, 0);
+            if(hideNotificationExpiry > System.currentTimeMillis()) {
+                itemView.setVisibility(View.GONE);
+                return;
+            }
+
+            //if it shouldn't be hidden, then update the values of text fields
+            TextView title = itemView.findViewById(R.id.title);
+            TextView message = itemView.findViewById(R.id.message);
+
+            title.setText(recommendation.getTitle());
+            message.setText(recommendation.getMessage());
+
+            //x button functionality
+            Button exitButton = itemView.findViewById(R.id.x_button);
+            exitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    hideRecommendation(recommendation);
+                }
+            });
+        }
+
+        /**
+         * used to hide a recommendation, and make sure it doesn't reappear until the expiry date
+         */
+        private void hideRecommendation(DietController.Recommendation recommendation) {
+            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            Date expiry = new Date(System.currentTimeMillis() + recommendation.getExpiry());
+            preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
+            itemView.setVisibility(View.GONE);
+        }
+
+        /**
+         * get a date representing the start time of a given day
+         * @param date, the date with which you want the start time of the day from
+         * @return the date at the start of the given day
+         */
+        private Date getStartOfDay(Date date) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DATE);
+            calendar.set(year, month, day, 0, 0, 0);
+            return calendar.getTime();
+        }
+
+        public void buildMeal(int nDaysAgo) {
             DailyMeals day = dietController.getDaysMeals(nDaysAgo);
             //getting and updating values for the views
             TextView dateTV = itemView.findViewById(R.id.date);

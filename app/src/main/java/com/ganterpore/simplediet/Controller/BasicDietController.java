@@ -58,7 +58,11 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
         dietPlanQuery.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                todaysDiet = documentSnapshot.toObject(DietPlan.class);
+                if(documentSnapshot == null) {
+                    todaysDiet = new DietPlan();
+                } else {
+                    todaysDiet = documentSnapshot.toObject(DietPlan.class);
+                }
                 updateListener();
             }
         });
@@ -291,8 +295,8 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
             title += "You are very close to going over your cheat score";
             message += "If you have more than ";
             message += todaysDiet.getWeeklyCheats() - todaysMeals.getWeeklyCheats();
-            message += " cheat points today you will go over your maximum cheat score.";
-            message += "try to eat healthily today";
+            message += " cheat points today you will go over your maximum cheat score. ";
+            message += "Try to eat healthily today";
 
         } else {
             //if we are not over, or close to going over, send no recomendation.

@@ -61,22 +61,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         db.setFirestoreSettings(settings);
 
         preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
-        if (!preferences.contains("over_under_eating")) {
-            preferences.edit().putBoolean("over_under_eating", false).apply();
-        }
-        boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
-        if (overUnderEatingFunctionality) {
-            dietController = new OverUnderEatingDietController(this);
-        } else {
-            dietController = new BasicDietController(this);
-        }
-        dietController = new OverUnderEatingDietController(this);
-
-        //instantiating a day to track
-        today = dietController.getTodaysMeals();
-
-        //Creating the history view
-        mealView = new MealHistoryDisplay(this, dietController);
     }
 
     @Override
@@ -97,6 +81,19 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                             signUpAnonymous();
                         }
                     }).show();
+        } else {
+            boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
+            if (overUnderEatingFunctionality) {
+                dietController = new OverUnderEatingDietController(this);
+            } else {
+                dietController = new BasicDietController(this);
+            }
+
+            //instantiating a day to track
+            today = dietController.getTodaysMeals();
+
+            //Creating the history view
+            mealView = new MealHistoryDisplay(this, dietController);
         }
     }
 
@@ -114,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.update_plan:
-                UpdateDietDialogBox.updateDiet(this, dietController);
+                UpdateDietDialogBox.updateDiet(this);
                 return true;
             case R.id.over_under_eating_functionality_toggle:
                 //if toggled, get the current value
@@ -153,13 +150,14 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     }
 
     public void signUpAnonymous() {
+        final Activity activity = this;
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            UpdateDietDialogBox.updateDiet(activity);
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(MainActivity.this, "Authentication failed.",
@@ -197,6 +195,14 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
      * updates the values of all the views on the screen to up to date values
      */
     public void refresh() {
+        //updating the diet controller
+        boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
+        if (overUnderEatingFunctionality) {
+            dietController = new OverUnderEatingDietController(this);
+        } else {
+            dietController = new BasicDietController(this);
+        }
+
         DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
 
         //get the text views from the main activity
