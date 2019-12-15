@@ -25,7 +25,7 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
     private DietControllerListener listener;
     private String user;
     private DailyMeals todaysMeals;
-    private DietPlan todaysDiet;
+    private DietPlan overallDiet;
     private FirebaseFirestore db;
     private SparseArray<DailyMeals> daysAgoMeals;
 
@@ -35,7 +35,7 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
         this.listener = listener;
         this.user = FirebaseAuth.getInstance().getCurrentUser().getUid();
         todaysMeals = new DailyMeals(this, user);
-        todaysDiet = new DietPlan(0,0,0,0,0,0,0,"");
+        overallDiet = new DietPlan(0,0,0,0,0,0,0,"");
         getCurrentDietPlanFromDB();
         daysAgoMeals = new SparseArray<>();
         daysAgoMeals.append(0, todaysMeals);
@@ -52,7 +52,7 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        todaysDiet = documentSnapshot.toObject(DietPlan.class);
+                        overallDiet = documentSnapshot.toObject(DietPlan.class);
                         updateListener();
                     }
                 });
@@ -61,9 +61,9 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if(documentSnapshot == null) {
-                    todaysDiet = new DietPlan();
+                    overallDiet = new DietPlan();
                 } else {
-                    todaysDiet = documentSnapshot.toObject(DietPlan.class);
+                    overallDiet = documentSnapshot.toObject(DietPlan.class);
                 }
                 updateListener();
             }
@@ -72,7 +72,7 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
 
     @Override
     public DailyMeals getTodaysMeals() {
-        return todaysMeals;
+        return getDaysMeals(0);
     }
     @Override
     public DailyMeals getDaysMeals(int nDaysAgo) {
@@ -86,16 +86,16 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
 
     @Override
     public DietPlan getTodaysDietPlan() {
-        return todaysDiet;
+        return getDaysDietPlan(0);
     }
     @Override
     public DietPlan getDaysDietPlan(int nDaysAgo) {
-        return getTodaysDietPlan(); //For the BasicDietController, both todays and the overall diet plan are the same
+        return getOverallDietPlan(); //For the BasicDietController, both todays and the overall diet plan are the same
     }
 
     @Override
     public DietPlan getOverallDietPlan() {
-        return getTodaysDietPlan(); //For the BasicDietController, both todays and the overall diet plan are the same
+        return overallDiet; //For the BasicDietController, both todays and the overall diet plan are the same
     }
 
     @Override
@@ -108,7 +108,7 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
         updateDiet.addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                todaysDiet = newDietPlan;
+                overallDiet = newDietPlan;
                 updateListener();
             }
         });
@@ -117,44 +117,43 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
 
     @Override
     public boolean isFoodCompletedToday() {
-        return isFoodCompleted(todaysMeals);
+        return isFoodCompleted(0);
     }
     @Override
     public boolean isFoodCompleted(int nDaysAgo) {
-        return isFoodCompleted(getDaysMeals(nDaysAgo));
+        return isFoodCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
-    private boolean isFoodCompleted(DailyMeals meal) {
-        return meal.getVegCount ()>= todaysDiet.getDailyVeges()
-                & meal.getProteinCount ()>= todaysDiet.getDailyProtein()
-                & meal.getDairyCount ()>= todaysDiet.getDailyDairy()
-                & meal.getGrainCount ()>= todaysDiet.getDailyGrain()
-                & meal.getFruitCount ()>= todaysDiet.getDailyFruit();
+    private boolean isFoodCompleted(DailyMeals meal, DietPlan dietPlan) {
+        return meal.getVegCount ()>= dietPlan.getDailyVeges()
+                & meal.getProteinCount ()>= dietPlan.getDailyProtein()
+                & meal.getDairyCount ()>= dietPlan.getDailyDairy()
+                & meal.getGrainCount ()>= dietPlan.getDailyGrain()
+                & meal.getFruitCount ()>= dietPlan.getDailyFruit();
     }
 
     @Override
     public boolean isWaterCompletedToday() {
-        return isWaterCompleted(todaysMeals);
+        return isWaterCompleted(0);
     }
     @Override
     public boolean isWaterCompleted(int nDaysAgo) {
-        return isWaterCompleted(getDaysMeals(nDaysAgo));
+        return isWaterCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
-    private boolean isWaterCompleted(DailyMeals meals) {
-        return meals.getWaterCount() >= todaysDiet.getDailyWater();
+    private boolean isWaterCompleted(DailyMeals meals, DietPlan dietPlan) {
+        return meals.getWaterCount() >= dietPlan.getDailyWater();
     }
 
     @Override
     public boolean isOverCheatScoreToday() {
-        return isOverCheatScore(todaysMeals);
+        return isOverCheatScore(0);
     }
     @Override
     public boolean isOverCheatScore(int nDaysAgo) {
-        return isOverCheatScore(getDaysMeals(nDaysAgo));
+        return isOverCheatScore(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
-    private boolean isOverCheatScore(DailyMeals meals) {
-        return meals.getWeeklyCheats() > todaysDiet.getWeeklyCheats();
+    private boolean isOverCheatScore(DailyMeals meals, DietPlan dietPlan) {
+        return meals.getWeeklyCheats() > dietPlan.getWeeklyCheats();
     }
-
     @Override
     public List<Recommendation> getRecommendations() {
         ArrayList<Recommendation> recommendations = new ArrayList<>();
@@ -194,23 +193,23 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
         String message = "Over the past two weeks you have been eating ";
         boolean overAte = false;
         String overAteMessage = "too much ";
-        if(fortnightlyVeges > (14*todaysDiet.getDailyVeges() + 7)) {
+        if(fortnightlyVeges > (14* overallDiet.getDailyVeges() + 7)) {
             overAte = true;
             overAteMessage += "vegetables, ";
         }
-        if(fortnightlyProtein > (14*todaysDiet.getDailyProtein() + 7)) {
+        if(fortnightlyProtein > (14* overallDiet.getDailyProtein() + 7)) {
             overAte = true;
             overAteMessage += "meats, ";
         }
-        if(fortnightlyDairy > (14*todaysDiet.getDailyDairy() + 7)) {
+        if(fortnightlyDairy > (14* overallDiet.getDailyDairy() + 7)) {
             overAte = true;
             overAteMessage += "dairy, ";
         }
-        if(fortnightlyGrain > (14*todaysDiet.getDailyGrain() + 7)) {
+        if(fortnightlyGrain > (14* overallDiet.getDailyGrain() + 7)) {
             overAte = true;
             overAteMessage += "grains, ";
         }
-        if(fortnightlyFruit > (14*todaysDiet.getDailyFruit() + 7)) {
+        if(fortnightlyFruit > (14* overallDiet.getDailyFruit() + 7)) {
             overAte = true;
             overAteMessage += "fruits, ";
         }
@@ -222,27 +221,27 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
             underAteMessage = "and too little ";
         }
 
-        if(fortnightlyVeges < (14*todaysDiet.getDailyVeges() - 7)) {
+        if(fortnightlyVeges < (14* overallDiet.getDailyVeges() - 7)) {
             underAte = true;
             underAteMessage += "vegetables, ";
         }
-        if(fortnightlyProtein < (14*todaysDiet.getDailyProtein() - 7)) {
+        if(fortnightlyProtein < (14* overallDiet.getDailyProtein() - 7)) {
             underAte = true;
             underAteMessage += "meats, ";
         }
-        if(fortnightlyDairy < (14*todaysDiet.getDailyDairy() - 7)) {
+        if(fortnightlyDairy < (14* overallDiet.getDailyDairy() - 7)) {
             underAte = true;
             underAteMessage += "dairy, ";
         }
-        if(fortnightlyGrain < (14*todaysDiet.getDailyGrain() - 7)) {
+        if(fortnightlyGrain < (14* overallDiet.getDailyGrain() - 7)) {
             underAte = true;
             underAteMessage += "grains, ";
         }
-        if(fortnightlyFruit < (14*todaysDiet.getDailyFruit() - 7)) {
+        if(fortnightlyFruit < (14* overallDiet.getDailyFruit() - 7)) {
             underAte = true;
             underAteMessage += "fruit, ";
         }
-        if(fortnightlyWater < (14*todaysDiet.getDailyWater() - 7)) {
+        if(fortnightlyWater < (14* overallDiet.getDailyWater() - 7)) {
             underAte = true;
             underAteMessage += "water, ";
         }
@@ -275,17 +274,17 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
             title += "You have had too many cheat meals!";
             //checks whether you will still be over the score tomorrow
             double cheatsTomorrow = todaysMeals.getWeeklyCheats() - getDaysMeals(6).getTotalCheats();
-            if(cheatsTomorrow < todaysDiet.getWeeklyCheats()) {
+            if(cheatsTomorrow < overallDiet.getWeeklyCheats()) {
                 //if not, then advise how few cheat points to have to get back on track
                 message += "You will be back under your score tomorrow if you have less than ";
-                message += (todaysDiet.getWeeklyCheats() - cheatsTomorrow);
+                message += (overallDiet.getWeeklyCheats() - cheatsTomorrow);
                 message += " cheat points today";
             } else {
                 //if not, how many days until you are under again
                 double currentCheats = todaysMeals.getWeeklyCheats();
                 for(int i=6;i>=0;i--) {
                     currentCheats -= getDaysMeals(i).getTotalCheats();
-                    if(currentCheats < todaysDiet.getWeeklyCheats()) {
+                    if(currentCheats < overallDiet.getWeeklyCheats()) {
                         message += "You can be back on track within ";
                         message += (7 - i);
                         message += " days if you minimise the bad food you eat";
@@ -294,12 +293,12 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
                 }
             }
         } //if we are not over the cheat score, check if we are close
-        else if((todaysMeals.getWeeklyCheats() + (todaysDiet.getWeeklyCheats()/7))
-                >= todaysDiet.getWeeklyCheats()){
+        else if((todaysMeals.getWeeklyCheats() + (overallDiet.getWeeklyCheats()/7))
+                >= overallDiet.getWeeklyCheats()){
             title += "You are very close to going over your cheat score";
             message += "If you have more than ";
-            message += todaysDiet.getWeeklyCheats() - todaysMeals.getWeeklyCheats();
-            Log.d(TAG, "getCheatScoreRecommendation: dietCheat" + todaysDiet.getWeeklyCheats() + " wekksCheat " + todaysMeals.getWeeklyCheats());
+            message += overallDiet.getWeeklyCheats() - todaysMeals.getWeeklyCheats();
+            Log.d(TAG, "getCheatScoreRecommendation: dietCheat" + overallDiet.getWeeklyCheats() + " wekksCheat " + todaysMeals.getWeeklyCheats());
             message += " cheat points today you will go over your maximum cheat score.";
             message += "Try to eat healthily today";
 
