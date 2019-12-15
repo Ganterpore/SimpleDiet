@@ -151,15 +151,18 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
     public void signUpAnonymous() {
         final Activity activity = this;
+        Log.d(TAG, "signUpAnonymous: signing up");
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "onComplete: signed up");
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             UpdateDietDialogBox.updateDiet(activity);
                         } else {
                             // If sign in fails, display a message to the user.
+                            task.getException().printStackTrace();
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -195,14 +198,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
      * updates the values of all the views on the screen to up to date values
      */
     public void refresh() {
-        //updating the diet controller
-        boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
-        if (overUnderEatingFunctionality) {
-            dietController = new OverUnderEatingDietController(this);
-        } else {
-            dietController = new BasicDietController(this);
-        }
-
         DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
 
         //get the text views from the main activity
@@ -243,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         excessTV.setText(df.format(today.getExcessServes()) + "");
         cheatTV.setText(df.format(today.getWeeklyCheats()) + "/" + df.format(todaysDietPlan.getWeeklyCheats()));
 
-        mealView.refresh();
+        mealView.setDietController(dietController);
+        mealView.refreshRecommendations();
     }
 }

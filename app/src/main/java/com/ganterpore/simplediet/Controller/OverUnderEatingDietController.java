@@ -1,6 +1,7 @@
 package com.ganterpore.simplediet.Controller;
 
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
@@ -19,6 +20,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class OverUnderEatingDietController implements DietController, DailyMeals.DailyMealsInterface {
+    private static final String TAG = "OverUnderEatingDietCo";
     private DietControllerListener listener;
     private String user;
     private DailyMeals todaysMeals;
@@ -97,6 +99,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
             daysAgoDiets.append(nDaysAgo, new DietPlan());
             refreshDietPlans();
         }
+        Log.d(TAG, "getDaysDietPlan: "+nDaysAgo+" days ago diet actually has plan of "+daysAgoDiets.get(nDaysAgo).getDailyVeges());
         return daysAgoDiets.get(nDaysAgo);
     }
 
@@ -116,6 +119,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
             //data, rather than didn't eat, and therefore don't adjust diet to absurd numbers.
             if(dayBeforesMeals.getTotalServes() < 0.5) {
                 daysAgoDiets.put(nDaysAgo, overallDiet);
+                continue;
             }
 
             //adjust the diet counts based on the last few days meals
@@ -198,6 +202,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
         return isFoodCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
     private boolean isFoodCompleted(DailyMeals meal, DietPlan dietPlan) {
+        Log.d(TAG, "isFoodCompleted: " + meal.getVegCount() + ", " + dietPlan.getDailyVeges());
         return meal.getVegCount ()>= dietPlan.getDailyVeges()
                 & meal.getProteinCount ()>= dietPlan.getDailyProtein()
                 & meal.getDairyCount ()>= dietPlan.getDailyDairy()
@@ -246,6 +251,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
         }
         if(cheatScoreRecommendation != null) {
             recommendations.add(cheatScoreRecommendation);
+            Log.d(TAG, "getRecommendations: "+cheatScoreRecommendation.getMessage());
         }
         //returning the list of recommendations
         return recommendations;
@@ -414,6 +420,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
     }
 
     private Recommendation getCheatScoreRecommendation() {
+        Log.d(TAG, "getCheatScoreRecommendation: getting cheats");
         String id = "cheat";
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "";
@@ -422,6 +429,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
         DailyMeals todaysMeals = getTodaysMeals();
         //checks if we are over the cheat score for the week
         if(isOverCheatScoreToday()) {
+            Log.d(TAG, "getCheatScoreRecommendation: over cheat score");
             title += "You have had too many cheat meals!";
             //checks whether you will still be over the score tomorrow
             double cheatsTomorrow = todaysMeals.getWeeklyCheats() - getDaysMeals(6).getTotalCheats();
@@ -429,7 +437,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
                 //if not, then advise how few cheat points to have to get back on track
                 message += "You will be back under your score tomorrow if you have less than ";
                 message += (overallDiet.getWeeklyCheats() - cheatsTomorrow);
-                message += " cheat points tomorrow";
+                message += " cheat points today";
             } else {
                 //if not, how many days until you are under again
                 double currentCheats = todaysMeals.getWeeklyCheats();
@@ -438,7 +446,7 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
                     if(currentCheats < overallDiet.getWeeklyCheats()) {
                         message += "You can be back on track within ";
                         message += (7 - i);
-                        message += "days if you minimise the bad food you eat";
+                        message += " days if you minimise the bad food you eat";
                         break;
                     }
                 }
@@ -449,10 +457,12 @@ public class OverUnderEatingDietController implements DietController, DailyMeals
             title += "You are very close to going over your cheat score";
             message += "If you have more than ";
             message += overallDiet.getWeeklyCheats() - todaysMeals.getWeeklyCheats();
+            Log.d(TAG, "getCheatScoreRecommendation: dietCheat" + overallDiet.getWeeklyCheats() + " wekksCheat " + todaysMeals.getWeeklyCheats());
             message += " cheat points today you will go over your maximum cheat score.";
             message += "Try to eat healthily today";
 
         } else {
+            Log.d(TAG, "getCheatScoreRecommendation: Not over");
             //if we are not over, or close to going over, send no recomendation.
             return null;
         }
