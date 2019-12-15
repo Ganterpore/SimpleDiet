@@ -157,8 +157,12 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
     @Override
     public List<Recommendation> getRecommendations() {
         ArrayList<Recommendation> recommendations = new ArrayList<>();
+        Recommendation cheatChangeRecommendation = getCheatChangeRecommendation();
         Recommendation dietChangeRecommendation = getDietChangeRecommendation();
         Recommendation cheatScoreRecommendation = getCheatScoreRecommendation();
+        if(cheatChangeRecommendation != null) {
+            recommendations.add(cheatChangeRecommendation);
+        }
         if(dietChangeRecommendation != null) {
             recommendations.add(dietChangeRecommendation);
         }
@@ -166,6 +170,38 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
             recommendations.add(cheatScoreRecommendation);
         }
         return recommendations;
+    }
+
+    private Recommendation getCheatChangeRecommendation() {
+        //if we are over/under the target cheat points by more than this factor, suggest a change
+        final double SCALE_FACTOR = 0.2;
+        String id = "cheat_change";
+        long expiry = DateUtils.WEEK_IN_MILLIS * 2;
+        String title;
+        String message;
+
+        //get the number of cheats in the last fortnight
+        double fortnightlyCheats = 0;
+        for(int i=0;i<14;i++) {
+            fortnightlyCheats += getDaysMeals(i).getWeeklyCheats();
+        }
+        //finding te max and min cheat points we should have
+        double tooManyCheats = getOverallDietPlan().getWeeklyCheats()*14*(1+SCALE_FACTOR);
+        double tooFewCheats = getOverallDietPlan().getWeeklyCheats()*14*(1-SCALE_FACTOR);
+        //if over or under by either of these numbers, update the message
+        if(fortnightlyCheats > tooManyCheats) {
+            title = "Increase your cheat score";
+            message = "Over the past two weeks you have been having too many cheat meals. " +
+                    "Consider giving yourself a break and increasing your maximum. You can always" +
+                    " reduce later at a more achievable rate.";
+        } else if(fortnightlyCheats < tooFewCheats) {
+            title = "Decrease your cheat score";
+            message = "Well done! Over the past two weeks you have been well under your maximum cheat score. " +
+                    "Consider giving yourself a challenge and reducing your allowed cheat meals.";
+        } else {
+            return null;
+        }
+        return new Recommendation(id, title, message, expiry);
     }
 
     private Recommendation getDietChangeRecommendation() {
