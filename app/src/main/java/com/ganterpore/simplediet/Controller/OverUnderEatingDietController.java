@@ -1,6 +1,7 @@
 package com.ganterpore.simplediet.Controller;
 
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
@@ -54,13 +55,26 @@ public class OverUnderEatingDietController extends BasicDietController{
                 daysAgoDiets.put(nDaysAgo, getOverallDietPlan());
                 continue;
             }
-
-            //adjust the diet counts based on the last few days meals
-            double vegCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getVegCount(), twoDaysBeforeMeals.getVegCount(), getOverallDietPlan().getDailyVeges());
-            double proteinCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getProteinCount(), twoDaysBeforeMeals.getProteinCount(), getOverallDietPlan().getDailyProtein());
-            double dairyCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getDairyCount(), twoDaysBeforeMeals.getDairyCount(), getOverallDietPlan().getDailyDairy());
-            double grainCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getGrainCount(), twoDaysBeforeMeals.getGrainCount(), getOverallDietPlan().getDailyGrain());
-            double fruitCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getFruitCount(), twoDaysBeforeMeals.getFruitCount(), getOverallDietPlan().getDailyFruit());
+            double vegCountAdjusted;
+            double proteinCountAdjusted;
+            double dairyCountAdjusted;
+            double grainCountAdjusted;
+            double fruitCountAdjusted;
+            if(twoDaysBeforeMeals.getTotalServes() < 0.5) {
+                //if two days before is an invalid entry, then just look at yesterday
+                vegCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getVegCount(), getOverallDietPlan().getDailyVeges());
+                proteinCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getProteinCount(), getOverallDietPlan().getDailyProtein());
+                dairyCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getDairyCount(), getOverallDietPlan().getDailyDairy());
+                grainCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getGrainCount(), getOverallDietPlan().getDailyGrain());
+                fruitCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getFruitCount(), getOverallDietPlan().getDailyFruit());
+            } else {
+                //adjust the diet counts based on the last few days meals
+                vegCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getVegCount(), twoDaysBeforeMeals.getVegCount(), getOverallDietPlan().getDailyVeges());
+                proteinCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getProteinCount(), twoDaysBeforeMeals.getProteinCount(), getOverallDietPlan().getDailyProtein());
+                dairyCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getDairyCount(), twoDaysBeforeMeals.getDairyCount(), getOverallDietPlan().getDailyDairy());
+                grainCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getGrainCount(), twoDaysBeforeMeals.getGrainCount(), getOverallDietPlan().getDailyGrain());
+                fruitCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getFruitCount(), twoDaysBeforeMeals.getFruitCount(), getOverallDietPlan().getDailyFruit());
+            }
 
             //create new dietPlan
             DietPlan newDiet = new DietPlan(vegCountAdjusted, proteinCountAdjusted,
@@ -81,7 +95,7 @@ public class OverUnderEatingDietController extends BasicDietController{
      * @param expectedCount the expected food count
      * @return the adjusted amount of the food group
      */
-    private double adjustTodaysDiet(double yesterdaysCount, double dayBeforesCount, double expectedCount) {
+    private double adjustTodaysDiet(double yesterdaysCount, Double dayBeforesCount, double expectedCount) {
         //normalised values is the difference between the count and the expected count
         double yesterdayNormalised = yesterdaysCount - expectedCount;
         double dayBeforeNormalised = dayBeforesCount - expectedCount;
@@ -107,11 +121,18 @@ public class OverUnderEatingDietController extends BasicDietController{
         return adjuster + expectedCount;
     }
 
+    /**
+     * Same function, but only looks at one previous days data
+     */
+    private double adjustTodaysDiet(double yesterdaysCount, double expectedCount) {
+        //if I overate yesterday, then expected count reduces and vice versa
+        return expectedCount + (expectedCount - yesterdaysCount);
+    }
+
     @Override
     public List<Recommendation> getRecommendations() {
         //get the recommendations from the superior DietController
-        ArrayList<Recommendation> recommendations = new ArrayList<>();
-        recommendations.addAll(super.getRecommendations());
+        ArrayList<Recommendation> recommendations = new ArrayList<>(super.getRecommendations());
         //getting over/under eating recommendations
         Recommendation overEatingRecommendation = getOverEatingRecommendation();
         Recommendation underEatingRecommendation = getUnderEatingRecommendation();

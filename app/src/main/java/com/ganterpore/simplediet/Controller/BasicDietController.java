@@ -297,7 +297,6 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
     }
 
     private Recommendation getCheatScoreRecommendation() {
-        Log.d(TAG, "getCheatScoreRecommendation: getting cheats");
         String id = "cheat";
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "";
@@ -306,7 +305,6 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
         DailyMeals todaysMeals = getTodaysMeals();
         //checks if we are over the cheat score for the week
         if(isOverCheatScoreToday()) {
-            Log.d(TAG, "getCheatScoreRecommendation: over cheat score");
             title += "You have had too many cheat meals!";
             //checks whether you will still be over the score tomorrow
             double cheatsTomorrow = todaysMeals.getWeeklyCheats() - getDaysMeals(6).getTotalCheats();
@@ -334,12 +332,10 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
             title += "You are very close to going over your cheat score";
             message += "If you have more than ";
             message += overallDiet.getWeeklyCheats() - todaysMeals.getWeeklyCheats();
-            Log.d(TAG, "getCheatScoreRecommendation: dietCheat" + overallDiet.getWeeklyCheats() + " wekksCheat " + todaysMeals.getWeeklyCheats());
             message += " cheat points today you will go over your maximum cheat score.";
             message += "Try to eat healthily today";
 
         } else {
-            Log.d(TAG, "getCheatScoreRecommendation: Not over");
             //if we are not over, or close to going over, send no recomendation.
             return null;
         }
