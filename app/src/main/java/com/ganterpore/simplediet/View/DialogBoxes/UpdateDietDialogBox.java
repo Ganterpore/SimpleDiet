@@ -2,14 +2,13 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.R;
 import com.google.android.gms.tasks.OnFailureListener;

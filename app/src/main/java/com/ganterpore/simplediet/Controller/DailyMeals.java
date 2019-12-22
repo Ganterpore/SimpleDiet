@@ -1,6 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.Log;
 

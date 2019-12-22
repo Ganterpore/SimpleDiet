@@ -2,14 +2,13 @@ package com.ganterpore.simplediet.View.ItemViews;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
 import com.ganterpore.simplediet.R;
 
 /**
  * Represents a View object that can be in the state of either complete or incomplete.
  */
-public class CompletableItemView extends android.support.v7.widget.AppCompatTextView {
+public class CompletableItemView extends androidx.appcompat.widget.AppCompatTextView {
 
     private static final int[] STATE_COMPLETED = {R.attr.state_completed};
 
