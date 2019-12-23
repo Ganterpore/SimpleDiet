@@ -1,0 +1,85 @@
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="General Settings">
+
+        <Preference
+            app:key="update_diet"
+            app:title="Update your diet plan"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
+            app:key="update_cheat_points"
+            app:title="Update your cheat points"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="normal"
+            app:entries="@array/modes_entries"
+            app:entryValues="@array/modes_values"
+            app:key="mode"
+            app:title="Select Mode"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:key="track_diet"
+            app:title="Track Diet" />
+
+        <SwitchPreferenceCompat
+            app:key="track_water"
+            app:title="Track water intake" />
+
+        <SwitchPreferenceCompat
+            app:key="track_cheats"
+            app:title="Track cheat points" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Notifications">
+
+        <SwitchPreferenceCompat
+        app:key="morning_notifications"
+        app:title="Morning Notifications" />
+
+        <EditTextPreference
+            app:dependency="morning_notifications"
+            app:key="morning_notification_time"
+            app:title="Set morning notification time" />
+
+        <SwitchPreferenceCompat
+            app:key="evening_notifications"
+            app:title="Evening Notifications" />
+
+        <EditTextPreference
+            app:dependency="evening_notifications"
+            app:key="evening_notification_time"
+            app:title="Set evening notification time" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Premium Features">
+
+        <SwitchPreferenceCompat
+            app:key="over_under_eating"
+            app:title="Over/Under Eating functionality"
+            app:summary="Premium feature that will update today's diet plan based on yesterdays eating habits.
+                        For example if you ate too many grains yesterday, you will require less today."/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

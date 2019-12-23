@@ -1,0 +1,14 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="modes_entries">
+        <item>Normal Mode</item>
+        <item>Vegetarian Mode</item>
+        <item>Vegan Mode</item>
+    </string-array>
+
+    <string-array name="modes_values">
+        <item>normal</item>
+        <item>vegetarian</item>
+        <item>vegan</item>
+    </string-array>
+</resources>

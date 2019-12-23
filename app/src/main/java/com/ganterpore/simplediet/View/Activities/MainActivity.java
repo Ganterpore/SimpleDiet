@@ -2,6 +2,7 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -110,6 +111,10 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            case R.id.settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case R.id.update_plan:
                 UpdateDietDialogBox.updateDiet(this);
                 return true;
