@@ -6,9 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -16,11 +14,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.Activities.MainActivity;
 
-import java.util.List;
-
-import static android.content.Context.MODE_PRIVATE;
-
-public class NotificationReciever extends BroadcastReceiver implements DietController.DietControllerListener {
+public class NotificationReciever extends BroadcastReceiver {
     public static final String TAG = "NotificationReceiver";
     public static final String MORNING_NOTIFICATION_CHANNEL = "morning_notifications";
     public static final int MORNING_NOTIFICATION_ID = 1;
@@ -60,6 +54,7 @@ public class NotificationReciever extends BroadcastReceiver implements DietContr
                 .setContentTitle("Good evening!")
                 .setContentText(content)
                 .setContentIntent(pendingIntent)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(content))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
@@ -68,31 +63,7 @@ public class NotificationReciever extends BroadcastReceiver implements DietContr
     }
 
      private void createMorningNotification(Context context) {
-        //TODO fix when data collection updated
-        SharedPreferences preferences = context.getSharedPreferences(MainActivity.SHARED_PREFS_LOC, MODE_PRIVATE);
-        boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
-        DietController dietController;
-        if (overUnderEatingFunctionality) {
-            try {
-                dietController = new OverUnderEatingDietController(this);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-        } else {
-            try {
-                dietController = new BasicDietController(this);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-        }
-//
-        List<DietController.Recommendation> recommendations = dietController.getRecommendations();
-        String content = "bb";
-        if(recommendations.size() > 0) {
-            content = recommendations.get(0).getMessage();
-        }
+        String content = "Have a happy, healthy breakfast! Don't forget to add any meals you may have missed yesterday!";
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -134,10 +105,5 @@ public class NotificationReciever extends BroadcastReceiver implements DietContr
             // or other notification behaviors after this
             notificationManager.createNotificationChannel(eveningChannel);
         }
-    }
-
-    @Override
-    public void refresh() {
-
     }
 }
