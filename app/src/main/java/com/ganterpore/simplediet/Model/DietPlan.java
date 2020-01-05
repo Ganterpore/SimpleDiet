@@ -1,7 +1,6 @@
 package com.ganterpore.simplediet.Model;
 
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class DietPlan {
@@ -36,9 +35,9 @@ public class DietPlan {
      * pushes the current meal object to the database
      * @return a task for the database add
      */
-    public Task<DocumentReference> pushToDB() {
+    public Task<Void> pushToDB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        return db.collection(COLLECTION_NAME).add(this);
+        return db.collection(COLLECTION_NAME).document(user).set(this);
     }
 
     public double getDailyVeges() {

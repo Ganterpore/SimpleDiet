@@ -8,14 +8,4 @@
         android:title="Settings"
         app:showAsAction="always"/>
 
-    <item
-        android:id="@+id/update_plan"
-        android:title="Update Diet Plan"/>
-
-    <item
-        android:id="@+id/over_under_eating_functionality_toggle"
-        android:title="Over/under-eating functionality"
-        android:checkable="true"
-        />
-
 </menu>

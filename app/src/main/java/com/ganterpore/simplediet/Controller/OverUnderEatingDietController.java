@@ -1,11 +1,9 @@
 package com.ganterpore.simplediet.Controller;
 
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +11,11 @@ import java.util.List;
 public class OverUnderEatingDietController extends BasicDietController{
     private static final String TAG = "OverUnderEatingDietCo";
     private DietControllerListener listener;
-    private FirebaseFirestore db;
     private SparseArray<DietPlan> daysAgoDiets;
 
     public OverUnderEatingDietController(DietControllerListener listener) {
         super(listener);
         //initialising variables
-        this.db = FirebaseFirestore.getInstance();
         this.listener = listener;
         daysAgoDiets = new SparseArray<>();
         //adding the diet plan to be tracked (todays), then refresh diet plans so it updates.

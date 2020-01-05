@@ -3,4 +3,11 @@
     <declare-styleable name="completeable">
         <attr name="state_completed" format="boolean"/>
     </declare-styleable>
+
+    <declare-styleable name="start_hour">
+        <attr name="start_hour" format="integer"/>
+    </declare-styleable>
+    <declare-styleable name="start_minute">
+        <attr name="start_minute" format="integer"/>
+    </declare-styleable>
 </resources>

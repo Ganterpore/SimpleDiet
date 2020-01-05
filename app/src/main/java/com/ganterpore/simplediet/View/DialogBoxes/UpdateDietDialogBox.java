@@ -1,29 +1,31 @@
 package com.ganterpore.simplediet.View.DialogBoxes;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.DialogPreference;
 
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 
 public class UpdateDietDialogBox {
     /**
      * opens a dialogue box recieving information on diet plans
      * then adds the meal to the database
      */
-    public static void updateDiet(final Activity activity) {
+    public static void updateDiet(final Context context) {
         //inflate the dialog box view and get the text fields
-        LayoutInflater layoutInflater = LayoutInflater.from(activity);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
         View updateDietLayout = layoutInflater.inflate(R.layout.dialog_box_diet_plan, null);
         final EditText vegCountET= updateDietLayout.findViewById(R.id.veg_count);
 
@@ -36,7 +38,7 @@ public class UpdateDietDialogBox {
         final EditText cheatScoreET = updateDietLayout.findViewById(R.id.cheat_score);
 
         //Build the dialog box
-        AlertDialog.Builder addMealDialog = new AlertDialog.Builder(activity);
+        AlertDialog.Builder addMealDialog = new AlertDialog.Builder(context);
         addMealDialog.setTitle("Update Diet Plan");
         addMealDialog.setView(updateDietLayout);
         addMealDialog.setNegativeButton("Cancel", null);
@@ -55,20 +57,34 @@ public class UpdateDietDialogBox {
                         FirebaseAuth.getInstance().getCurrentUser().getUid()
                 );
                 plan.pushToDB()
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                    Toast.makeText(activity, "Updated Diet Plan", Toast.LENGTH_SHORT).show();
+                            public void onSuccess(Void documentReference) {
+                                    Toast.makeText(context, "Updated Diet Plan", Toast.LENGTH_SHORT).show();
                                 }
                             })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(activity, "Diet Plan Update Failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Diet Plan Update Failed", Toast.LENGTH_SHORT).show();
                             }
                         });
 
             }
         }).show();
+    }
+
+    public class UpdateDietDialogPreference extends DialogPreference {
+        Context context;
+
+        public UpdateDietDialogPreference(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            this.context = context;
+        }
+
+        @Override
+        protected void onClick() {
+            updateDiet(context);
+        }
     }
 }

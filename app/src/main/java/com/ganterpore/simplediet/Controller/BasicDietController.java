@@ -30,7 +30,7 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
     private SparseArray<DailyMeals> daysAgoMeals;
 
     public BasicDietController(DietControllerListener listener) {
-        //initialising variabls
+        //initialising variables
         this.db = FirebaseFirestore.getInstance();
         this.listener = listener;
         this.user = FirebaseAuth.getInstance().getCurrentUser().getUid();

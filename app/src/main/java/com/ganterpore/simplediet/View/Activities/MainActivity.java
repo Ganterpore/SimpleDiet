@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,9 +14,14 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ganterpore.simplediet.Controller.DailyMeals;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.ganterpore.simplediet.Controller.BasicDietController;
+import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
+import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.R;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         db.setFirestoreSettings(settings);
 
         preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        NotificationReciever.buildChannels(this);
     }
 
     @Override
@@ -72,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         Log.d(TAG, "onStart: checking user");
         if(currentUser==null) {
             //if no user, then create an anonymous account
-            Log.d(TAG, "onStart: no user");
             new AlertDialog.Builder(this)
                     .setTitle("No account detected")
                     .setMessage("Create new anonymous account?")
@@ -83,11 +85,16 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                         }
                     }).show();
         } else {
+            //if the dietController is not instantiated or is a member of the wrong class, update it.
             boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
             if (overUnderEatingFunctionality) {
-                dietController = new OverUnderEatingDietController(this);
+                if(dietController == null || !(dietController instanceof OverUnderEatingDietController)) {
+                    dietController = new OverUnderEatingDietController(this);
+                }
             } else {
-                dietController = new BasicDietController(this);
+                if(dietController == null || !(dietController instanceof BasicDietController)) {
+                    dietController = new BasicDietController(this);
+                }
             }
 
             //instantiating a day to track
@@ -102,9 +109,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-        menu.findItem(R.id.over_under_eating_functionality_toggle).setChecked(
-                preferences.getBoolean("over_under_eating", false)
-        );
         return true;
     }
 
@@ -114,24 +118,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             case R.id.settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingsIntent);
-                return true;
-            case R.id.update_plan:
-                UpdateDietDialogBox.updateDiet(this);
-                return true;
-            case R.id.over_under_eating_functionality_toggle:
-                //if toggled, get the current value
-                boolean currentValue = preferences.getBoolean("over_under_eating", false);
-                //then set the value to the opposite and set the checkbox to the opposite
-                preferences.edit().putBoolean("over_under_eating", !currentValue).apply();
-                item.setChecked(!currentValue);
-                //if over/under eating functionality set, adjust to the correct controller
-                if(currentValue) {
-                    dietController = new BasicDietController(this);
-                } else {
-                    dietController = new OverUnderEatingDietController(this);
-                }
-                //update all the data
-                refresh();
                 return true;
         }
         return false;

@@ -18,8 +18,9 @@
 
     <PreferenceCategory app:title="General Settings">
 
-        <Preference
+        <com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogPreference
             app:key="update_diet"
+            app:dialogLayout="@layout/dialog_box_diet_plan"
             app:title="Update your diet plan"
             app:useSimpleSummaryProvider="true" />
 
@@ -56,19 +57,22 @@
         app:key="morning_notifications"
         app:title="Morning Notifications" />
 
-        <EditTextPreference
+        <com.ganterpore.simplediet.View.ItemViews.TimePreference
             app:dependency="morning_notifications"
             app:key="morning_notification_time"
-            app:title="Set morning notification time" />
+            app:title="Set morning notification time"
+            app:start_hour="8"
+            app:start_minute="30"/>
 
         <SwitchPreferenceCompat
             app:key="evening_notifications"
             app:title="Evening Notifications" />
 
-        <EditTextPreference
+        <com.ganterpore.simplediet.View.ItemViews.TimePreference
             app:dependency="evening_notifications"
             app:key="evening_notification_time"
-            app:title="Set evening notification time" />
+            app:title="Set evening notification time"
+            app:start_hour="20"/>
 
     </PreferenceCategory>
 
