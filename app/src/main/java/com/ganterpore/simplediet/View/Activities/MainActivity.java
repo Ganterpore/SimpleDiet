@@ -43,11 +43,9 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     private static final String TAG = "MainActivity";
     public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
 
     private DietController dietController;
 
-    private DailyMeals today;
     private MealHistoryDisplay mealView;
 
     private SharedPreferences preferences;
@@ -57,11 +55,10 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
-        db.setFirestoreSettings(settings);
+        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
 
         preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         NotificationReciever.buildChannels(this);
@@ -90,18 +87,16 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             if (overUnderEatingFunctionality) {
                 if(dietController == null || !(dietController instanceof OverUnderEatingDietController)) {
                     dietController = new OverUnderEatingDietController(this);
+                    mealView = new MealHistoryDisplay(this, dietController);
+                    refresh();
                 }
             } else {
-                if(dietController == null || !(dietController instanceof BasicDietController)) {
+                if(dietController == null || (dietController instanceof OverUnderEatingDietController)) {
                     dietController = new BasicDietController(this);
+                    mealView = new MealHistoryDisplay(this, dietController);
+                    refresh();
                 }
             }
-
-            //instantiating a day to track
-            today = dietController.getTodaysMeals();
-
-            //Creating the history view
-            mealView = new MealHistoryDisplay(this, dietController);
         }
     }
 
@@ -190,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
      */
     public void refresh() {
         DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
+        DailyMeals today = dietController.getTodaysMeals();
 
         //get the text views from the main activity
         TextView vegTV = findViewById(R.id.veg_count);
@@ -229,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         excessTV.setText(df.format(today.getExcessServes()) + "");
         cheatTV.setText(df.format(today.getWeeklyCheats()) + "/" + df.format(todaysDietPlan.getWeeklyCheats()));
 
-        mealView.setDietController(dietController);
         mealView.refreshRecommendations();
     }
+
 }

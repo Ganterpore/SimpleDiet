@@ -15,7 +15,7 @@
         <activity
             android:name=".View.Activities.SettingsActivity"
             android:label="@string/title_activity_settings"></activity>
-        <activity android:name=".View.Activities.MainActivity">
+        <activity android:name=".View.Activities.MainActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

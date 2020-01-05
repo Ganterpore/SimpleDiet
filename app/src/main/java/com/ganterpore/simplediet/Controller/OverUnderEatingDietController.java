@@ -10,17 +10,12 @@ import java.util.List;
 
 public class OverUnderEatingDietController extends BasicDietController{
     private static final String TAG = "OverUnderEatingDietCo";
-    private DietControllerListener listener;
     private SparseArray<DietPlan> daysAgoDiets;
 
     public OverUnderEatingDietController(DietControllerListener listener) {
         super(listener);
         //initialising variables
-        this.listener = listener;
         daysAgoDiets = new SparseArray<>();
-        //adding the diet plan to be tracked (todays), then refresh diet plans so it updates.
-        daysAgoDiets.append(0, new DietPlan());
-        refreshDietPlans();
     }
 
     @Override
@@ -212,14 +207,11 @@ public class OverUnderEatingDietController extends BasicDietController{
         }
         return null;
     }
-    @Override
-    public void updateListener() {
-        listener.refresh();
-    }
 
     @Override
-    public void updateDailyMeals(DailyMeals day) {
+    public void updateListener() {
+        //before informing the listener, make sure own data is accurate
         refreshDietPlans();
-        updateListener();
+        super.updateListener();
     }
 }

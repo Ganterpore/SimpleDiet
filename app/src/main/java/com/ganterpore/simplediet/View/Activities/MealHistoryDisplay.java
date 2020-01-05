@@ -77,8 +77,7 @@ public class MealHistoryDisplay  {
     /**
      * adapter for the day history list.
      */
-    public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder>
-            implements DailyMeals.DailyMealsInterface{
+    public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder> {
 
         public final static int RECOMMENDATION_VIEW = 1;
         public final static int MEAL_HISTORY_VIEW = 2;
@@ -122,11 +121,6 @@ public class MealHistoryDisplay  {
         @Override
         public int getItemCount() {
             return recommendations.size() + nDays;
-        }
-
-        @Override
-        public void updateDailyMeals(DailyMeals day) {
-            this.notifyDataSetChanged();
         }
     }
 

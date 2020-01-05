@@ -1,61 +1,93 @@
 package com.ganterpore.simplediet.Controller;
 
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
+import com.ganterpore.simplediet.Model.Meal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
-public class BasicDietController implements DietController, DailyMeals.DailyMealsInterface {
+public class BasicDietController implements DietController {
 
     private static final String TAG = "BasicDietController";
+    private List<DocumentSnapshot> data;
     private DietControllerListener listener;
     private String user;
-    private DailyMeals todaysMeals;
     private DietPlan overallDiet;
     private FirebaseFirestore db;
     private SparseArray<DailyMeals> daysAgoMeals;
+    private SparseBooleanArray mealNeedsUpdate;
 
     public BasicDietController(DietControllerListener listener) {
         //initialising variables
         this.db = FirebaseFirestore.getInstance();
         this.listener = listener;
         this.user = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        todaysMeals = new DailyMeals(this, user);
-        overallDiet = new DietPlan(0,0,0,0,0,0,0,"");
-        getCurrentDietPlanFromDB();
         daysAgoMeals = new SparseArray<>();
-        daysAgoMeals.append(0, todaysMeals);
+        mealNeedsUpdate = new SparseBooleanArray();
+        this.data = new ArrayList<>();
+
+        //updating data
+        getCurrentDietPlanFromDB();
+        getCurrentMealDataFromDB();
+    }
+
+    private void getCurrentMealDataFromDB() {
+        Query dataQuery = db.collection(DailyMeals.MEALS).whereEqualTo("user", user);
+        //check to update the data when it changes
+        dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if(queryDocumentSnapshots != null) {
+                    //update data to the new changes
+                    data = queryDocumentSnapshots.getDocuments();
+
+                    //check which data has changed, and set them to be updated when next accessed
+                    List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();
+                    for(DocumentChange documentChange : changedData) {
+                        //getting how many days ago
+                        QueryDocumentSnapshot document = documentChange.getDocument();
+                        long changedDay = document.toObject(Meal.class).getDay();
+                        Date changedDayStart = getStartOfDay(new Date(changedDay));
+                        long msDiff = System.currentTimeMillis() - changedDayStart.getTime();
+                        int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
+                        //setting that day to needing an update
+                        mealNeedsUpdate.put(daysAgo, true);
+                    }
+                }
+                //now that the data is updated, make sure it flows through to the listener
+                updateListener();
+            }
+        });
     }
 
     /**
      * Updates the diet plan to the current one on the db for the user.
      */
     private void getCurrentDietPlanFromDB() {
+        overallDiet = new DietPlan();
         //document reference to the diet plan
         DocumentReference dietPlanQuery = db.collection(DietPlan.COLLECTION_NAME).document(user);
-        //getting the data and updating
-        dietPlanQuery.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        overallDiet = documentSnapshot.toObject(DietPlan.class);
-                        updateListener();
-                    }
-                });
         //making sure any changes to the data are tracked
         dietPlanQuery.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -77,9 +109,12 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
     @Override
     public DailyMeals getDaysMeals(int nDaysAgo) {
         DailyMeals daysMeal = daysAgoMeals.get(nDaysAgo);
-        if(daysMeal == null) {
-            daysMeal = new DailyMeals(this, user, nDaysAgo);
-            daysAgoMeals.append(nDaysAgo, daysMeal);
+        //updating if null or data has changed
+        if(daysMeal == null || mealNeedsUpdate.get(nDaysAgo, false)) {
+            daysMeal = new DailyMeals(nDaysAgo, data);
+            daysAgoMeals.put(nDaysAgo, daysMeal);
+            //now that it has been updated, it doesn't need one.
+            mealNeedsUpdate.put(nDaysAgo, false);
         }
         return daysMeal;
     }
@@ -90,12 +125,12 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
     }
     @Override
     public DietPlan getDaysDietPlan(int nDaysAgo) {
-        return getOverallDietPlan(); //For the BasicDietController, both todays and the overall diet plan are the same
+        return getOverallDietPlan(); //For the BasicDietController, all days diet plans and the overall diet plan are the same
     }
 
     @Override
     public DietPlan getOverallDietPlan() {
-        return overallDiet; //For the BasicDietController, both todays and the overall diet plan are the same
+        return overallDiet;
     }
 
     @Override
@@ -347,8 +382,18 @@ public class BasicDietController implements DietController, DailyMeals.DailyMeal
         listener.refresh();
     }
 
-    @Override
-    public void updateDailyMeals(DailyMeals day) {
-        updateListener();
+    /**
+     * get a date representing the start time of a given day
+     * @param date, the date with which you want the start time of the day from
+     * @return the date at the start of the given day
+     */
+    private Date getStartOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DATE);
+        calendar.set(year, month, day, 0, 0, 0);
+        return calendar.getTime();
     }
 }

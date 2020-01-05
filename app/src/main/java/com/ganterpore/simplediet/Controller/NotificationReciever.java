@@ -73,9 +73,19 @@ public class NotificationReciever extends BroadcastReceiver implements DietContr
         boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
         DietController dietController;
         if (overUnderEatingFunctionality) {
-            dietController = new OverUnderEatingDietController(this);
+            try {
+                dietController = new OverUnderEatingDietController(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
         } else {
-            dietController = new BasicDietController(this);
+            try {
+                dietController = new BasicDietController(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
         }
 //
         List<DietController.Recommendation> recommendations = dietController.getRecommendations();
@@ -128,27 +138,6 @@ public class NotificationReciever extends BroadcastReceiver implements DietContr
 
     @Override
     public void refresh() {
-        //TODO something different
-        SharedPreferences preferences = context.getSharedPreferences(MainActivity.SHARED_PREFS_LOC, MODE_PRIVATE);
-        boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
-        DietController dietController;
-        if (overUnderEatingFunctionality) {
-            dietController = new OverUnderEatingDietController(this);
-        } else {
-            dietController = new BasicDietController(this);
-        }
-        String content = dietController.getRecommendations().get(0).getMessage();
-
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MORNING_NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Good morning!")
-                .setContentText(content)
-                .setContentIntent(pendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
     }
 }

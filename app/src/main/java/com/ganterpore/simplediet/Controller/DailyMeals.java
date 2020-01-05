@@ -1,33 +1,18 @@
 package com.ganterpore.simplediet.Controller;
 
-import androidx.annotation.NonNull;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import com.ganterpore.simplediet.Model.Meal;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 public class DailyMeals {
     private static final String TAG = "DailyMeals";
     public static final String MEALS = "Meals";
-    private FirebaseFirestore db;
-    private List<DailyMealsInterface> listeners;
 
     private List<Meal> todaysMeals;
     private List<Meal> thisWeeksMeals;
@@ -48,82 +33,47 @@ public class DailyMeals {
     /**
      * Constructor for getting todays meals
      */
-    DailyMeals(DailyMealsInterface listener, String user) {
+    DailyMeals(List<DocumentSnapshot> data) {
         //todays meals, aka zero days ago
-        this(listener, user, 0);
+        this(0, data);
     }
 
     /**
      * Constructor for getting meals from previous days
      * @param daysAgo, the number of days ago to get meals from
      */
-    DailyMeals(DailyMealsInterface listener, String user, int daysAgo) {
-        this(listener, user, new Date(System.currentTimeMillis() - (daysAgo * DateUtils.DAY_IN_MILLIS)));
+    DailyMeals(int daysAgo, List<DocumentSnapshot> data) {
+        this(new Date(System.currentTimeMillis() - (daysAgo * DateUtils.DAY_IN_MILLIS)), data);
     }
 
     /**
      * Get the daily update from meals on the given date
      * @param day, date to look at meals from
      */
-    DailyMeals(DailyMealsInterface listener, String user, Date day) {
-        listeners = new ArrayList<>();
-        addListener(listener);
-
+    DailyMeals(Date day, List<DocumentSnapshot> data) {
         //update date to start of the day, and get other important dates
         day = getStartOfDay(day);
         final Date nextDay = new Date(day.getTime() + DateUtils.DAY_IN_MILLIS);
-        final Date endOfNextDay = new Date(day.getTime() + 2*DateUtils.DAY_IN_MILLIS);
-        final Date yesterDay = new Date(day.getTime() - DateUtils.DAY_IN_MILLIS);
-        final Date dayBeforeYest = new Date(day.getTime() - 2*DateUtils.DAY_IN_MILLIS);
         final Date weekAgo = new Date(day.getTime() - 7*DateUtils.DAY_IN_MILLIS);
 
         this.date = day;
 
-        db = FirebaseFirestore.getInstance();
-        CollectionReference mealsCollection = db.collection(MEALS);
-        Query allMeals = mealsCollection.whereGreaterThan("day", weekAgo.getTime())
-                            .whereLessThan("day", endOfNextDay.getTime())
-                            .whereEqualTo("user", FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-        //add a snapshot listener to update the meals when the databse updates
-        final Date finalDay = day;
-        allMeals.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(e != null) {
-                    Log.e(TAG, "onEvent: exception " + e.getLocalizedMessage());
-                } else {
-                    List<DocumentSnapshot> meals = queryDocumentSnapshots.getDocuments();
-                    sortMeals(meals, finalDay, nextDay, weekAgo);
-                    updateData();
-                    updateListeners();
-                }
-            }
-        });
-
-        //get the query, and update when data recieved
-        allMeals.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()) {
-                    List<DocumentSnapshot> meals = task.getResult().getDocuments();
-                    sortMeals(meals, finalDay, nextDay, weekAgo);
-                    updateData();
-                    updateListeners();
-                }
-            }
-        });
+        sortMeals(data, day, nextDay, weekAgo);
+        updateData();
     }
 
     /**
      * Takes a list of meals, and a list of days, and sorts the meals into the different days
      */
-    private void sortMeals(List<DocumentSnapshot> meals, Date finalDay, Date nextDay, Date weekAgo) {
+    private void sortMeals(List<DocumentSnapshot> meals, Date today, Date nextDay, Date weekAgo) {
         todaysMeals = new ArrayList<>();
         thisWeeksMeals = new ArrayList<>();
+        if(meals.isEmpty()) {
+            return;
+        }
         for(DocumentSnapshot mealDS : meals) {
             Meal meal = new Meal(mealDS);
-            if(meal.getDay() >= finalDay.getTime() && meal.getDay() < nextDay.getTime()) {
+            if(meal.getDay() >= today.getTime() && meal.getDay() < nextDay.getTime()) {
                 todaysMeals.add(meal);
             }
             if(meal.getDay() >= weekAgo.getTime() && meal.getDay() < nextDay.getTime()) {
@@ -159,16 +109,8 @@ public class DailyMeals {
         }
         //iterate through all the weeks meals and get the cheat data
         weeklyCheats = 0;
-        int i =0;
         for(Meal meal : thisWeeksMeals) {
-            i++;
             weeklyCheats += meal.calculateTotalCheats();
-        }
-    }
-
-    public void addListener(DailyMealsInterface listener) {
-        if(listener != null) {
-            listeners.add(listener);
         }
     }
 
@@ -235,24 +177,4 @@ public class DailyMeals {
     public double getWeeklyCheats() {
         return weeklyCheats;
     }
-
-    /**
-     * update all listeners to te daily meals of a change
-     */
-    private void updateListeners() {
-        for(DailyMealsInterface listener : listeners) {
-            listener.updateDailyMeals(this);
-        }
-    }
-
-    public interface DailyMealsInterface {
-        /**
-         * This method is called whenever the day object is updated
-         * @param day, the day object that was updated
-         */
-        void updateDailyMeals(DailyMeals day);
-    }
-
-
-
 }
