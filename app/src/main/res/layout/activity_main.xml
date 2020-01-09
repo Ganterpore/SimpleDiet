@@ -1,18 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".View.Activities.MainActivity">
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/header_information"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/veg_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vegetables Count"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/veg_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/protein_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Meats Count"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/protein_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/dairy_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dairy Count"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/dairy_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/grain_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grain Count"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/grain_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/fruit_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fruits Count"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/fruit_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/water_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Water Count"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/water_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/excess_serves_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Excess Serves"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/excess_serves_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/cheat_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weekly cheats Count"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/cheat_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/day_history_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/header_information"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="64dp"
+        android:clickable="true"
+        android:onClick="addFood"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_add" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
