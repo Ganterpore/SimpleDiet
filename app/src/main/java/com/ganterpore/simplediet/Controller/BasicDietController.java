@@ -71,8 +71,10 @@ public class BasicDietController implements DietController {
                         Date changedDayStart = getStartOfDay(new Date(changedDay));
                         long msDiff = System.currentTimeMillis() - changedDayStart.getTime();
                         int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
-                        //setting that day to needing an update
-                        mealNeedsUpdate.put(daysAgo, true);
+                        //setting that day and next 7 (for cheats) to needing an update
+                        for(int i=0;i<8;i++) {
+                            mealNeedsUpdate.put(daysAgo+i, true);
+                        }
                     }
                 }
                 //now that the data is updated, make sure it flows through to the listener
