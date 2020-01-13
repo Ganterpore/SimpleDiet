@@ -1,5 +1,6 @@
 package com.ganterpore.simplediet.View.Activities;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -197,8 +200,17 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView excessTV = findViewById(R.id.excess_serves_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
 
+        //get the progress bars from the main activity
+        ProgressBar vegPB = findViewById(R.id.progress_vege);
+        ProgressBar meatPB = findViewById(R.id.progress_meat);
+        ProgressBar dairyPB = findViewById(R.id.progress_dairy);
+        ProgressBar grainPB = findViewById(R.id.progress_grain);
+        ProgressBar fruitPB = findViewById(R.id.progress_fruit);
+        ProgressBar waterPB = findViewById(R.id.progress_water);
+
         //creating arrays of the text views to update
         TextView[] textViews = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
+        ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
                             today.getGrainCount(), today.getFruitCount(), today.getWaterCount()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
@@ -208,7 +220,9 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
         //updating text for all the main food groups
         for(int i=0;i<textViews.length;i++) {
+            final int SCALE_FACTOR = 100;
             TextView textView = textViews[i];
+            ProgressBar progressBar = progressBars[i];
             double count = counts[i];
             double plan = plans[i];
             double servesLeft = plan - count;
@@ -219,6 +233,13 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             } else {
                 textView.setText(df.format(count) + "/" + df.format(plan) + " - " + df.format(servesLeft) + " serves to go");
                 textView.setTextColor(Color.BLACK);
+            }
+            if(progressBar != null) {
+                progressBar.setMax((int) (plan*SCALE_FACTOR));
+                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(progressBar, "progress", (int) count*SCALE_FACTOR);
+                objectAnimator.setDuration(500);
+                objectAnimator.setInterpolator(new DecelerateInterpolator());
+                objectAnimator.start();
             }
         }
         //updating text on other texts
