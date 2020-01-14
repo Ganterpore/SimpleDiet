@@ -20,6 +20,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
@@ -33,6 +35,7 @@ import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -63,8 +66,26 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 .build();
         FirebaseFirestore.getInstance().setFirestoreSettings(settings);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+
+
         preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         NotificationReciever.buildChannels(this);
+
+        final ConstraintLayout progressCircle = findViewById(R.id.progress_sphere);
+        AppBarLayout appBarLayout = findViewById(R.id.appBar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                int scrollRange = appBarLayout.getTotalScrollRange();
+                float offsetFactor = (float) (-verticalOffset) / (float) scrollRange;
+                float scaleFactor = 1F - offsetFactor * .5F ;
+                progressCircle.setScaleX(scaleFactor);
+                progressCircle.setScaleY(scaleFactor);
+            }
+        });
     }
 
     @Override
@@ -197,8 +218,14 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView grainTV = findViewById(R.id.grain_count);
         TextView fruitTV = findViewById(R.id.fruit_count);
         TextView waterTV = findViewById(R.id.water_count);
-        TextView excessTV = findViewById(R.id.excess_serves_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
+
+        TextView vegeLeftTV = findViewById(R.id.veg_left);
+        TextView proteinLeftTV = findViewById(R.id.protein_left);
+        TextView dairyLeftTV = findViewById(R.id.dairy_left);
+        TextView grainLeftTV = findViewById(R.id.grain_left);
+        TextView fruitLeftTV = findViewById(R.id.fruit_left);
+        TextView waterLeftTV = findViewById(R.id.water_left);
 
         //get the progress bars from the main activity
         ProgressBar vegPB = findViewById(R.id.progress_vege);
@@ -209,7 +236,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         ProgressBar waterPB = findViewById(R.id.progress_water);
 
         //creating arrays of the text views to update
-        TextView[] textViews = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
+        TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
+        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, waterLeftTV};
         ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
                             today.getGrainCount(), today.getFruitCount(), today.getWaterCount()};
@@ -219,20 +247,25 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         NumberFormat df = new DecimalFormat("##.##");
 
         //updating text for all the main food groups
-        for(int i=0;i<textViews.length;i++) {
+        for(int i=0;i<textViewsCount.length;i++) {
             final int SCALE_FACTOR = 100;
-            TextView textView = textViews[i];
+            TextView countTV = textViewsCount[i];
+            TextView leftTV = textViewsLeft[i];
             ProgressBar progressBar = progressBars[i];
             double count = counts[i];
             double plan = plans[i];
             double servesLeft = plan - count;
 
             if(servesLeft <= 0.2) {
-                textView.setText(df.format(count) + "/" + df.format(plan) + " - Completed!");
-                textView.setTextColor(Color.GREEN);
+                countTV.setText(df.format(count) + "/" + df.format(plan));
+                leftTV.setText("Done!");
+                countTV.setTextColor(Color.GREEN);
+                leftTV.setTextColor(Color.GREEN);
             } else {
-                textView.setText(df.format(count) + "/" + df.format(plan) + " - " + df.format(servesLeft) + " serves to go");
-                textView.setTextColor(Color.BLACK);
+                countTV.setText(df.format(count) + "/" + df.format(plan));
+                leftTV.setText(df.format(servesLeft) + " left");
+                countTV.setTextColor(Color.BLACK);
+                leftTV.setTextColor(Color.BLACK);
             }
             if(progressBar != null) {
                 progressBar.setMax((int) (plan*SCALE_FACTOR));
@@ -243,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             }
         }
         //updating text on other texts
-        excessTV.setText(df.format(today.getExcessServes()) + "");
         cheatTV.setText(df.format(today.getWeeklyCheats()) + "/" + df.format(todaysDietPlan.getWeeklyCheats()));
 
         mealView.refreshRecommendations();
