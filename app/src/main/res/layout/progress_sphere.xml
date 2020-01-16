@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="200dp"
     android:layout_height="200dp"
-    app:layout_constraintDimensionRatio="w,1:1"
+    app:layout_constraintDimensionRatio="1:1"
     android:layout_gravity="bottom"
     app:layout_constraintBottom_toBottomOf="parent">
 
@@ -78,6 +78,14 @@
         app:layout_constraintGuide_percent=".833"
         android:orientation="horizontal"/>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleX="0.91"
+        android:scaleY="0.91"
+        android:src="@drawable/progress_circle_background"
+        android:layout_marginBottom="3dp"/>
+
     <ProgressBar
         android:id="@+id/progress_water"
         app:layout_constraintTop_toTopOf="parent"
@@ -99,6 +107,8 @@
         android:indeterminate="false"
         android:progress="100"
         android:progressDrawable="@drawable/progress_bar_vege"
+        android:scaleX="0.95"
+        android:scaleY="0.95"
 
         app:layout_constraintTop_toTopOf="@id/top_guideline"
         app:layout_constraintBottom_toBottomOf="@+id/centre_vertical_guideline"

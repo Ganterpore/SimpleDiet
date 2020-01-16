@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         NotificationReciever.buildChannels(this);
 
         final ConstraintLayout progressCircle = findViewById(R.id.progress_sphere);
+        final ConstraintLayout progressCheats = findViewById(R.id.cheats_progress);
         AppBarLayout appBarLayout = findViewById(R.id.appBar);
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
             @Override
@@ -87,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 float scaleFactor = 1F - offsetFactor * .5F ;
                 progressCircle.setScaleX(scaleFactor);
                 progressCircle.setScaleY(scaleFactor);
+                progressCheats.setScaleX(scaleFactor);
+                progressCheats.setScaleY(scaleFactor);
+
             }
         });
     }
@@ -211,6 +215,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
      * updates the values of all the views on the screen to up to date values
      */
     public void refresh() {
+        final int SCALE_FACTOR = 100;
+
         DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
         DailyMeals today = dietController.getTodaysMeals();
 
@@ -229,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView grainLeftTV = findViewById(R.id.grain_left);
         TextView fruitLeftTV = findViewById(R.id.fruit_left);
         TextView waterLeftTV = findViewById(R.id.water_left);
+        TextView cheatsTodayTV = findViewById(R.id.cheats_today);
 
         //get the progress bars from the main activity
         ProgressBar vegPB = findViewById(R.id.progress_vege);
@@ -237,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         ProgressBar grainPB = findViewById(R.id.progress_grain);
         ProgressBar fruitPB = findViewById(R.id.progress_fruit);
         ProgressBar waterPB = findViewById(R.id.progress_water);
+        ProgressBar cheatsPB = findViewById(R.id.progress_cheats);
 
         //creating arrays of the text views to update
         TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
@@ -251,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
         //updating text for all the main food groups
         for(int i=0;i<textViewsCount.length;i++) {
-            final int SCALE_FACTOR = 100;
             TextView countTV = textViewsCount[i];
             TextView leftTV = textViewsLeft[i];
             ProgressBar progressBar = progressBars[i];
@@ -280,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 //                countTV.setAlpha((float) 0.6);
 //                leftTV.setAlpha((float) 0.6);
             }
+            //animating the updating of the progress bar
             if(progressBar != null) {
                 progressBar.setMax((int) (plan*SCALE_FACTOR));
                 ObjectAnimator objectAnimator = ObjectAnimator.ofInt(progressBar, "progress", (int) count*SCALE_FACTOR);
@@ -290,6 +298,14 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         }
         //updating text on other texts
         cheatTV.setText(df.format(today.getWeeklyCheats()) + "/" + df.format(todaysDietPlan.getWeeklyCheats()));
+        cheatsTodayTV.setText(df.format(today.getTotalCheats()) + " today!");
+        //animating any updates to the cheat progress bar
+        cheatsPB.setMax((int) (todaysDietPlan.getWeeklyCheats() * SCALE_FACTOR));
+        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(cheatsPB, "progress",
+                (int) today.getWeeklyCheats()*SCALE_FACTOR);
+        objectAnimator.setDuration(500);
+        objectAnimator.setInterpolator(new DecelerateInterpolator());
+        objectAnimator.start();
 
         mealView.refreshRecommendations();
     }
