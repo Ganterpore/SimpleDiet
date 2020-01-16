@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 .build();
         FirebaseFirestore.getInstance().setFirestoreSettings(settings);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                //making sure progress circle shrinks when scrolled upwards
                 int scrollRange = appBarLayout.getTotalScrollRange();
                 float offsetFactor = (float) (-verticalOffset) / (float) scrollRange;
                 float scaleFactor = 1F - offsetFactor * .5F ;
@@ -259,13 +262,23 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             if(servesLeft <= 0.2) {
                 countTV.setText(df.format(count) + "/" + df.format(plan));
                 leftTV.setText("Done!");
-                countTV.setTextColor(Color.GREEN);
-                leftTV.setTextColor(Color.GREEN);
+//                countTV.setTextColor(Color.GREEN);
+//                leftTV.setTextColor(Color.GREEN);
+//                countTV.setAlpha((float) 1);
+//                leftTV.setAlpha((float) 1);
             } else {
                 countTV.setText(df.format(count) + "/" + df.format(plan));
                 leftTV.setText(df.format(servesLeft) + " left");
-                countTV.setTextColor(Color.BLACK);
-                leftTV.setTextColor(Color.BLACK);
+
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    countTV.setTextColor(getResources().getColor(R.color.text, getTheme()));
+//                    leftTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));
+//                } else {
+//                    countTV.setTextColor(getResources().getColor(R.color.textColor));
+//                    leftTV.setTextColor(getResources().getColor(R.color.textColor));
+//                }
+//                countTV.setAlpha((float) 0.6);
+//                leftTV.setAlpha((float) 0.6);
             }
             if(progressBar != null) {
                 progressBar.setMax((int) (plan*SCALE_FACTOR));
