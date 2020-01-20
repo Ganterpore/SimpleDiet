@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,94 +9,149 @@
     android:layout_marginTop="8dp"
     android:layout_marginEnd="8dp"
     android:layout_marginBottom="8dp"
-    android:id="@+id/list_item_day_history">
+    android:id="@+id/list_item_day_history"
+    android:animateLayoutChanges="true">
 
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="dd-MMM-yyyy"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/completion_symbols"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/date">
+        android:animateLayoutChanges="true">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="2" >
-        </Space>
-
-        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
-            android:id="@+id/completed_water"
+        <TextView
+            android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/symbol_water_completion_selctor"/>
+            android:layout_marginTop="8dp"
+            android:text="dd-MMM-yyyy"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </Space>
+        <LinearLayout
+            android:id="@+id/completion_symbols"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/date"
+            app:layout_constraintBottom_toTopOf="@+id/expanded_layout"
+            android:animateLayoutChanges="true">
 
-        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
-            android:id="@+id/completed_food"
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="2"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
+                    android:id="@+id/completed_water"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/symbol_water_completion_selctor" />
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/symbol_food_completion_selector"/>
+            android:orientation="vertical">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </Space>
+            <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
+                android:id="@+id/completed_food"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/symbol_food_completion_selector" />
 
-        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
-            android:id="@+id/didnt_cheat"
-            android:layout_width="wrap_content"
+        </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    android:id="@+id/cheats_progress"
+                    layout="@layout/progress_cheats"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp" />
+
+                <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
+                    android:layout_gravity="center"
+                    android:id="@+id/didnt_cheat"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/symbol_check_selector"/>
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <ImageView
+                android:id="@+id/dropdown_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@android:drawable/arrow_down_float" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/expanded_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/symbol_cheat_selector"/>
+            app:layout_constraintTop_toBottomOf="@id/completion_symbols"
+            android:visibility="gone">
+
+            <include
+                layout="@layout/container_food_groups_counts_mini"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/meals_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/header_information"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </Space>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/expanded_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp"/>
 
-        <ImageView
-            android:id="@+id/dropdown_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@android:drawable/arrow_down_float"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" >
-        </Space>
-
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/meals_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/completion_symbols"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:visibility="gone"
-        android:nestedScrollingEnabled="false"/>
+</androidx.cardview.widget.CardView>
 
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>

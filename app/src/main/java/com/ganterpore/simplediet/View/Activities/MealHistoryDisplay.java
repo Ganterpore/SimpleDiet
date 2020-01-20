@@ -4,26 +4,41 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Fade;
+import androidx.transition.Slide;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
+
+import android.util.SparseBooleanArray;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
+import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MealHistoryDisplay  {
     public static final String EXPIRY_TAG = "_expiry";
@@ -84,10 +99,12 @@ public class MealHistoryDisplay  {
 
         int nDays;
         Activity activity;
+        public SparseBooleanArray nDaysAgoVisible;
 
         public DayHistoryAdapter(Activity activity, int nDays) {
             this.activity = activity;
             this.nDays = nDays;
+            this.nDaysAgoVisible = new SparseBooleanArray();
         }
 
         @NonNull
@@ -100,7 +117,7 @@ public class MealHistoryDisplay  {
             } else {
                 view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_history, viewGroup, false);
             }
-            return new DayHistoryViewHolder(activity, view, viewType);
+            return new DayHistoryViewHolder(activity, view, viewType, this);
         }
 
         @Override
@@ -132,16 +149,20 @@ public class MealHistoryDisplay  {
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         Activity activity;
         int viewType;
+        DayHistoryAdapter adapter;
+        int position;
 
         public DayHistoryViewHolder(Activity activity, @NonNull View itemView,
-                                    int viewType) {
+                                    int viewType, DayHistoryAdapter adapter) {
             super(itemView);
             this.itemView = itemView;
             this.activity = activity;
             this.viewType = viewType;
+            this.adapter = adapter;
         }
 
         public void build(int position) {
+            this.position = position;
             int daysAgo = position - recommendations.size();
             if(daysAgo<0) {
                 buildRecommendation(position);
@@ -196,37 +217,76 @@ public class MealHistoryDisplay  {
             return calendar.getTime();
         }
 
-        private void buildMeal(int nDaysAgo) {
+        private void buildMeal(final int nDaysAgo) {
+            final int SCALE_FACTOR = 100;
+
             DailyMeals day = dietController.getDaysMeals(nDaysAgo);
+            DietPlan daysPlan = dietController.getDaysDietPlan(nDaysAgo);
             //getting and updating values for the views
             TextView dateTV = itemView.findViewById(R.id.date);
             CompletableItemView completedFoodTV = itemView.findViewById(R.id.completed_food);
             CompletableItemView completedWaterTV = itemView.findViewById(R.id.completed_water);
             CompletableItemView didntCheatTV = itemView.findViewById(R.id.didnt_cheat);
+            ProgressBar cheatsProgress = itemView.findViewById(R.id.progress_cheats);
 
             dateTV.setText(dateFormat.format(day.getDate()));
             completedFoodTV.setCompleted(dietController.isFoodCompleted(nDaysAgo));
             completedWaterTV.setCompleted(dietController.isWaterCompleted(nDaysAgo));
-            didntCheatTV.setCompleted(dietController.isOverCheatScore(nDaysAgo));
+            didntCheatTV.setCompleted(!dietController.isOverCheatScore(nDaysAgo));
+            cheatsProgress.setMax((int) daysPlan.getWeeklyCheats() * SCALE_FACTOR);
+            cheatsProgress.setProgress((int) day.getWeeklyCheats() * SCALE_FACTOR);
 
             //creating a list of the meals eaten that day
-            final RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
+            RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
             mealsList.setAdapter(new MealsAdapter(activity, day.getMeals()));
 
-            //creating functionality for the button that shows meals eaten that day
+            final ConstraintLayout expandableView = itemView.findViewById(R.id.expanded_layout);
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
+
+            //making sure view is shown as it should be
+            if(adapter.nDaysAgoVisible.get(nDaysAgo, false)) {
+                expandableView.setVisibility(View.VISIBLE);
+                dropdownButton.setRotation(180);
+            } else {
+                expandableView.setVisibility(View.GONE);
+                dropdownButton.setRotation(0);
+            }
+
+            //creating functionality for the button that shows meals eaten that day
             dropdownButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(mealsList.getVisibility() == View.GONE) {
-                        mealsList.setVisibility(View.VISIBLE);
-                        dropdownButton.setImageDrawable(activity.getResources().getDrawable(android.R.drawable.arrow_up_float));
+                    if(expandableView.getVisibility() == View.GONE) {
+                        expandableView.setVisibility(View.VISIBLE);
+                        dropdownButton.animate().setDuration(200).rotation(180);
+                        adapter.nDaysAgoVisible.append(nDaysAgo, true);
+                        adapter.notifyItemChanged(position);
                     } else {
-                        mealsList.setVisibility(View.GONE);
-                        dropdownButton.setImageDrawable(activity.getResources().getDrawable(android.R.drawable.arrow_down_float));
+                        expandableView.setVisibility(View.GONE);
+                        dropdownButton.animate().setDuration(200).rotation(0);
+                        adapter.nDaysAgoVisible.append(nDaysAgo, false);
+                        adapter.notifyItemChanged(position);
                     }
                 }
             });
+
+            //updating text views
+            NumberFormat df = new DecimalFormat("##.##");
+            TextView vegCount = itemView.findViewById(R.id.veg_count);
+            TextView proteinCount = itemView.findViewById(R.id.protein_count);
+            TextView dairyCount = itemView.findViewById(R.id.dairy_count);
+            TextView grainCount = itemView.findViewById(R.id.grain_count);
+            TextView fruitCount = itemView.findViewById(R.id.fruit_count);
+            TextView waterCount = itemView.findViewById(R.id.water_count);
+            TextView cheatCount = itemView.findViewById(R.id.cheat_count);
+
+            vegCount.setText((df.format(day.getVegCount()) + "/" + df.format(daysPlan.getDailyVeges())));
+            proteinCount.setText((df.format(day.getProteinCount()) + "/" + df.format(daysPlan.getDailyProtein())));
+            dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
+            grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
+            fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
+            waterCount.setText((df.format(day.getWaterCount()) + "/" + df.format(daysPlan.getDailyWater())));
+            cheatCount.setText((df.format(day.getVegCount())));
         }
     }
 
