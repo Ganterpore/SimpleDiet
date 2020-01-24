@@ -1,5 +1,7 @@
 package com.ganterpore.simplediet.Model;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -11,6 +13,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 public class Meal {
+    private static final String TAG = "Meal";
     private double vegCount;
     private double proteinCount;
     private double dairyCount;

@@ -11,6 +11,7 @@
     app:layout_collapseMode="parallax">
 
     <LinearLayout
+        android:id="@+id/water_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -39,10 +40,12 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/veg_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:onClick="addSnack">
 
         <TextView
             android:id="@+id/veg_count_header"
@@ -64,13 +67,21 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"/>
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:srcCompat="@android:drawable/ic_menu_add"/>
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/protein_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:onClick="addSnack">
 
         <TextView
             android:id="@+id/protein_count_header"
@@ -91,13 +102,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:srcCompat="@android:drawable/ic_menu_add"/>
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/dairy_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:onClick="addSnack">
 
         <TextView
             android:id="@+id/dairy_count_header"
@@ -119,13 +138,21 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"/>
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:srcCompat="@android:drawable/ic_menu_add"/>
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/grain_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:onClick="addSnack">
 
         <TextView
             android:id="@+id/grain_count_header"
@@ -147,13 +174,21 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"/>
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:srcCompat="@android:drawable/ic_menu_add"/>
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/fruit_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:onClick="addSnack">
 
         <TextView
             android:id="@+id/fruit_count_header"
@@ -175,9 +210,16 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"/>
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:srcCompat="@android:drawable/ic_menu_add"/>
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/cheat_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

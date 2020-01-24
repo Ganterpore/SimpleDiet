@@ -101,6 +101,8 @@
             android:imeOptions="actionNext"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <include
+        layout="@layout/dialog_box_add_cheats"/>
 
 
 </LinearLayout>

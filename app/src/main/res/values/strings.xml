@@ -1,4 +1,73 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <string name="app_name">SimpleDiet</string>
     <string name="title_activity_settings">Settings</string>
+
+    <string name="serve_vegetables">A standard serve is about 75g (100–350kJ) or:\n
+
+ - 1/2 cup cooked green or orange vegetables\n
+ - 1/2 cup cooked dried or canned beans, peas or lentils\n
+ - 1 cup green leafy or raw salad vegetables\n
+ - 1/2 cup sweet corn\n
+ - 1/2 medium potato or other starchy vegetables\n
+ - 1 medium tomato</string>
+
+    <string name="serve_fruits">A standard serve is about 150g (350kJ) or:\n
+
+ - 1 medium apple, banana, orange or pear\n
+ - 2 small apricots, kiwi fruits or plums\n
+ - 1 cup diced or canned fruit\n
+Or only occasionally:\n
+
+ - 125ml (½ cup) fruit juice\n
+ - 30g dried fruit</string>
+
+    <string name="serve_grains">A standard serve is (500kJ) or:\n
+
+ - 1 slice (40g) bread\n
+ - 1/2 medium (40g) roll or flat bread\n
+ - 1/2 cup (75-120g) cooked rice, pasta, noodles, barley, buckwheat, semolina, polenta, bulgur or quinoa\n
+ - 1/2 cup (120g) cooked porridge\n
+ - 2/3 cup (30g) wheat cereal flakes\n
+ - 1/4 cup (30g) muesli\n
+ - 3 (35g) crispbreads\n
+ - 1 (60g) crumpet\n
+ - 1 small (35g) English muffin or scone</string>
+    
+    <string name="serve_proteins">A standard serve is (500–600kJ):\n
+
+ - 65g cooked lean red meats (about 90-100g raw)\n
+ - 80g cooked lean poultry (100g raw)\n
+ - 100g cooked fish fillet (about 115g raw) or one small can of fish\n
+ - 2 large (120g) eggs\n
+ - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
+ - 170g tofu\n
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste</string>
+
+ <string name="serve_proteins_vegetarian">A standard serve is (500–600kJ):\n
+
+ - 2 large (120g) eggs\n
+ - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
+ - 170g tofu\n
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste</string>
+
+ <string name="serve_proteins_vegan">A standard serve is (500–600kJ):\n
+
+ - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
+ - 170g tofu\n
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste</string>
+
+    <string name="serve_dairy">A standard serve is (500–600kJ):\n
+
+ - 1 cup (250ml) fresh, UHT long life, reconstituted powdered milk or buttermilk\n
+ - 1/2 cup (120ml) evaporated milk\n
+ - 2 slices (40g) or 4 x 3 x 2cm cube (40g) of hard cheese, such as cheddar\n
+ - 1/2 cup (120g) ricotta cheese\n
+ - 3/4 cup (200g) yoghurt\n</string>
+
+ <string name="serve_dairy_vegan">
+ - 1 cup (250ml) soy, rice or other cereal drink with at least 100mg of added calcium per 100ml\n
+ - 100g almonds with skin\n
+ - 60g sardines, canned in water\n
+ - 1/2 cup (100g) canned pink salmon with bones\n
+ - 100g firm tofu (check the label as calcium levels vary)</string>
 </resources>

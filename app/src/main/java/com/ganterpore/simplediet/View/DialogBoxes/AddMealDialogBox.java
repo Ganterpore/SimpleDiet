@@ -20,9 +20,8 @@ public class AddMealDialogBox {
     /**
      * opens a dialogue box recieving information on the meal to be added
      * then adds the meal to the database
-     * @param view of the object that called the method
      */
-    public static void addMeal(final Activity activity, View view) {
+    public static void addMeal(final Activity activity) {
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View addMealLayout = layoutInflater.inflate(R.layout.dialog_box_meal, null);

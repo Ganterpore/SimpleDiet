@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,7 +21,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
@@ -31,8 +28,10 @@ import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.DietPlan;
+import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
+import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -202,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                     public void onClick(DialogInterface dialog, int which) {
                         switch (choices[which]) {
                             case "add Meal":
-                                AddMealDialogBox.addMeal(activity, view);
+                                AddMealDialogBox.addMeal(activity);
                                 break;
                             case "open Recipe Book":
                                 RecipeListDialogBox.openRecipeBook(activity);
@@ -211,6 +210,33 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 }
         }).show();
     }
+
+    public void addSnack(final View view) {
+        Log.d(TAG, "addSnack: snacking");
+        AddServeDialogBox.FoodType type;
+        switch (view.getId()) {
+            case R.id.veg_layout:
+                type = AddServeDialogBox.FoodType.VEGETABLE;
+                break;
+            case R.id.protein_layout:
+                type = AddServeDialogBox.FoodType.MEAT;
+                break;
+            case R.id.dairy_layout:
+                type = AddServeDialogBox.FoodType.DAIRY;
+                break;
+            case R.id.grain_layout:
+                type = AddServeDialogBox.FoodType.GRAIN;
+                break;
+            case R.id.fruit_layout:
+                type = AddServeDialogBox.FoodType.FRUIT;
+                break;
+            default:
+                type = null;
+                break;
+        }
+        AddServeDialogBox.addServe(this, type, null);
+    }
+
     /**
      * updates the values of all the views on the screen to up to date values
      */
@@ -309,5 +335,4 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
         mealView.refreshRecommendations();
     }
-
 }
