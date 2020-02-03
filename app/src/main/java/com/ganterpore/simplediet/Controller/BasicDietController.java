@@ -1,5 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
+import android.os.Build;
 import android.text.format.DateUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +63,18 @@ public class BasicDietController implements DietController {
                 if(queryDocumentSnapshots != null) {
                     //update data to the new changes
                     data = queryDocumentSnapshots.getDocuments();
+                    //if running new enough android, sort the data by day
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        data.sort(new Comparator<DocumentSnapshot>() {
+                            @Override
+                            public int compare(DocumentSnapshot o1, DocumentSnapshot o2) {
+                                Double rawScore =  o1.getDouble("day") - o2.getDouble("day");
+                                if(rawScore > 0) {return -1;}
+                                else if(rawScore < 0) {return 1;}
+                                else {return 0;}
+                            }
+                        });
+                    }
 
                     //check which data has changed, and set them to be updated when next accessed
                     List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();

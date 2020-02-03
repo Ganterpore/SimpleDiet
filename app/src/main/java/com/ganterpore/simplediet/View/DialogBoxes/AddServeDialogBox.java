@@ -14,13 +14,21 @@ import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Calendar;
+
 
 public class AddServeDialogBox  {
-    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT}
+    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS}
     public static final String TAG = "AddServeDialogBox";
-
+    private static NumberFormat df = new DecimalFormat("##.##");
 
     public static void addServe(final Activity activity, final FoodType foodType, final ServeListener listener) {
+        addServe(activity, foodType, 1, listener);
+    }
+
+    public static void addServe(final Activity activity, final FoodType foodType, double nServes, final ServeListener listener) {
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View addServeLayout = layoutInflater.inflate(R.layout.dialog_box_add_serves, null);
@@ -28,6 +36,7 @@ public class AddServeDialogBox  {
         final TextView oneServe = addServeLayout.findViewById(R.id.one_serve_explanation);
         final ImageView foodPicture = addServeLayout.findViewById(R.id.food_group_picture);
         final EditText numberOfServes = addServeLayout.findViewById(R.id.number_of_serves);
+        numberOfServes.setText(df.format(nServes));
 
         //setting up the serve text to change when buttons pressed
         ServeChanger serveChanger = new ServeChanger(numberOfServes);
@@ -69,6 +78,11 @@ public class AddServeDialogBox  {
                 foodPicture.setImageResource(R.drawable.vegetables_full);
                 addServeDialog.setTitle("Add serve of vegetables");
                 break;
+            case EXCESS:
+                oneServe.setText(R.string.serve_excess);
+                foodPicture.setImageResource(R.drawable.excess);
+                addServeDialog.setTitle("Add excess serves");
+                break;
         }
 
         addServeDialog.setView(addServeLayout);
@@ -96,9 +110,29 @@ public class AddServeDialogBox  {
                         case FRUIT:
                             snack.setFruitCount(serve);
                             break;
+                        case EXCESS:
+                            snack.setExcessServes(serve);
+                            break;
                     }
                     snack.setUser(FirebaseAuth.getInstance().getUid());
                     snack.setDay(System.currentTimeMillis());
+
+                    //setting the snack name up based on the time of day
+                    Calendar c = Calendar.getInstance();
+                    int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
+                    if(timeOfDay >= 4 && timeOfDay < 11){
+                        snack.setName("Morning snack");
+                    }else if(timeOfDay >= 11 && timeOfDay < 14){
+                        snack.setName("Midday snack");
+                    }else if(timeOfDay >= 14 && timeOfDay < 18){
+                        snack.setName("Afternoon snack");
+                    }else if(timeOfDay >= 18 && timeOfDay < 22){
+                        snack.setName("Evening snack");
+                    }else if(timeOfDay >= 22 || timeOfDay < 4){
+                        snack.setName("Midnight snack");
+                    } else {
+                        snack.setName("Snack");
+                    }
                     AddCheatsDialogBox.addCheats(activity, snack);
                 } else {
                     //otherwise inform listener of the serves added
@@ -126,7 +160,7 @@ public class AddServeDialogBox  {
             //depending on the view that called the function, change the serve count
             switch (view.getId()) {
                 case R.id.add_one_serve:
-                    newServes = currentServes+1;
+                    newServes = currentServes + 1;
                     break;
                 case R.id.add_one_quarter_serve:
                     newServes = currentServes + 0.25;
@@ -142,7 +176,7 @@ public class AddServeDialogBox  {
             if(newServes < 0) {
                 newServes = 0;
             }
-            servingCount.setText(Double.toString(newServes));
+            servingCount.setText(df.format(newServes));
         }
     }
 

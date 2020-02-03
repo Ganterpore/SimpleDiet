@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -37,6 +39,7 @@ import com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -56,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     private MealHistoryDisplay mealView;
 
     private SharedPreferences preferences;
+
+    private boolean isFABOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,27 +197,70 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
      * @param view, the view that called the function
      */
     public void addFood(final View view) {
-        final String[] choices = {"add Meal", "open Recipe Book"};
-        final Activity activity = this;
-        new AlertDialog.Builder(this)
-                .setTitle("new Meal or recipe?")
-                .setItems(choices, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (choices[which]) {
-                            case "add Meal":
-                                AddMealDialogBox.addMeal(activity);
-                                break;
-                            case "open Recipe Book":
-                                RecipeListDialogBox.openRecipeBook(activity);
-                                break;
-                    }
+        switch (view.getId()) {
+            case R.id.addFoodFAB:
+                openCloseFoodFAB();
+                break;
+            case R.id.addMealFAB:
+                AddMealDialogBox.addMeal(this, AddMealDialogBox.MEAL);
+                openCloseFoodFAB();
+                break;
+            case R.id.addDrinkFAB:
+                //TODO add drinks
+                openCloseFoodFAB();
+                break;
+            case R.id.recipeBookFAB:
+                RecipeListDialogBox.openRecipeBook(this);
+                openCloseFoodFAB();
+                break;
+            case R.id.FABBackground:
+                if(isFABOpen) {
+                    openCloseFoodFAB();
                 }
-        }).show();
+                break;
+        }
+    }
+
+    /**
+     * Used to expand or close the food floating action button opetions
+     */
+    private void openCloseFoodFAB() {
+        //getting all the views and buttons
+        View background = findViewById(R.id.FABBackground);
+        FloatingActionButton addFoodFAB = findViewById(R.id.addFoodFAB);
+        FloatingActionButton mealFAB = findViewById(R.id.addMealFAB);
+        FloatingActionButton drinkFAB = findViewById(R.id.addDrinkFAB);
+        FloatingActionButton recipeBookFAB = findViewById(R.id.recipeBookFAB);
+        TextView mealTV = findViewById(R.id.addMealTV);
+        TextView addDrinkTV = findViewById(R.id.addDrinkTV);
+        TextView recipeBookTV = findViewById(R.id.recipeBookTV);
+
+        //if the floating action button is open, close everything
+        if(isFABOpen) {
+            isFABOpen = false;
+            addFoodFAB.animate().setDuration(400).rotation(45);
+            mealFAB.hide();
+            drinkFAB.hide();
+            recipeBookFAB.hide();
+            mealTV.setVisibility(View.GONE);
+            addDrinkTV.setVisibility(View.GONE);
+            recipeBookTV.setVisibility(View.GONE);
+            background.setVisibility(View.GONE);
+        } //otherwise open everything
+        else {
+            isFABOpen = true;
+            addFoodFAB.animate().setDuration(400).rotation(180);
+            mealFAB.show();
+            drinkFAB.show();
+            recipeBookFAB.show();
+            mealTV.setVisibility(View.VISIBLE);
+            addDrinkTV.setVisibility(View.VISIBLE);
+            recipeBookTV.setVisibility(View.VISIBLE);
+            background.setVisibility(View.VISIBLE);
+        }
     }
 
     public void addSnack(final View view) {
-        Log.d(TAG, "addSnack: snacking");
         AddServeDialogBox.FoodType type;
         switch (view.getId()) {
             case R.id.veg_layout:
@@ -229,6 +277,9 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 break;
             case R.id.fruit_layout:
                 type = AddServeDialogBox.FoodType.FRUIT;
+                break;
+            case R.id.cheat_layout:
+                type = AddServeDialogBox.FoodType.EXCESS;
                 break;
             default:
                 type = null;
@@ -304,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 leftTV.setText(df.format(servesLeft) + " left");
 
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    countTV.setTextColor(getResources().getColor(R.color.text, getTheme()));
+//                    countTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));
 //                    leftTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));
 //                } else {
 //                    countTV.setTextColor(getResources().getColor(R.color.textColor));
@@ -316,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             //animating the updating of the progress bar
             if(progressBar != null) {
                 progressBar.setMax((int) (plan*SCALE_FACTOR));
-                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(progressBar, "progress", (int) count*SCALE_FACTOR);
+                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(progressBar, "progress", (int) (count*SCALE_FACTOR));
                 objectAnimator.setDuration(500);
                 objectAnimator.setInterpolator(new DecelerateInterpolator());
                 objectAnimator.start();

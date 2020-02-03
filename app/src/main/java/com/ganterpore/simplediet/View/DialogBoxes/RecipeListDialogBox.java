@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +39,7 @@ public class RecipeListDialogBox {
         recipeBookDialogBuilder.setNeutralButton("Create New Recipe", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                NewRecipeDialogBox.newRecipe(activity);
+                AddMealDialogBox.addMeal(activity, AddMealDialogBox.RECIPE);
             }
         });
         final AlertDialog recipeBookDialog = recipeBookDialogBuilder.show();

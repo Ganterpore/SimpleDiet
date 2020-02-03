@@ -64,10 +64,18 @@ Or only occasionally:\n
  - 1/2 cup (120g) ricotta cheese\n
  - 3/4 cup (200g) yoghurt\n</string>
 
- <string name="serve_dairy_vegan">
+ <string name="serve_dairy_vegan">A standard serve is (500–600kJ):\n
  - 1 cup (250ml) soy, rice or other cereal drink with at least 100mg of added calcium per 100ml\n
  - 100g almonds with skin\n
  - 60g sardines, canned in water\n
  - 1/2 cup (100g) canned pink salmon with bones\n
  - 100g firm tofu (check the label as calcium levels vary)</string>
+
+ <string name="serve_excess">
+  An excess serve is a serve of anything that doesn\'t provide nutritional value from any of the other 5 food groups
+  for example:\n
+   - a handful of lollies\n
+   - a small cup of dipping sauce\n
+   - a layer of spread on toast
+ </string>
 </resources>
