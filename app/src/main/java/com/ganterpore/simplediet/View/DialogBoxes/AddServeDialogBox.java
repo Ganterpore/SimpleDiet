@@ -3,11 +3,15 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.ganterpore.simplediet.Model.Meal;
@@ -20,19 +24,126 @@ import java.util.Calendar;
 
 
 public class AddServeDialogBox  {
-    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS}
+    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
     public static final String TAG = "AddServeDialogBox";
     private static NumberFormat df = new DecimalFormat("##.##");
 
-    public static void addServe(final Activity activity, final FoodType foodType, final ServeListener listener) {
-        addServe(activity, foodType, 1, listener);
-    }
 
-    public static void addServe(final Activity activity, final FoodType foodType, double nServes, final ServeListener listener) {
+    public static void addServe(final Activity activity, final Intent intent, final ServeListener listener) {
+        //getting values from intent
+        double nServes = intent.getDoubleExtra("nServes", 1);
+        final FoodType foodType = (FoodType) intent.getSerializableExtra("foodType");
+
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
+        //TODO different views for drinks
         View addServeLayout = layoutInflater.inflate(R.layout.dialog_box_add_serves, null);
 
+        //if adding alcohol, adjust for different layout
+        if(foodType == FoodType.ALCOHOL) {
+            //getting values
+            final double servesLiquid = intent.getDoubleExtra("servesLiquid", 1);
+            addServeLayout = layoutInflater.inflate(R.layout.dialog_box_alcohol_serve, null);
+            final SeekBar alcoholSeekbar = addServeLayout.findViewById(R.id.alcohol_seekbar);
+            final EditText percentageValueET = addServeLayout.findViewById(R.id.alcohol_percent);
+            final EditText numberOfStandards = addServeLayout.findViewById(R.id.number_of_serves);
+            //updating the volume text
+            TextView volume = addServeLayout.findViewById(R.id.current_volume);
+            String volumeText = "Curent Volume: " + (int) servesLiquid * 250 + "mL";
+            volume.setText(volumeText);
+
+            //when the seekbar is updated, we want to update the percentage text
+            alcoholSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    //get the current percentage in the edittext
+                    double oldPercentage;
+                    if(percentageValueET.getText().toString().isEmpty()) {
+                        oldPercentage = 0;
+                    } else {
+                        oldPercentage = Double.parseDouble(percentageValueET.getText().toString());
+                    }
+                    //if the editText is different to the current percentage, update it
+                    //this is necessary so that they aren't fighting eachother for values
+                    if((int) oldPercentage != progress) {
+                        percentageValueET.setText(df.format(progress));
+                    }
+                }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+            //whenever the alcohol percent text changes, update the seekbar and number of standards
+            percentageValueET.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override
+                public void afterTextChanged(Editable editablePercentage) {
+                    double percentage;
+                    if(editablePercentage.toString().isEmpty()) {
+                        percentage = 0;
+                    } else {
+                        percentage = Double.parseDouble(editablePercentage.toString());
+                    }
+                    alcoholSeekbar.setProgress((int) percentage);
+
+                    //getting number of standards
+                    double standards = Meal.getStandardsFromPercent(servesLiquid, 0, percentage);
+                    String numberOfstandardsString = numberOfStandards.getText().toString();
+                    //getting old number of standards
+                    double oldStandards;
+                    if(numberOfstandardsString.isEmpty()) {
+                        oldStandards = 0;
+                    } else {
+                        oldStandards = Double.parseDouble(numberOfstandardsString);
+                    }
+                    //if significant distance in old and new values, update the editText
+                    if(standards > oldStandards + 0.01 || standards < oldStandards - 0.01) {
+                        numberOfStandards.setText(df.format(standards));
+                    }
+                }
+            });
+            //when the number of standards updates, update the percentage
+            numberOfStandards.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override
+                public void afterTextChanged(Editable editableStandards) {
+                    //getting the new standards count
+                    double standards;
+                    if(editableStandards.toString().isEmpty()) {
+                        standards = 0;
+                    } else {
+                        standards = Double.parseDouble(editableStandards.toString());
+                    }
+
+                    //getting the new percent
+                    double percent = Meal.getPercentFromStandards(servesLiquid,0,standards);
+                    //getting the old percent
+                    double oldPercentage;
+                    if(percentageValueET.getText().toString().isEmpty()) {
+                        oldPercentage = 0;
+                    } else {
+                        oldPercentage = Double.parseDouble(percentageValueET.getText().toString());
+                    }
+                    //if significant distance in old and new values, update the editText
+                    if(percent > oldPercentage + 0.5 || percent < oldPercentage - 0.5) {
+                        if(percent > 100) {
+                            percent = 100;
+                        }
+                        percentageValueET.setText(df.format(percent));
+                    }
+
+                }
+            });
+        }
+
+        //getting fields
         final TextView oneServe = addServeLayout.findViewById(R.id.one_serve_explanation);
         final ImageView foodPicture = addServeLayout.findViewById(R.id.food_group_picture);
         final EditText numberOfServes = addServeLayout.findViewById(R.id.number_of_serves);
@@ -83,6 +194,25 @@ public class AddServeDialogBox  {
                 foodPicture.setImageResource(R.drawable.excess);
                 addServeDialog.setTitle("Add excess serves");
                 break;
+            case MILK:
+                oneServe.setText(R.string.serve_milk);
+                foodPicture.setImageResource(R.drawable.dairy_full);
+                addServeDialog.setTitle("Add serves of milk or other dairy");
+                break;
+            case WATER:
+                oneServe.setText(R.string.serve_water);
+                foodPicture.setImageResource(R.drawable.symbol_water_completed);
+                addServeDialog.setTitle("Add serves of water based liquid");
+                break;
+            case CAFFEINE:
+                oneServe.setText(R.string.serve_caffeine);
+                foodPicture.setImageResource(R.drawable.caffiene);
+                foodPicture.setRotation(0);
+                addServeDialog.setTitle("Add serves of caffeine");
+                break;
+            case ALCOHOL:
+                addServeDialog.setTitle("Add standard serves of alcohol");
+                break;
         }
 
         addServeDialog.setView(addServeLayout);
@@ -102,6 +232,7 @@ public class AddServeDialogBox  {
                             snack.setProteinCount(serve);
                             break;
                         case DAIRY:
+                        case MILK:
                             snack.setDairyCount(serve);
                             break;
                         case GRAIN:
@@ -113,6 +244,14 @@ public class AddServeDialogBox  {
                         case EXCESS:
                             snack.setExcessServes(serve);
                             break;
+                        case WATER:
+                            snack.setWaterCount(serve);
+                            break;
+                        case CAFFEINE:
+                            snack.setCaffieneCount(serve);
+                            break;
+                        case ALCOHOL:
+                            snack.setAlcoholStandards(serve);
                     }
                     snack.setUser(FirebaseAuth.getInstance().getUid());
                     snack.setDay(System.currentTimeMillis());

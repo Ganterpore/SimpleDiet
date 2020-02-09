@@ -32,6 +32,7 @@ import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
+import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
@@ -207,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 break;
             case R.id.addDrinkFAB:
                 //TODO add drinks
+                AddDrinkDialogBox.addDrink(this);
                 openCloseFoodFAB();
                 break;
             case R.id.recipeBookFAB:
@@ -262,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
     public void addSnack(final View view) {
         AddServeDialogBox.FoodType type;
+        Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.veg_layout:
                 type = AddServeDialogBox.FoodType.VEGETABLE;
@@ -285,7 +288,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 type = null;
                 break;
         }
-        AddServeDialogBox.addServe(this, type, null);
+        intent.putExtra("foodType", type);
+        AddServeDialogBox.addServe(this, intent, null);
     }
 
     /**

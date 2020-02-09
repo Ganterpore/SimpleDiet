@@ -22,8 +22,11 @@ public class DailyMeals {
     private double dairyCount;
     private double grainCount;
     private double fruitCount;
-    private double waterCount;
     private double excessServes;
+
+    private double waterCount;
+    private double caffieneCount;
+    private double alcoholCount;
 
     private double totalCheats; //accumulated cheats for this day
     private double weeklyCheats; //accumulated cheats for the past week
@@ -94,6 +97,8 @@ public class DailyMeals {
         grainCount = 0;
         fruitCount = 0;
         waterCount = 0;
+        caffieneCount = 0;
+        alcoholCount = 0;
         excessServes = 0;
         totalCheats = 0;
         //iterate through all todaysMeals and add the days data
@@ -105,6 +110,8 @@ public class DailyMeals {
             grainCount += meal.getGrainCount();
             fruitCount += meal.getFruitCount();
             waterCount += meal.getWaterCount();
+            caffieneCount += meal.getCaffieneCount();
+            alcoholCount += meal.getAlcoholStandards();
             excessServes += meal.getExcessServes();
         }
         //iterate through all the weeks meals and get the cheat data
@@ -160,6 +167,14 @@ public class DailyMeals {
 
     public double getWaterCount() {
         return waterCount;
+    }
+
+    public double getCaffieneCount() {
+        return caffieneCount;
+    }
+
+    public double getAlcoholCount() {
+        return alcoholCount;
     }
 
     public double getExcessServes() {

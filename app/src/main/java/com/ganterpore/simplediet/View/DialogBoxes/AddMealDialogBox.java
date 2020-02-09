@@ -2,6 +2,7 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +38,6 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     private final TextView dairyCountTV;
     private final TextView grainCountTV;
     private final TextView fruitCountTV;
-    private final TextView waterCountTV;
     private final TextView excessCountTV;
 
     private final TextView exampleFood;
@@ -77,7 +77,6 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         dairyCountTV = addMealLayout.findViewById(R.id.dairy_count);
         grainCountTV = addMealLayout.findViewById(R.id.grain_count);
         fruitCountTV = addMealLayout.findViewById(R.id.fruit_count);
-        waterCountTV = addMealLayout.findViewById(R.id.water_count);
         excessCountTV = addMealLayout.findViewById(R.id.excess_count);
 
         //setting the default meal name up based on the time of day
@@ -332,6 +331,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
             LinearLayout parent = (LinearLayout) view.getParent();
             TextView servesView;
             double serves;
+            Intent intent = new Intent();
             //from the id of the button that called it, figure out what food to add serves to, and the current serves
             switch (view.getId()) {
                 case R.id.veg_button:
@@ -365,11 +365,11 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
             }
             //if the number of serves is already set (>0), then set that to the default, otherwise use the default default
             serves = Double.parseDouble(servesView.getText().toString());
+            intent.putExtra("foodType", type);
             if(serves > 0) {
-                AddServeDialogBox.addServe(activity, type, serves, listener);
-            } else {
-                AddServeDialogBox.addServe(activity, type, listener);
+                intent.putExtra("nServes", serves);
             }
+            AddServeDialogBox.addServe(activity, intent, listener);
         }
     }
 }

@@ -78,4 +78,36 @@ Or only occasionally:\n
    - a small cup of dipping sauce\n
    - a layer of spread on toast
  </string>
+
+ <string name="serve_water">
+  A serve of a water based drink is one glass, or approximately 250mL. Most drinks are water based,
+  for example:\n
+   - a glass of spring water\n
+   - a glass of soft drink or soda\n
+   - a bottle of beer
+ </string>
+
+ <string name="serve_milk">
+  A serve of milk or other dairy drinks is generally one glass, or approximately 250mL.
+  for example:\n
+   - a glass of skim milk\n
+   - a glass of almond milk\n
+   - half a glass of evaporated milk
+ </string>
+
+ <string name="serve_caffeine">
+  A serve of caffeine is about 95mg. The amount of caffeine in a given drink varies wildly, but a serve is approximately:\n
+   - a shot of espresso\n
+   - one cup (250ml) of coffee\n
+   - approximately four cans of cola\n
+   - one regular strength energy drink
+ </string>
+
+ <string name="serve_alcohol">
+One standard drink of alcohol is equal to the percentage of alcohol, times the volume in litres, times 0.789.\n
+Either set the standards directly, or use the percentage slider to calculate the standards.
+ </string>
+
+
+ <string name="cheat_score_description">Select a cheat score that measures how much of a cheat meal this was. The higher the score, the worse it is for you.</string>
 </resources>
