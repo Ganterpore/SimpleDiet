@@ -16,8 +16,11 @@ public class Recipe {
     private double dairyCount;
     private double grainCount;
     private double fruitCount;
-    private double waterCount;
     private double excessServes;
+
+    private double waterCount;
+    private double caffieneCount;
+    private double alcoholStandards;
 
     private double cheatScore;
 
@@ -35,6 +38,19 @@ public class Recipe {
         this.excessServes = excessServes;
         this.cheatScore = cheatScore;
         this.user = user;
+    }
+
+    public static Recipe drinkRecipe(String name, double waterCount, double dairyCount,
+                 double caffieneCount, double alcoholStandards, double cheatScore, String user) {
+        Recipe drink = new Recipe();
+        drink.name = name;
+        drink.waterCount = waterCount;
+        drink.dairyCount = dairyCount;
+        drink.caffieneCount = caffieneCount;
+        drink.alcoholStandards = alcoholStandards;
+        drink.cheatScore = cheatScore;
+        drink.user = user;
+        return drink;
     }
 
     public Recipe() {

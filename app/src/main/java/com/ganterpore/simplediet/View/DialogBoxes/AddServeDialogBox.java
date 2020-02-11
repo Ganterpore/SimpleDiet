@@ -49,6 +49,7 @@ public class AddServeDialogBox  {
             final EditText numberOfStandards = addServeLayout.findViewById(R.id.number_of_serves);
             //updating the volume text
             TextView volume = addServeLayout.findViewById(R.id.current_volume);
+            //TODO warning if no base added yet
             String volumeText = "Curent Volume: " + (int) servesLiquid * 250 + "mL";
             volume.setText(volumeText);
 

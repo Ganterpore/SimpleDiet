@@ -220,7 +220,7 @@
             android:id="@+id/hydration_factor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="water+dairy-caffiene-alcohol"/>
+            android:text="water+milk-caffiene-alcohol"/>
 
     <include
         layout="@layout/dialog_box_add_cheats"/>

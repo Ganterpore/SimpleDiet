@@ -2,17 +2,31 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.ganterpore.simplediet.Model.Meal;
+import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Calendar;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     private final TextView milkCountTV;
@@ -34,7 +48,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         //setting up all the buttons
         ImageView milkButton = addDrinkLayout.findViewById(R.id.milk_image);
         ImageView waterButton = addDrinkLayout.findViewById(R.id.water_image);
-        ImageView caffeineButton = addDrinkLayout.findViewById(R.id.caffeine_image);
+        final ImageView caffeineButton = addDrinkLayout.findViewById(R.id.caffeine_image);
         ImageView alcoholButton = addDrinkLayout.findViewById(R.id.alcohol_image);
         AddServesOnClick onClick = new AddServesOnClick(activity, this);
         milkButton.setOnClickListener(onClick);
@@ -43,19 +57,116 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         alcoholButton.setOnClickListener(onClick);
 
         //getting all the textviews
+        //TODO more views for percent/mls etc
         milkCountTV = addDrinkLayout.findViewById(R.id.milk_count);
         waterCountTV = addDrinkLayout.findViewById(R.id.water_count);
         caffeineCountTV = addDrinkLayout.findViewById(R.id.caffiene_count);
         alcoholCountTV = addDrinkLayout.findViewById(R.id.alcohol_count);
         volumeTV = addDrinkLayout.findViewById(R.id.volume);
         hydrationFactor = addDrinkLayout.findViewById(R.id.hydration_factor);
+        final EditText drinkNameET = addDrinkLayout.findViewById(R.id.drink_name);
+
+        //TODO change example food when updated
+        final RadioGroup cheatSelector = addDrinkLayout.findViewById(R.id.cheat_selector);
+        final RadioGroup daySelector = addDrinkLayout.findViewById(R.id.day_selector);
 
         //building the alert dialog
-        AlertDialog.Builder addDrinkDialog = new AlertDialog.Builder(activity);
+        final AlertDialog.Builder addDrinkDialog = new AlertDialog.Builder(activity);
         addDrinkDialog.setView(addDrinkLayout);
-        addDrinkDialog.setNeutralButton("Save Recipe", null);
+        addDrinkDialog.setNeutralButton("Save Recipe", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                int cheatScore;
+                switch (cheatSelector.getCheckedRadioButtonId()) {
+                    case R.id.cheat_0:
+                        cheatScore = 0;
+                        break;
+                    case R.id.cheat_1:
+                        cheatScore = 1;
+                        break;
+                    case R.id.cheat_2:
+                        cheatScore = 2;
+                        break;
+                    case R.id.cheat_3:
+                        cheatScore = 3;
+                        break;
+                    default:
+                        cheatScore = 0;
+                }
+                //create a meal object from the dialog box data
+                Recipe recipe = Recipe.drinkRecipe(drinkNameET.getText().toString(),
+                        waterServes, milkServes, caffieneServes, alcoholServes, cheatScore,
+                        FirebaseAuth.getInstance().getCurrentUser().getUid());
+                recipe.pushToDB()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Toast.makeText(activity, "Added Recipe", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(activity, "Recipe add fail", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                RecipeListDialogBox.openRecipeBook(activity);
+            }
+        });
         addDrinkDialog.setNegativeButton("Cancel", null);
-        addDrinkDialog.setPositiveButton("Add", null);
+        addDrinkDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                long day;
+                if (daySelector.getCheckedRadioButtonId() == R.id.todays_drink) {
+                    //if the user has selected the meal to be todays meal, set it to the current time
+                    day = System.currentTimeMillis();
+                } else {
+                    //otherwise, if it is for yesterday, get the start of today, and set it to an hour before then
+                    Calendar calendar = Calendar.getInstance();
+                    int year = calendar.get(Calendar.YEAR);
+                    int month = calendar.get(Calendar.MONTH);
+                    int date = calendar.get(Calendar.DATE);
+                    calendar.set(year, month, date, 0, 0, 0);
+                    day = calendar.getTimeInMillis() - DateUtils.HOUR_IN_MILLIS;
+                }
+                int cheatScore;
+                switch (cheatSelector.getCheckedRadioButtonId()) {
+                    case R.id.cheat_0:
+                        cheatScore = 0;
+                        break;
+                    case R.id.cheat_1:
+                        cheatScore = 1;
+                        break;
+                    case R.id.cheat_2:
+                        cheatScore = 2;
+                        break;
+                    case R.id.cheat_3:
+                        cheatScore = 3;
+                        break;
+                    default:
+                        cheatScore = 0;
+                }
+                //create a meal object from the dialog box data
+                Meal todaysDrink = Meal.Drink(waterServes, milkServes, caffieneServes, alcoholServes,
+                        cheatScore, day, FirebaseAuth.getInstance().getCurrentUser().getUid());
+                todaysDrink.setName(drinkNameET.getText().toString());
+
+                todaysDrink.pushToDB()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Toast.makeText(activity, "Added Meal", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(activity, "Meal add fail", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
         addDrinkDialog.show();
     }
 

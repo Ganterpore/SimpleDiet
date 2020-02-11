@@ -207,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 openCloseFoodFAB();
                 break;
             case R.id.addDrinkFAB:
-                //TODO add drinks
                 AddDrinkDialogBox.addDrink(this);
                 openCloseFoodFAB();
                 break;
@@ -266,6 +265,9 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         AddServeDialogBox.FoodType type;
         Intent intent = new Intent();
         switch (view.getId()) {
+            case R.id.water_layout:
+                type = AddServeDialogBox.FoodType.WATER;
+                break;
             case R.id.veg_layout:
                 type = AddServeDialogBox.FoodType.VEGETABLE;
                 break;
@@ -328,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         ProgressBar cheatsPB = findViewById(R.id.progress_cheats);
 
         //creating arrays of the text views to update
+        //TODO track hydration instead of water
         TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
         TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, waterLeftTV};
         ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB};

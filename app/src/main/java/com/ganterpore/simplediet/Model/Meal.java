@@ -53,13 +53,16 @@ public class Meal {
     /**
      * Creates a meal with the drink parameters filled in
      */
-    public Meal Drink(double waterCount, double dairyCount, double caffieneCount, double alcoholPercent) {
-        //TODO percent or standards?
+    public static Meal Drink(double waterCount, double dairyCount, double caffieneCount, double alcoholStandards,
+                             double cheatScore, long day, String user) {
         Meal drink = new Meal();
         drink.waterCount = waterCount;
         drink.dairyCount = dairyCount;
         drink.caffieneCount = caffieneCount;
-        drink.alcoholStandards = getStandardsFromPercent(waterCount, dairyCount, alcoholPercent);
+        drink.alcoholStandards = alcoholStandards;
+        drink.cheatScore = cheatScore;
+        drink.day = day;
+        drink.user = user;
         return drink;
     }
 
