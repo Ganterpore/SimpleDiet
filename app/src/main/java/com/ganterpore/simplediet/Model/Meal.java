@@ -25,6 +25,7 @@ public class Meal {
     private double waterCount;
     private double caffieneCount;
     private double alcoholStandards;
+    private double hydrationScore;
 
     private double excessServes;
 
@@ -54,12 +55,13 @@ public class Meal {
      * Creates a meal with the drink parameters filled in
      */
     public static Meal Drink(double waterCount, double dairyCount, double caffieneCount, double alcoholStandards,
-                             double cheatScore, long day, String user) {
+                             double hydrationScore, double cheatScore, long day, String user) {
         Meal drink = new Meal();
         drink.waterCount = waterCount;
         drink.dairyCount = dairyCount;
         drink.caffieneCount = caffieneCount;
         drink.alcoholStandards = alcoholStandards;
+        drink.hydrationScore = hydrationScore;
         drink.cheatScore = cheatScore;
         drink.day = day;
         drink.user = user;
@@ -165,6 +167,11 @@ public class Meal {
         } else {
             this.alcoholStandards = 0.0;
         }
+        if(docMeal.contains("hydrationScore")) {
+            this.hydrationScore = docMeal.getDouble("hydrationScore");
+        } else {
+            this.hydrationScore = 0.0;
+        }
     }
 
     /**
@@ -211,6 +218,9 @@ public class Meal {
         }
         if(getExcessServes() > 0){
             output += "    Ex:" + df.format(getExcessServes());
+        }
+        if(hydrationScore > 0.1 || hydrationScore < -0.1) {
+            output  += "    Hydration:" + df.format(getHydrationScore());
         }
         output += "    Total Cheats:" + df.format(calculateTotalCheats());
 
@@ -291,6 +301,14 @@ public class Meal {
 
     public void setAlcoholStandards(double alcoholStandards) {
         this.alcoholStandards = alcoholStandards;
+    }
+
+    public double getHydrationScore() {
+        return hydrationScore;
+    }
+
+    public void setHydrationScore(double hydrationScore) {
+        this.hydrationScore = hydrationScore;
     }
 
     public double getCheatScore() {

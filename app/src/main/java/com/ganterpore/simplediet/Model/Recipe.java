@@ -21,8 +21,11 @@ public class Recipe {
     private double waterCount;
     private double caffieneCount;
     private double alcoholStandards;
+    private double hydrationScore;
 
     private double cheatScore;
+
+    private boolean isDrink;
 
     private String user;
 
@@ -38,22 +41,28 @@ public class Recipe {
         this.excessServes = excessServes;
         this.cheatScore = cheatScore;
         this.user = user;
+        this.isDrink = false;
+        this.hydrationScore = 0;
     }
 
     public static Recipe drinkRecipe(String name, double waterCount, double dairyCount,
-                 double caffieneCount, double alcoholStandards, double cheatScore, String user) {
+                 double caffieneCount, double alcoholStandards,
+                 double hydrationFactor, double cheatScore, String user) {
         Recipe drink = new Recipe();
         drink.name = name;
         drink.waterCount = waterCount;
         drink.dairyCount = dairyCount;
         drink.caffieneCount = caffieneCount;
         drink.alcoholStandards = alcoholStandards;
+        drink.hydrationScore = hydrationFactor;
         drink.cheatScore = cheatScore;
         drink.user = user;
+        drink.isDrink = true;
         return drink;
     }
 
     public Recipe() {
+        this.isDrink = false;
     }
 
     /**
@@ -66,6 +75,16 @@ public class Recipe {
     }
 
     /**
+     * Calculates the total cheat points acquired from this meal
+     * @return the value of the cheat points
+     */
+    public double calculateTotalCheats() {
+        double serveCount = vegCount + proteinCount + dairyCount
+                + grainCount + fruitCount + waterCount + excessServes;
+        return serveCount * cheatScore;
+    }
+
+    /**
      * returns the text format of the number of serves of each food type
      * @return the string
      */
@@ -73,6 +92,9 @@ public class Recipe {
         NumberFormat df = new DecimalFormat("##.##");
         String output = "";
 
+        if(getWaterCount() > 0){
+            output += "    W:" + df.format(getWaterCount());
+        }
         if(getVegCount() > 0){
             output += "    V:" + df.format(getVegCount());
         }
@@ -88,10 +110,19 @@ public class Recipe {
         if(getFruitCount() > 0){
             output += "    F:" + df.format(getFruitCount());
         }
+        if(getCaffieneCount() > 0){
+            output += "    C:" + df.format(getCaffieneCount());
+        }
+        if(getAlcoholStandards() > 0){
+            output += "    A:" + df.format(getAlcoholStandards());
+        }
         if(getExcessServes() > 0){
             output += "    Ex:" + df.format(getExcessServes());
         }
-        output += "    Cheats:" + df.format(getCheatScore());
+        if(isDrink) {
+            output  += "    Hydration:" + df.format(getHydrationScore());
+        }
+        output += "    Total Cheats:" + df.format(calculateTotalCheats());
 
         return output.trim();
     }
@@ -101,9 +132,21 @@ public class Recipe {
      * @return a meal instance of the given recipe
      */
     public Meal convertToMeal() {
-        Meal meal = new Meal(vegCount, proteinCount, dairyCount, grainCount, fruitCount, waterCount,
-                excessServes, cheatScore, System.currentTimeMillis(), user);
+        Meal meal = new Meal();
         meal.setName(name);
+        meal.setVegCount(vegCount);
+        meal.setProteinCount(proteinCount);
+        meal.setDairyCount(dairyCount);
+        meal.setGrainCount(grainCount);
+        meal.setFruitCount(fruitCount);
+        meal.setExcessServes(excessServes);
+        meal.setWaterCount(waterCount);
+        meal.setCaffieneCount(caffieneCount);
+        meal.setAlcoholStandards(alcoholStandards);
+        meal.setHydrationScore(hydrationScore);
+        meal.setCheatScore(cheatScore);
+        meal.setUser(user);
+        meal.setDay(System.currentTimeMillis());
         return meal;
     }
 
@@ -161,6 +204,38 @@ public class Recipe {
 
     public void setWaterCount(double waterCount) {
         this.waterCount = waterCount;
+    }
+
+    public double getCaffieneCount() {
+        return caffieneCount;
+    }
+
+    public void setCaffieneCount(double caffieneCount) {
+        this.caffieneCount = caffieneCount;
+    }
+
+    public double getAlcoholStandards() {
+        return alcoholStandards;
+    }
+
+    public void setAlcoholStandards(double alcoholStandards) {
+        this.alcoholStandards = alcoholStandards;
+    }
+
+    public boolean isDrink() {
+        return isDrink;
+    }
+
+    public void setDrink(boolean drink) {
+        isDrink = drink;
+    }
+
+    public double getHydrationScore() {
+        return hydrationScore;
+    }
+
+    public void setHydrationScore(double hydrationScore) {
+        this.hydrationScore = hydrationScore;
     }
 
     public double getExcessServes() {

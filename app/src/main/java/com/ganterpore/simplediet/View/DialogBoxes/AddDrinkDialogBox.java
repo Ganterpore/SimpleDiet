@@ -93,10 +93,11 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                     default:
                         cheatScore = 0;
                 }
+                double hydrationFactor = waterServes + milkServes - caffieneServes - alcoholServes;
                 //create a meal object from the dialog box data
                 Recipe recipe = Recipe.drinkRecipe(drinkNameET.getText().toString(),
-                        waterServes, milkServes, caffieneServes, alcoholServes, cheatScore,
-                        FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        waterServes, milkServes, caffieneServes, alcoholServes, hydrationFactor,
+                        cheatScore, FirebaseAuth.getInstance().getCurrentUser().getUid());
                 recipe.pushToDB()
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
@@ -147,9 +148,10 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                     default:
                         cheatScore = 0;
                 }
+                double hydrationFactor = waterServes + milkServes - caffieneServes - alcoholServes;
                 //create a meal object from the dialog box data
                 Meal todaysDrink = Meal.Drink(waterServes, milkServes, caffieneServes, alcoholServes,
-                        cheatScore, day, FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        hydrationFactor, cheatScore, day, FirebaseAuth.getInstance().getCurrentUser().getUid());
                 todaysDrink.setName(drinkNameET.getText().toString());
 
                 todaysDrink.pushToDB()

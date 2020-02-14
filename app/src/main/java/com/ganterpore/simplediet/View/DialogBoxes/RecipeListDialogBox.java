@@ -22,6 +22,8 @@ import com.ganterpore.simplediet.R;
 import com.google.firebase.firestore.Query;
 
 public class RecipeListDialogBox {
+    private static final String TAG = "RecipeListDialogBox";
+
     /**
      * opens a dialog containing the users recipe book, where they can add one of their meals to eat,
      * or create a new recipe.
@@ -45,7 +47,7 @@ public class RecipeListDialogBox {
         final AlertDialog recipeBookDialog = recipeBookDialogBuilder.show();
 
         //Creating the recyclerView of the list of recipes
-        RecyclerView allRecipes = recipeBookLayout.findViewById(R.id.recipe_list);
+        RecyclerView allRecipes = recipeBookLayout.findViewById(R.id.meal_recipe_list);
         Query getRecipes = RecipeBookController.getAllRecipes();
 
         FirestoreRecyclerOptions<Recipe> options = new FirestoreRecyclerOptions.Builder<Recipe>()
@@ -53,6 +55,10 @@ public class RecipeListDialogBox {
 
         FirestoreRecyclerAdapter<Recipe, RecipeViewHolder> adapter;
         adapter = new FirestoreRecyclerAdapter<Recipe, RecipeViewHolder>(options) {
+            final int MEAL = 1;
+            final int MEAL_W_HEADER = 2;
+            final int DRINK = 3;
+            final int DRINK_W_HEADER = 4;
             @Override
             protected void onBindViewHolder(@NonNull RecipeViewHolder holder, int position, @NonNull Recipe recipe) {
                 holder.build(recipe);
@@ -60,10 +66,42 @@ public class RecipeListDialogBox {
 
             @NonNull
             @Override
-            public RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-                View recipeListItem = LayoutInflater.from(viewGroup.getContext())
-                        .inflate(R.layout.list_item_recipe, viewGroup, false);
+            public RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+                View recipeListItem;
+                if(viewType==MEAL_W_HEADER) {
+                    recipeListItem = LayoutInflater.from(viewGroup.getContext())
+                            .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
+                    TextView header = recipeListItem.findViewById(R.id.header);
+                    header.setText("  Meals");
+                } else if(viewType==DRINK_W_HEADER) {
+                    recipeListItem = LayoutInflater.from(viewGroup.getContext())
+                            .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
+                    TextView header = recipeListItem.findViewById(R.id.header);
+                    header.setText("  Drinks");
+                } else {
+                    recipeListItem = LayoutInflater.from(viewGroup.getContext())
+                            .inflate(R.layout.list_item_recipe, viewGroup, false);
+                }
                 return new RecipeViewHolder(recipeListItem, recipeBookDialog, context);
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                Recipe item = getItem(position);
+                if(item.isDrink()) {
+                    //assumes ordered by drinks first
+                    if(position==0) {
+                        return DRINK_W_HEADER;
+                    }
+                    return DRINK;
+                } else {
+                    //if the first meal, needs a header
+                    if(position==0 || getItem(position-1).isDrink()) {
+                        return MEAL_W_HEADER;
+                    }
+                    return MEAL;
+                }
+
             }
         };
         adapter.notifyDataSetChanged();
@@ -105,6 +143,7 @@ public class RecipeListDialogBox {
         public void onClick(View v) {
             //when the list item is clicked, create a dialog to add the meal
             AlertDialog.Builder confirmMeal = new AlertDialog.Builder(context);
+            //TODO open actual meal, so user can edit or add.
             confirmMeal.setTitle("Would you like to add " + recipe.getName() + "?");
             confirmMeal.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                 @Override

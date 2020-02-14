@@ -330,12 +330,11 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         ProgressBar cheatsPB = findViewById(R.id.progress_cheats);
 
         //creating arrays of the text views to update
-        //TODO track hydration instead of water
         TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
         TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, waterLeftTV};
         ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
-                            today.getGrainCount(), today.getFruitCount(), today.getWaterCount()};
+                            today.getGrainCount(), today.getFruitCount(), today.getHydrationScore()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
                             todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyWater()};
 

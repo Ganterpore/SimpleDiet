@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
@@ -25,32 +26,42 @@ import java.util.Calendar;
 
 public class AddServeDialogBox  {
     public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
+    public static final double DRINK_STANDARD_SERVE = 250;
     public static final String TAG = "AddServeDialogBox";
     private static NumberFormat df = new DecimalFormat("##.##");
 
 
     public static void addServe(final Activity activity, final Intent intent, final ServeListener listener) {
         //getting values from intent
-        double nServes = intent.getDoubleExtra("nServes", 1);
         final FoodType foodType = (FoodType) intent.getSerializableExtra("foodType");
+        final boolean isDrink = foodType == FoodType.MILK || foodType == FoodType.WATER;
+        double nServes = intent.getDoubleExtra("nServes", 1);
+        if(isDrink) {
+            //then convert to millilitres
+            nServes = nServes * DRINK_STANDARD_SERVE;
+        }
+
+
 
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
-        //TODO different views for drinks
-        View addServeLayout = layoutInflater.inflate(R.layout.dialog_box_add_serves, null);
-
+        View addServeLayout;
         //if adding alcohol, adjust for different layout
         if(foodType == FoodType.ALCOHOL) {
             //getting values
             final double servesLiquid = intent.getDoubleExtra("servesLiquid", 1);
+            if(servesLiquid <= 0) {
+                Toast.makeText(activity, "You need to add serves of a base liquid (water or milk) first. Most alcohols (beer, spirits, wine) are water based.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             addServeLayout = layoutInflater.inflate(R.layout.dialog_box_alcohol_serve, null);
             final SeekBar alcoholSeekbar = addServeLayout.findViewById(R.id.alcohol_seekbar);
             final EditText percentageValueET = addServeLayout.findViewById(R.id.alcohol_percent);
             final EditText numberOfStandards = addServeLayout.findViewById(R.id.number_of_serves);
             //updating the volume text
             TextView volume = addServeLayout.findViewById(R.id.current_volume);
-            //TODO warning if no base added yet
-            String volumeText = "Curent Volume: " + (int) servesLiquid * 250 + "mL";
+            String volumeText = "Curent Volume: " + (int) servesLiquid * DRINK_STANDARD_SERVE + "mL";
             volume.setText(volumeText);
 
             //when the seekbar is updated, we want to update the percentage text
@@ -142,6 +153,12 @@ public class AddServeDialogBox  {
 
                 }
             });
+        } else {
+            if(isDrink) {
+                addServeLayout = layoutInflater.inflate(R.layout.dialog_box_add_serves_drink, null);
+            } else {
+                addServeLayout = layoutInflater.inflate(R.layout.dialog_box_add_serves, null);
+            }
         }
 
         //getting fields
@@ -151,7 +168,7 @@ public class AddServeDialogBox  {
         numberOfServes.setText(df.format(nServes));
 
         //setting up the serve text to change when buttons pressed
-        ServeChanger serveChanger = new ServeChanger(numberOfServes);
+        ServeChanger serveChanger = new ServeChanger(numberOfServes, isDrink);
         ImageButton addOneButton = addServeLayout.findViewById(R.id.add_one_serve);
         ImageButton addOneQuarterButton = addServeLayout.findViewById(R.id.add_one_quarter_serve);
         ImageButton minusOneButton = addServeLayout.findViewById(R.id.minus_one_serve);
@@ -222,6 +239,10 @@ public class AddServeDialogBox  {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 double serve = Double.parseDouble(numberOfServes.getText().toString());
+                //if its a drink, convert from millilitres to standard serves
+                if(isDrink) {
+                    serve = serve/DRINK_STANDARD_SERVE;
+                }
                 //if there is no listener, then get cheat count and push to db
                 if(listener==null) {
                     Meal snack = new Meal();
@@ -233,8 +254,11 @@ public class AddServeDialogBox  {
                             snack.setProteinCount(serve);
                             break;
                         case DAIRY:
+                            snack.setDairyCount(serve);
+                            break;
                         case MILK:
                             snack.setDairyCount(serve);
+                            snack.setHydrationScore(serve);
                             break;
                         case GRAIN:
                             snack.setGrainCount(serve);
@@ -247,6 +271,7 @@ public class AddServeDialogBox  {
                             break;
                         case WATER:
                             snack.setWaterCount(serve);
+                            snack.setHydrationScore(serve);
                             break;
                         case CAFFEINE:
                             snack.setCaffieneCount(serve);
@@ -260,18 +285,34 @@ public class AddServeDialogBox  {
                     //setting the snack name up based on the time of day
                     Calendar c = Calendar.getInstance();
                     int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-                    if(timeOfDay >= 4 && timeOfDay < 11){
-                        snack.setName("Morning snack");
-                    }else if(timeOfDay >= 11 && timeOfDay < 14){
-                        snack.setName("Midday snack");
-                    }else if(timeOfDay >= 14 && timeOfDay < 18){
-                        snack.setName("Afternoon snack");
-                    }else if(timeOfDay >= 18 && timeOfDay < 22){
-                        snack.setName("Evening snack");
-                    }else if(timeOfDay >= 22 || timeOfDay < 4){
-                        snack.setName("Midnight snack");
+                    if(!isDrink) {
+                        if (timeOfDay >= 4 && timeOfDay < 11) {
+                            snack.setName("Morning snack");
+                        } else if (timeOfDay >= 11 && timeOfDay < 14) {
+                            snack.setName("Midday snack");
+                        } else if (timeOfDay >= 14 && timeOfDay < 18) {
+                            snack.setName("Afternoon snack");
+                        } else if (timeOfDay >= 18 && timeOfDay < 22) {
+                            snack.setName("Evening snack");
+                        } else if (timeOfDay >= 22 || timeOfDay < 4) {
+                            snack.setName("Midnight snack");
+                        } else {
+                            snack.setName("Snack");
+                        }
                     } else {
-                        snack.setName("Snack");
+                        if (timeOfDay >= 4 && timeOfDay < 11) {
+                            snack.setName("Morning drink");
+                        } else if (timeOfDay >= 11 && timeOfDay < 14) {
+                            snack.setName("Midday drink");
+                        } else if (timeOfDay >= 14 && timeOfDay < 18) {
+                            snack.setName("Afternoon drink");
+                        } else if (timeOfDay >= 18 && timeOfDay < 22) {
+                            snack.setName("Evening drink");
+                        } else if (timeOfDay >= 22 || timeOfDay < 4) {
+                            snack.setName("Midnight drink");
+                        } else {
+                            snack.setName("Drink");
+                        }
                     }
                     AddCheatsDialogBox.addCheats(activity, snack);
                 } else {
@@ -288,9 +329,11 @@ public class AddServeDialogBox  {
      */
     public static class ServeChanger implements View.OnClickListener {
         TextView servingCount; //the text to update
+        boolean isDrink;
 
-        public ServeChanger(TextView serveText) {
-            this.servingCount = serveText;
+        public ServeChanger(TextView servingCount, boolean isDrink) {
+            this.servingCount = servingCount;
+            this.isDrink = isDrink;
         }
 
         @Override
@@ -298,19 +341,36 @@ public class AddServeDialogBox  {
             double currentServes = Double.parseDouble(servingCount.getText().toString());
             double newServes=1;
             //depending on the view that called the function, change the serve count
-            switch (view.getId()) {
-                case R.id.add_one_serve:
-                    newServes = currentServes + 1;
-                    break;
-                case R.id.add_one_quarter_serve:
-                    newServes = currentServes + 0.25;
-                    break;
-                case R.id.minus_one_quarter_serve:
-                    newServes = currentServes - 0.25;
-                    break;
-                case R.id.minus_one_serve:
-                    newServes = currentServes - 1;
-                    break;
+            if(!isDrink) {
+                switch (view.getId()) {
+                    case R.id.add_one_serve:
+                        newServes = currentServes + 1;
+                        break;
+                    case R.id.add_one_quarter_serve:
+                        newServes = currentServes + 0.25;
+                        break;
+                    case R.id.minus_one_quarter_serve:
+                        newServes = currentServes - 0.25;
+                        break;
+                    case R.id.minus_one_serve:
+                        newServes = currentServes - 1;
+                        break;
+                }
+            } else {
+                switch (view.getId()) {
+                    case R.id.add_one_serve:
+                        newServes = currentServes + DRINK_STANDARD_SERVE;
+                        break;
+                    case R.id.add_one_quarter_serve:
+                        newServes = currentServes + 30;
+                        break;
+                    case R.id.minus_one_quarter_serve:
+                        newServes = currentServes - 30;
+                        break;
+                    case R.id.minus_one_serve:
+                        newServes = currentServes - DRINK_STANDARD_SERVE;
+                        break;
+                }
             }
             //serves cannot go below 0
             if(newServes < 0) {

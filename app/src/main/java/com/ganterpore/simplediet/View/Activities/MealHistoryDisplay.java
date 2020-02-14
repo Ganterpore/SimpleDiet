@@ -9,22 +9,15 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.Fade;
-import androidx.transition.Slide;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
 
 import android.util.SparseBooleanArray;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
@@ -40,10 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 
 
 public class MealHistoryDisplay  {
@@ -289,7 +279,7 @@ public class MealHistoryDisplay  {
 
             dateTV.setText(dateFormat.format(day.getDate()));
             completedFoodTV.setCompleted(dietController.isFoodCompleted(nDaysAgo));
-            completedWaterTV.setCompleted(dietController.isWaterCompleted(nDaysAgo));
+            completedWaterTV.setCompleted(dietController.isHydrationCompleted(nDaysAgo)); //TODO hydration not water
             didntCheatTV.setCompleted(!dietController.isOverCheatScore(nDaysAgo));
             cheatsProgress.setMax((int) daysPlan.getWeeklyCheats() * SCALE_FACTOR);
             cheatsProgress.setProgress((int) day.getWeeklyCheats() * SCALE_FACTOR);
@@ -343,7 +333,7 @@ public class MealHistoryDisplay  {
             dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
             grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
             fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
-            waterCount.setText((df.format(day.getWaterCount()) + "/" + df.format(daysPlan.getDailyWater())));
+            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyWater())));
             cheatCount.setText((df.format(day.getTotalCheats())));
         }
     }

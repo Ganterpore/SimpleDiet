@@ -183,15 +183,15 @@ public class BasicDietController implements DietController {
     }
 
     @Override
-    public boolean isWaterCompletedToday() {
-        return isWaterCompleted(0);
+    public boolean isHydrationCompletedToday() {
+        return isHydrationCompleted(0);
     }
     @Override
-    public boolean isWaterCompleted(int nDaysAgo) {
-        return isWaterCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
+    public boolean isHydrationCompleted(int nDaysAgo) {
+        return isHydrationCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
-    private boolean isWaterCompleted(DailyMeals meals, DietPlan dietPlan) {
-        return meals.getWaterCount() >= dietPlan.getDailyWater();
+    private boolean isHydrationCompleted(DailyMeals meals, DietPlan dietPlan) {
+        return meals.getHydrationScore() >= dietPlan.getDailyWater();
     }
 
     @Override
