@@ -133,4 +133,61 @@
     <string name="VDGF_3">eg. Vegetarian pizza</string>
     <string name="VMDGF_3">eg. Pizza with the lot</string>
 
+
+    <string name="drink__0">A healthy drink</string>
+    <string name="drink__1">A mostly healthy drink, with some unhealthy additions</string>
+    <string name="drink__2">An unhealthy drink that still has some good</string>
+    <string name="drink__3">An unhealthy drink</string>
+
+    <string name="drink_W_0">eg. Water</string>
+    <string name="drink_WC_0">eg. Black Coffee</string>
+    <string name="drink_WA_0">eg. -</string>
+    <string name="drink_WCA_0">eg. -</string>
+    <string name="drink_M_0">eg. Skim Milk</string>
+    <string name="drink_MC_0">eg. Warmed milk and coffee</string>
+    <string name="drink_MA_0">eg. -</string>
+    <string name="drink_MCA_0">eg. -</string>
+    <string name="drink_WM_0">eg. Decaffeinated Coffee</string>
+    <string name="drink_WMC_0">eg. White coffee</string>
+    <string name="drink_WMA_0">eg. -</string>
+    <string name="drink_WMCA_0">eg. -</string>
+
+    <string name="drink_W_1">eg. Flavoured water</string>
+    <string name="drink_WC_1">eg. Black Coffee with one sugar</string>
+    <string name="drink_WA_1">eg. Vodka Soda</string>
+    <string name="drink_WCA_1">eg. Coffee with bourbon</string>
+    <string name="drink_M_1">eg. Full Cream Milk</string>
+    <string name="drink_MC_1">eg. Warmed milk, coffee and sugar</string>
+    <string name="drink_MA_1">eg. eggnog</string>
+    <string name="drink_MCA_1">eg. Milky coffee with bourbon</string>
+    <string name="drink_WM_1">eg. Decaffeinated Coffee 1 sugar</string>
+    <string name="drink_WMC_1">eg. White coffee, one sugar</string>
+    <string name="drink_WMA_1">eg. eggnog</string>
+    <string name="drink_WMCA_1">eg. Coffee with bourbon</string>
+
+    <string name="drink_W_2">eg. Sports drink</string>
+    <string name="drink_WC_2">eg. Black Coffee with two sugars</string>
+    <string name="drink_WA_2">eg. Beer</string>
+    <string name="drink_WCA_2">eg. Kahlua</string>
+    <string name="drink_M_2">eg. Flavoured Milk</string>
+    <string name="drink_MC_2">eg. low sugar iced coffee</string>
+    <string name="drink_MA_2">eg. Cowboy</string>
+    <string name="drink_MCA_2">eg. alcoholic iced coffee</string>
+    <string name="drink_WM_2">eg. Decaffeinated Coffee 2 sugars</string>
+    <string name="drink_WMC_2">eg. White coffee, two sugars</string>
+    <string name="drink_WMA_2">eg. Cowboy</string>
+    <string name="drink_WMCA_2">eg. Kahlua</string>
+
+    <string name="drink_W_3">eg. Sugary Soda</string>
+    <string name="drink_WC_3">eg. Black Coffee with three sugars</string>
+    <string name="drink_WA_3">eg. Cruiser</string>
+    <string name="drink_WCA_3">eg. Espresso Martini</string>
+    <string name="drink_M_3">eg. Ice Cream Milkshake</string>
+    <string name="drink_MC_3">eg. Iced coffee</string>
+    <string name="drink_MA_3">eg. Baileys</string>
+    <string name="drink_MCA_3">eg. Espresso Martini</string>
+    <string name="drink_WM_3">eg. Hot Chocolate</string>
+    <string name="drink_WMC_3">eg. White coffee, three sugars</string>
+    <string name="drink_WMA_3">eg. Baileys</string>
+    <string name="drink_WMCA_3">eg. Espresso Martini</string>
 </resources>

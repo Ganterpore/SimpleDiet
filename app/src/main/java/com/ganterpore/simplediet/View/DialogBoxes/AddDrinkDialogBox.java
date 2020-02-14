@@ -34,13 +34,18 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     private final TextView caffeineCountTV;
     private final TextView alcoholCountTV;
     private double milkServes;
-    private double waterServes;
+    public double waterServes;
     private double caffieneServes;
     private double alcoholServes;
     private final TextView volumeTV;
     private TextView hydrationFactor;
+    private TextView exampleDrink;
+
+    private final RadioGroup cheatSelector;
+    private Activity activity;
 
     public AddDrinkDialogBox(final Activity activity) {
+        this.activity = activity;
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View addDrinkLayout = layoutInflater.inflate(R.layout.dialog_box_drink, null);
@@ -57,18 +62,28 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         alcoholButton.setOnClickListener(onClick);
 
         //getting all the textviews
-        //TODO more views for percent/mls etc
         milkCountTV = addDrinkLayout.findViewById(R.id.milk_count);
         waterCountTV = addDrinkLayout.findViewById(R.id.water_count);
         caffeineCountTV = addDrinkLayout.findViewById(R.id.caffiene_count);
         alcoholCountTV = addDrinkLayout.findViewById(R.id.alcohol_count);
         volumeTV = addDrinkLayout.findViewById(R.id.volume);
         hydrationFactor = addDrinkLayout.findViewById(R.id.hydration_factor);
+        exampleDrink = addDrinkLayout.findViewById(R.id.example_food);
         final EditText drinkNameET = addDrinkLayout.findViewById(R.id.drink_name);
 
-        //TODO change example food when updated
-        final RadioGroup cheatSelector = addDrinkLayout.findViewById(R.id.cheat_selector);
+        cheatSelector = addDrinkLayout.findViewById(R.id.cheat_selector);
         final RadioGroup daySelector = addDrinkLayout.findViewById(R.id.day_selector);
+        updateExampleDrink();
+        cheatSelector.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(alcoholServes > 0 && checkedId==R.id.cheat_0) {
+                    Toast.makeText(activity, "Alcohol is inherently unhealthy. We don't recommend making it a zero cheat score.", Toast.LENGTH_LONG)
+                                .show();
+                }
+                updateExampleDrink();
+            }
+        });
 
         //building the alert dialog
         final AlertDialog.Builder addDrinkDialog = new AlertDialog.Builder(activity);
@@ -177,6 +192,44 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     }
 
     /**
+     * used to update the field that describes an example food in the mix of selected food groups
+     */
+    public void updateExampleDrink() {
+        //finding the appropriate string resource prefix, based on the food groups being used
+        String foodExamplePrefix = "drink_";
+        foodExamplePrefix += waterServes>0 ? "W" : "";
+        foodExamplePrefix += milkServes>0 ? "M" : "";
+        foodExamplePrefix += caffieneServes>0 ? "C" : "";
+        foodExamplePrefix += alcoholServes>0 ? "A" : "";
+
+        //getting the cheat score to find the relevant food example with the given cheat score
+        final String finalFoodExamplePrefix = foodExamplePrefix;
+        int cheatScore;
+        int checkedId = cheatSelector.getCheckedRadioButtonId();
+        switch (checkedId) {
+            case R.id.cheat_0:
+                cheatScore = 0;
+                break;
+            case R.id.cheat_1:
+                cheatScore = 1;
+                break;
+            case R.id.cheat_2:
+                cheatScore = 2;
+                break;
+            case R.id.cheat_3:
+                cheatScore = 3;
+                break;
+            default:
+                cheatScore = 0;
+        }
+        //Getting the relevant string resource based on the information, and setting the example text to ity
+        exampleDrink.setText(
+                activity.getResources()
+                        .getIdentifier(finalFoodExamplePrefix +"_"+cheatScore, "string", activity.getPackageName())
+        );
+    }
+
+    /**
      * when a serve has been added this function is called, so that the view updates with the serve that has been added
      * @param type, the type of serve added
      * @param serve, the size of the added serve
@@ -187,11 +240,11 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         NumberFormat df = new DecimalFormat("##.##");
         switch (type) {
             case WATER:
-                waterCountTV.setText(df.format(serve));
+                waterCountTV.setText(df.format(serve) +"/"+df.format(serve*AddServeDialogBox.DRINK_STANDARD_SERVE)+"mL");
                 waterServes = serve;
                 break;
             case MILK:
-                milkCountTV.setText(df.format(serve));
+                milkCountTV.setText(df.format(serve) +"/"+df.format(serve*AddServeDialogBox.DRINK_STANDARD_SERVE)+"mL");
                 milkServes = serve;
                 break;
             case CAFFEINE:
@@ -199,8 +252,12 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                 caffieneServes = serve;
                 break;
             case ALCOHOL:
-                alcoholCountTV.setText(df.format(serve));
+                alcoholCountTV.setText(df.format(serve) +"/"+df.format(Meal.getPercentFromStandards(waterServes, milkServes, serve))+"%");
                 alcoholServes = serve;
+                //if alcoholic, and the cheat score is 0, move to one as alcohol is unhealthy
+                if(alcoholServes > 0 && cheatSelector.getCheckedRadioButtonId()==R.id.cheat_0) {
+                    cheatSelector.check(R.id.cheat_1);
+                }
                 break;
         }
         //update other texts related to serves
@@ -211,7 +268,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                 + df.format(caffieneServes) + " caffeine - " + df.format(alcoholServes) + " alcohol = "
                 + df.format(waterServes + milkServes - caffieneServes - alcoholServes);
         hydrationFactor.setText(hydrationText);
-//        updateExampleFood();
+        updateExampleDrink();
     }
 
     /**
@@ -219,68 +276,52 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
      */
     static class AddServesOnClick implements View.OnClickListener {
         Activity activity;
-        AddServeDialogBox.ServeListener listener;
+        AddDrinkDialogBox dialogBox;
 
-        AddServesOnClick(Activity activity, AddServeDialogBox.ServeListener listener) {
+        public AddServesOnClick(Activity activity, AddDrinkDialogBox parent) {
             this.activity = activity;
-            this.listener = listener;
+            this.dialogBox = parent;
         }
 
         @Override
         public void onClick(View view) {
             AddServeDialogBox.FoodType type;
             LinearLayout parent = (LinearLayout) view.getParent().getParent().getParent();
-            TextView servesView;
             double serves;
             Intent intent = new Intent();
             //from the id of the button that called it, figure out what food to add serves to, and the current serves
             switch (view.getId()) {
                 case R.id.water_image:
                     type = AddServeDialogBox.FoodType.WATER;
-                    servesView = parent.findViewById(R.id.water_count);
+                    serves = dialogBox.waterServes;
                     break;
                 case R.id.milk_image:
                     type = AddServeDialogBox.FoodType.MILK;
-                    servesView = parent.findViewById(R.id.milk_count);
+                    serves = dialogBox.milkServes;
                     break;
                 case R.id.caffeine_image:
                     type = AddServeDialogBox.FoodType.CAFFEINE;
-                    servesView = parent.findViewById(R.id.caffiene_count);
+                    serves = dialogBox.caffieneServes;
                     break;
                 case R.id.alcohol_image:
                     type = AddServeDialogBox.FoodType.ALCOHOL;
-                    servesView = parent.findViewById(R.id.alcohol_count);
+                    serves = dialogBox.alcoholServes;
                     //for alcohol, we also need to get the volume of liquid (in serves)
-                    String waterServeString = ((TextView) parent.findViewById(R.id.water_count))
-                            .getText().toString();
-                    double waterServe;
-                    if(waterServeString.isEmpty()) {
-                        waterServe = 0;
-                    } else {
-                        waterServe = Double.parseDouble(waterServeString);
-                    }
-                    String dairyServeString = ((TextView) parent.findViewById(R.id.milk_count))
-                            .getText().toString();
-                    double dairyServe;
-                    if(dairyServeString.isEmpty()) {
-                        dairyServe = 0;
-                    } else {
-                        dairyServe = Double.parseDouble(dairyServeString);
-                    }
+                    double waterServe = dialogBox.waterServes;
+                    double dairyServe = dialogBox.milkServes;
                     intent.putExtra("servesLiquid", waterServe+dairyServe);
                     break;
                 default:
                     type = null;
-                    servesView = null;
+                    serves = 0;
                     break;
             }
             //if the number of serves is already set (>0), then set that to the default, otherwise use the default default
-            serves = Double.parseDouble(servesView.getText().toString());
             intent.putExtra("foodType", type);
             if(serves > 0) {
                 intent.putExtra("nServes", serves);
             }
-            AddServeDialogBox.addServe(activity, intent, listener);
+            AddServeDialogBox.addServe(activity, intent, dialogBox);
         }
     }
 }

@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -30,7 +28,6 @@ import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.DietPlan;
-import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
@@ -336,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
                             today.getGrainCount(), today.getFruitCount(), today.getHydrationScore()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
-                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyWater()};
+                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration()};
 
         NumberFormat df = new DecimalFormat("##.##");
 

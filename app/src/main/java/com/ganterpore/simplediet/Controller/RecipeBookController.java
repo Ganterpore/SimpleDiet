@@ -26,7 +26,7 @@ public class RecipeBookController {
 
         return db.collection(Recipe.RECIPES).whereEqualTo("user", user)
                                             .whereEqualTo("isDrink", false)
-                                            .orderBy("name"); 
+                                            .orderBy("name");
     }
 
     public static Query getDrinkRecipes() {
