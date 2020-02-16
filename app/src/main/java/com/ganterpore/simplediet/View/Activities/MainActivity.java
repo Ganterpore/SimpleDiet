@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
                             today.getGrainCount(), today.getFruitCount(), today.getHydrationScore()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
-                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration()};
+                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyWater()};
 
         NumberFormat df = new DecimalFormat("##.##");
 

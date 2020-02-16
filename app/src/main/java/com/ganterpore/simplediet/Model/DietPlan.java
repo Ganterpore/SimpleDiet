@@ -11,19 +11,19 @@ public class DietPlan {
     private double dailyDairy;
     private double dailyGrain;
     private double dailyFruit;
-    private double dailyHydration;
+    private double dailyWater;
     private double weeklyCheats;
 
     private String user;
 
     public DietPlan(double dailyVeges, double dailyProtein, double dailyDairy, double dailyGrain,
-                    double dailyFruit, double dailyHydration, double weeklyCheats, String user) {
+                    double dailyFruit, double dailyWater, double weeklyCheats, String user) {
         this.dailyVeges = dailyVeges;
         this.dailyProtein = dailyProtein;
         this.dailyDairy = dailyDairy;
         this.dailyGrain = dailyGrain;
         this.dailyFruit = dailyFruit;
-        this.dailyHydration = dailyHydration;
+        this.dailyWater = dailyWater;
         this.weeklyCheats = weeklyCheats;
         this.user = user;
     }
@@ -80,12 +80,12 @@ public class DietPlan {
         this.dailyFruit = dailyFruit;
     }
 
-    public double getDailyHydration() {
-        return dailyHydration;
+    public double getDailyWater() {
+        return dailyWater;
     }
 
-    public void setDailyHydration(double dailyHydration) {
-        this.dailyHydration = dailyHydration;
+    public void setDailyWater(double dailyWater) {
+        this.dailyWater = dailyWater;
     }
 
     public double getWeeklyCheats() {

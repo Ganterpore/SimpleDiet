@@ -70,7 +70,7 @@ public class OverUnderEatingDietController extends BasicDietController{
             //create new dietPlan
             DietPlan newDiet = new DietPlan(vegCountAdjusted, proteinCountAdjusted,
                     dairyCountAdjusted, grainCountAdjusted, fruitCountAdjusted,
-                    getOverallDietPlan().getDailyHydration(), getOverallDietPlan().getWeeklyCheats(), getOverallDietPlan().getUser());
+                    getOverallDietPlan().getDailyWater(), getOverallDietPlan().getWeeklyCheats(), getOverallDietPlan().getUser());
 
             //replace the diet plan with the new one
             daysAgoDiets.put(nDaysAgo, newDiet);

@@ -333,7 +333,7 @@ public class MealHistoryDisplay  {
             dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
             grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
             fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
-            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration())));
+            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyWater())));
             cheatCount.setText((df.format(day.getTotalCheats())));
         }
     }
