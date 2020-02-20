@@ -14,10 +14,14 @@ public class DietPlan {
     private double dailyWater;
     private double weeklyCheats;
 
+    private double dailyCaffeine;
+    private double dailyAlcohol;
+
     private String user;
 
     public DietPlan(double dailyVeges, double dailyProtein, double dailyDairy, double dailyGrain,
-                    double dailyFruit, double dailyWater, double weeklyCheats, String user) {
+                    double dailyFruit, double dailyWater, double weeklyCheats,
+                    double dailyCaffeine, double dailyAlcohol, String user) {
         this.dailyVeges = dailyVeges;
         this.dailyProtein = dailyProtein;
         this.dailyDairy = dailyDairy;
@@ -25,6 +29,8 @@ public class DietPlan {
         this.dailyFruit = dailyFruit;
         this.dailyWater = dailyWater;
         this.weeklyCheats = weeklyCheats;
+        this.dailyCaffeine = dailyCaffeine;
+        this.dailyAlcohol = dailyAlcohol;
         this.user = user;
     }
 
@@ -94,6 +100,22 @@ public class DietPlan {
 
     public void setWeeklyCheats(double weeklyCheats) {
         this.weeklyCheats = weeklyCheats;
+    }
+
+    public double getDailyAlcohol() {
+        return dailyAlcohol;
+    }
+
+    public void setDailyAlcohol(double dailyAlcohol) {
+        this.dailyAlcohol = dailyAlcohol;
+    }
+
+    public double getDailyCaffeine() {
+        return dailyCaffeine;
+    }
+
+    public void setDailyCaffeine(double dailyCaffeine) {
+        this.dailyCaffeine = dailyCaffeine;
     }
 
     public String getUser() {

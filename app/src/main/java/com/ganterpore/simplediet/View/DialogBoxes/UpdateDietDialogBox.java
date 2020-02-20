@@ -35,6 +35,8 @@ public class UpdateDietDialogBox {
         final EditText grainCountET= updateDietLayout.findViewById(R.id.grain_count);
         final EditText fruitCountET = updateDietLayout.findViewById(R.id.fruit_count);
         final EditText waterCountET = updateDietLayout.findViewById(R.id.water_count);
+        final EditText caffeineCountET = updateDietLayout.findViewById(R.id.caffiene_count);
+        final EditText alcoholCountET = updateDietLayout.findViewById(R.id.alcohol_count);
         final EditText cheatScoreET = updateDietLayout.findViewById(R.id.cheat_score);
 
         //Build the dialog box
@@ -54,6 +56,8 @@ public class UpdateDietDialogBox {
                         Double.parseDouble(fruitCountET.getText().toString()),
                         Double.parseDouble(waterCountET.getText().toString()),
                         Double.parseDouble(cheatScoreET.getText().toString()),
+                        Double.parseDouble(caffeineCountET.getText().toString()),
+                        Double.parseDouble(alcoholCountET.getText().toString()),
                         FirebaseAuth.getInstance().getCurrentUser().getUid()
                 );
                 plan.pushToDB()
