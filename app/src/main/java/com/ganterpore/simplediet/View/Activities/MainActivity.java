@@ -44,8 +44,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
-import org.w3c.dom.Text;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -111,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         if(currentUser==null) {
             //if no user, then create an anonymous account
             new AlertDialog.Builder(this)
-                    .setTitle("No account detected")
+                    .setTitle(  "No account detected")
                     .setMessage("Create new anonymous account?")
                     .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                         @Override
@@ -342,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                             today.getAlcoholCount(), today.getHydrationScore()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
                             todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyCaffeine(),
-                            todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyWater()};
+                            todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyHydration()};
 
         NumberFormat df = new DecimalFormat("##.##");
 

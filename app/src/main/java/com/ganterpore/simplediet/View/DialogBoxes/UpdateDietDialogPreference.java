@@ -2,10 +2,10 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import androidx.preference.DialogPreference;
 
-import static com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox.updateDiet;
 
 public class UpdateDietDialogPreference extends DialogPreference {
     Context context;
@@ -17,7 +17,15 @@ public class UpdateDietDialogPreference extends DialogPreference {
 
     @Override
     protected void onClick() {
-        updateDiet(context);
+        switch (getKey()) {
+            case "update_diet":
+                UpdateDietDialogBox.updateDiet(context);
+                break;
+            case "update_hydration":
+                UpdateDrinkDietPlanDialogBox.updateDiet(context);
+                break;
+        }
+
     }
 }
 

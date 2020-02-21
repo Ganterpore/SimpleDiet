@@ -13,25 +13,27 @@ public class DietPlan {
     private double dailyDairy;
     private double dailyGrain;
     private double dailyFruit;
-    private double dailyWater;
+    private double dailyHydration;
     private double weeklyCheats;
     private int order;
     private String dietName;
 
     private double dailyCaffeine;
     private double dailyAlcohol;
+    private double weeklyCaffeine;
+    private double weeklyAlcohol;
 
     private String user;
 
     public DietPlan(double dailyVeges, double dailyProtein, double dailyDairy, double dailyGrain,
-                    double dailyFruit, double dailyWater, double weeklyCheats,
+                    double dailyFruit, double dailyHydration, double weeklyCheats,
                     double dailyCaffeine, double dailyAlcohol, String user) {
         this.dailyVeges = dailyVeges;
         this.dailyProtein = dailyProtein;
         this.dailyDairy = dailyDairy;
         this.dailyGrain = dailyGrain;
         this.dailyFruit = dailyFruit;
-        this.dailyWater = dailyWater;
+        this.dailyHydration = dailyHydration;
         this.weeklyCheats = weeklyCheats;
         this.dailyCaffeine = dailyCaffeine;
         this.dailyAlcohol = dailyAlcohol;
@@ -97,12 +99,12 @@ public class DietPlan {
         this.dailyFruit = dailyFruit;
     }
 
-    public double getDailyWater() {
-        return dailyWater;
+    public double getDailyHydration() {
+        return dailyHydration;
     }
 
-    public void setDailyWater(double dailyWater) {
-        this.dailyWater = dailyWater;
+    public void setDailyHydration(double dailyHydration) {
+        this.dailyHydration = dailyHydration;
     }
 
     public double getWeeklyCheats() {
@@ -127,6 +129,22 @@ public class DietPlan {
 
     public void setDailyCaffeine(double dailyCaffeine) {
         this.dailyCaffeine = dailyCaffeine;
+    }
+
+    public double getWeeklyCaffeine() {
+        return weeklyCaffeine;
+    }
+
+    public void setWeeklyCaffeine(double weeklyCaffeine) {
+        this.weeklyCaffeine = weeklyCaffeine;
+    }
+
+    public double getWeeklyAlcohol() {
+        return weeklyAlcohol;
+    }
+
+    public void setWeeklyAlcohol(double weeklyAlcohol) {
+        this.weeklyAlcohol = weeklyAlcohol;
     }
 
     public String getUser() {
