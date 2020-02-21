@@ -78,107 +78,59 @@
         app:layout_constraintGuide_percent=".833"
         android:orientation="horizontal"/>
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleX="0.91"
-        android:scaleY="0.91"
-        android:src="@drawable/progress_circle_background"
-        android:layout_marginBottom="3dp"/>
-
-<!--    <ProgressBar-->
-<!--        android:id="@+id/progress_water"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
+<!--    <ImageView-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="match_parent"-->
-<!--        android:indeterminate="false"-->
-<!--        android:progressDrawable="@drawable/progress_bar_water"-->
-<!--        style="?android:attr/progressBarStyleHorizontal"-->
-<!--        android:progress="100"/>-->
-
+<!--        android:scaleX="0.91"-->
+<!--        android:scaleY="0.91"-->
+<!--        android:src="@drawable/progress_circle_background"-->
+<!--        android:layout_marginBottom="3dp"/>-->
 
     <ProgressBar
-        android:id="@+id/progress_vege"
+        android:id="@+id/progress_water"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:progressDrawable="@drawable/progress_bar_water"
         style="?android:attr/progressBarStyleHorizontal"
+        android:progress="100"/>
+
+    <ImageView
+        android:id="@+id/caffeine_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:indeterminate="false"
-        android:progress="100"
-        android:progressDrawable="@drawable/progress_bar_vege"
-        android:scaleX="0.95"
-        android:scaleY="0.95"
-
+        android:src="@drawable/caffiene"
+        app:layout_constraintStart_toStartOf="@+id/start_guideline"
+        app:layout_constraintEnd_toEndOf="@id/center_horizontal_guideline"
         app:layout_constraintTop_toTopOf="@id/top_guideline"
-        app:layout_constraintBottom_toBottomOf="@+id/centre_vertical_guideline"
-        app:layout_constraintStart_toStartOf="@id/start_guideline"
-        app:layout_constraintEnd_toEndOf="@+id/center_horizontal_guideline"
+        app:layout_constraintBottom_toBottomOf="@id/centre_vertical_guideline"/>
 
-        android:rotation="270"/>
+    <TextView
+        android:id="@+id/caffeine_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/caffeine_image"
+        app:layout_constraintStart_toEndOf="@+id/caffeine_image"/>
 
-    <ProgressBar
-        android:id="@+id/progress_fruit"
-        style="?android:attr/progressBarStyleHorizontal"
+    <ImageView
+        android:id="@+id/alcohol_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:indeterminate="false"
-        android:progress="100"
-        android:progressDrawable="@drawable/progress_bar_fruit"
-
-        app:layout_constraintLeft_toLeftOf="@id/center_horizontal_guideline"
-        app:layout_constraintRight_toRightOf="@id/end_guideline"
-        app:layout_constraintTop_toTopOf="@id/top_guideline"
-        app:layout_constraintBottom_toBottomOf="@id/centre_vertical_guideline"
-
-        android:rotation="270"/>
-
-    <ProgressBar
-        android:id="@+id/progress_meat"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:indeterminate="false"
-        android:progress="100"
-        android:progressDrawable="@drawable/progress_bar_meat"
-
-        app:layout_constraintLeft_toLeftOf="@id/start_guideline"
-        app:layout_constraintRight_toRightOf="@id/center_horizontal_guideline"
+        android:src="@drawable/alcohol"
+        app:layout_constraintStart_toStartOf="@+id/start_guideline"
+        app:layout_constraintEnd_toEndOf="@id/center_horizontal_guideline"
         app:layout_constraintTop_toTopOf="@id/centre_vertical_guideline"
-        app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/bottom_guideline"/>
 
-        android:rotation="270"/>
-
-    <ProgressBar
-        android:id="@+id/progress_grain"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:indeterminate="false"
-        android:progress="100"
-        android:progressDrawable="@drawable/progress_bar_grain"
-
-        app:layout_constraintLeft_toLeftOf="@id/center_horizontal_guideline"
-        app:layout_constraintRight_toRightOf="@id/end_guideline"
-        app:layout_constraintTop_toTopOf="@id/centre_vertical_guideline"
-        app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
-
-        android:rotation="270"/>
-
-    <ProgressBar
-        android:id="@+id/progress_dairy"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:indeterminate="false"
-        android:progress="100"
-        android:progressDrawable="@drawable/progress_bar_dairy"
-
-        app:layout_constraintLeft_toLeftOf="@id/start_centre_guideline"
-        app:layout_constraintRight_toRightOf="@id/centre_end_guideline"
-        app:layout_constraintTop_toTopOf="@id/top_centre_guideline"
-        app:layout_constraintBottom_toBottomOf="@id/centre_bottom_guideline"
-
-        android:rotation="270"/>
+    <TextView
+        android:id="@+id/alcohol_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2/3"
+        app:layout_constraintBottom_toBottomOf="@id/alcohol_image"
+        app:layout_constraintStart_toEndOf="@+id/alcohol_image"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

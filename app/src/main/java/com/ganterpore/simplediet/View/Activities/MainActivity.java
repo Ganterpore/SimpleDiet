@@ -44,6 +44,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
+import org.w3c.dom.Text;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
         final ConstraintLayout progressCircle = findViewById(R.id.progress_sphere);
         final ConstraintLayout progressCheats = findViewById(R.id.cheats_progress);
+        final ConstraintLayout progressDrinks = findViewById(R.id.drinks_progress);
         AppBarLayout appBarLayout = findViewById(R.id.appBar);
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
             @Override
@@ -92,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 progressCircle.setScaleY(scaleFactor);
                 progressCheats.setScaleX(scaleFactor);
                 progressCheats.setScaleY(scaleFactor);
+                progressDrinks.setScaleX(scaleFactor);
+                progressDrinks.setScaleY(scaleFactor);
 
             }
         });
@@ -307,6 +312,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView grainTV = findViewById(R.id.grain_count);
         TextView fruitTV = findViewById(R.id.fruit_count);
         TextView waterTV = findViewById(R.id.water_count);
+        TextView caffeineTV = findViewById(R.id.caffeine_count);
+        TextView alcoholTV = findViewById(R.id.alcohol_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
 
         TextView vegeLeftTV = findViewById(R.id.veg_left);
@@ -327,13 +334,15 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         ProgressBar cheatsPB = findViewById(R.id.progress_cheats);
 
         //creating arrays of the text views to update
-        TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV};
-        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, waterLeftTV};
-        ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB};
+        TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, caffeineTV, alcoholTV, waterTV};
+        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, null, null, waterLeftTV};
+        ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, null, null, waterPB};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
-                            today.getGrainCount(), today.getFruitCount(), today.getHydrationScore()};
+                            today.getGrainCount(), today.getFruitCount(), today.getCaffieneCount(),
+                            today.getAlcoholCount(), today.getHydrationScore()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
-                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration()};
+                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyCaffeine(),
+                            todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyWater()};
 
         NumberFormat df = new DecimalFormat("##.##");
 
@@ -347,15 +356,21 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             double servesLeft = plan - count;
 
             if(servesLeft <= 0.2) {
-                countTV.setText(df.format(count) + "/" + df.format(plan));
-                leftTV.setText("Done!");
+                if(countTV != null) {
+                    countTV.setText(df.format(count) + "/" + df.format(plan));
+                } if(leftTV != null) {
+                    leftTV.setText("Done!");
+                }
 //                countTV.setTextColor(Color.GREEN);
 //                leftTV.setTextColor(Color.GREEN);
 //                countTV.setAlpha((float) 1);
 //                leftTV.setAlpha((float) 1);
             } else {
-                countTV.setText(df.format(count) + "/" + df.format(plan));
-                leftTV.setText(df.format(servesLeft) + " left");
+                if(countTV != null) {
+                    countTV.setText(df.format(count) + "/" + df.format(plan));
+                } if (leftTV != null) {
+                    leftTV.setText(df.format(servesLeft) + " left");
+                }
 
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //                    countTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));

@@ -196,7 +196,7 @@ public class BasicDietController implements DietController {
         return isHydrationCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
     private boolean isHydrationCompleted(DailyMeals meals, DietPlan dietPlan) {
-        return meals.getHydrationScore() >= dietPlan.getDailyHydration();
+        return meals.getHydrationScore() >= dietPlan.getDailyWater();
     }
 
     @Override
@@ -333,7 +333,7 @@ public class BasicDietController implements DietController {
             underAte = true;
             underAteMessage += "fruit, ";
         }
-        if(fortnightlyWater < (14* overallDiet.getDailyHydration() - 7)) {
+        if(fortnightlyWater < (14* overallDiet.getDailyWater() - 7)) {
             underAte = true;
             underAteMessage += "water, ";
         }
