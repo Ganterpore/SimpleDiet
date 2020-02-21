@@ -5,8 +5,11 @@ import android.util.AttributeSet;
 
 import androidx.preference.DialogPreference;
 
+import static com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox.updateDiet;
+
 public class UpdateDietDialogPreference extends DialogPreference {
     Context context;
+
     public UpdateDietDialogPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
@@ -14,8 +17,9 @@ public class UpdateDietDialogPreference extends DialogPreference {
 
     @Override
     protected void onClick() {
-        UpdateDietDialogBox.updateDiet(context);
+        updateDiet(context);
     }
+}
 
     //TODO may move to single class in future
 //    /**
@@ -72,4 +76,3 @@ public class UpdateDietDialogPreference extends DialogPreference {
 //            }
 //        }).show();
 //    }
-}

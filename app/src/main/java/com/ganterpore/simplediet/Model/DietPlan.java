@@ -2,9 +2,11 @@ package com.ganterpore.simplediet.Model;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 public class DietPlan {
     public static final String COLLECTION_NAME = "DietPlans";
+    public static final String DEFAULT_DIETS_COLLECTION_NAME = "DefaultDiets";
 
     private double dailyVeges;
     private double dailyProtein;
@@ -13,6 +15,8 @@ public class DietPlan {
     private double dailyFruit;
     private double dailyHydration;
     private double weeklyCheats;
+    private int order;
+    private String dietName;
 
     private String user;
 
@@ -38,6 +42,13 @@ public class DietPlan {
     public Task<Void> pushToDB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         return db.collection(COLLECTION_NAME).document(user).set(this);
+    }
+
+    public static Query defaultDiets() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        return db.collection(DEFAULT_DIETS_COLLECTION_NAME)
+                .orderBy("order");
     }
 
     public double getDailyVeges() {
@@ -102,5 +113,17 @@ public class DietPlan {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getDietName() {
+        return dietName;
+    }
+
+    public void setDietName(String dietName) {
+        this.dietName = dietName;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }

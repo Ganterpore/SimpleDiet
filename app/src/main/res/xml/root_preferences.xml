@@ -25,6 +25,11 @@
             app:useSimpleSummaryProvider="true" />
 
         <Preference
+            app:key="update_hydration"
+            app:title="Update your drinking plan"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
             app:key="update_cheat_points"
             app:title="Update your cheat points"
             app:useSimpleSummaryProvider="true" />

@@ -1,92 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <TextView
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select a default diet plan from the list"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/default_diets"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:fadeScrollbars="false"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Personalise your diet plan here"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/veg_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of serves of veges:"
+            android:hint="Veges"
             android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/protein_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of serves of meat:"
+            android:hint="Meat"
             android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/dairy_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of serves of dairy:"
+            android:hint="Dairy"
             android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/grain_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of serves of grain:"
+            android:hint="Grain"
             android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/fruit_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of serves of fruit:"
+            android:hint="Fruit"
             android:inputType="numberDecimal"
             android:imeOptions="actionNext"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/water_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter number of serves of water:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_weight="1"-->
+<!--        android:layout_height="wrap_content">-->
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/water_count"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:hint="Enter number of serves of water:"-->
+<!--            android:inputType="numberDecimal"-->
+<!--            android:imeOptions="actionNext"/>-->
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cheat_score"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter cheat points per week:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_weight="1"-->
+<!--        android:layout_height="wrap_content">-->
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/cheat_score"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:hint="Enter cheat points per week:"-->
+<!--            android:inputType="numberDecimal"-->
+<!--            android:imeOptions="actionNext"/>-->
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
 
+    </LinearLayout>
 </LinearLayout>

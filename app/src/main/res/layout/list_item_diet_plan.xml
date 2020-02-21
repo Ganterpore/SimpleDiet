@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Default Title"
+        android:textStyle="bold"
+        style="@style/TextAppearance.AppCompat.Medium"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/veges_diet_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Veges:0"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/meat_diet_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Meat:0"
+            android:layout_weight="1"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/dairy_diet_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dairy:0"
+            android:layout_weight="1"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/grain_diet_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Grain:0"
+            android:layout_weight="1"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/fruit_diet_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Fruit:0"
+            android:layout_weight="1"
+            android:layout_marginBottom="8dp"/>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"/>
+
+
+
+
+</LinearLayout>
