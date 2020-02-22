@@ -30,9 +30,10 @@
             app:dialogLayout="@layout/dialog_box_drink_diet_plan"
             app:useSimpleSummaryProvider="true" />
 
-        <Preference
+        <com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogPreference
             app:key="update_cheat_points"
             app:title="Update your cheat points"
+            app:dialogLayout="@layout/dialog_box_cheat_plan"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference

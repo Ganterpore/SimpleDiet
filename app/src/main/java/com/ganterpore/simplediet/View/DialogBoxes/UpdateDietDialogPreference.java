@@ -24,6 +24,9 @@ public class UpdateDietDialogPreference extends DialogPreference {
             case "update_hydration":
                 UpdateDrinkDietPlanDialogBox.updateDiet(context);
                 break;
+            case "update_cheat_points":
+                UpdateCheatsDialogBox.updateDiet(context);
+                break;
         }
 
     }

@@ -59,6 +59,10 @@ public class DietPlan {
                 .orderBy("order");
     }
 
+    public double totalServes() {
+        return dailyVeges + dailyProtein + dailyDairy + dailyGrain + dailyFruit;
+    }
+
     public double getDailyVeges() {
         return dailyVeges;
     }

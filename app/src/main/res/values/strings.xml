@@ -110,4 +110,5 @@ Either set the standards directly, or use the percentage slider to calculate the
 
 
  <string name="cheat_score_description">Select a cheat score that measures how much of a cheat meal this was. The higher the score, the worse it is for you.</string>
+    <string name="cheat_description_template">Your current diet plan has you having X serves per day. At this current daily limit, you are having Y points per serve.</string>
 </resources>

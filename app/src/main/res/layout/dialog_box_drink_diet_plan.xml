@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <TextView
+        android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Set your daily liquid intake. It is suggested to have at least 10 serves of water, and no more that 4 serves of caffeine and alcohol one any one day."/>
@@ -56,6 +57,7 @@
     </LinearLayout>
 
     <TextView
+        android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="For long term benifits, it is recommended to have less than 14 serves of caffeine, and 10 standards of alcohol per week."/>

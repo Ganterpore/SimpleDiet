@@ -55,7 +55,7 @@
 
                         <include
                             android:id="@+id/drinks_progress"
-                            layout="@layout/drinks_progress"
+                            layout="@layout/progress_drinks"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             app:layout_constraintDimensionRatio="1:1" />
