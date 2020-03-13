@@ -3,6 +3,7 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +19,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+
 public class AddCheatsDialogBox {
     public static final String TAG = "AddCheatsDialogBox";
+    private static SharedPreferences preferences;
 
-    public static void addCheats(final Activity activity, final Meal meal) {
+    public static void addCheats(final Activity activity, final Meal meal, boolean isDrink) {
+        preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        String mode = preferences.getString("mode", "normal");
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View addCheatsLayout = layoutInflater.inflate(R.layout.dialog_box_add_cheats, null);
@@ -31,11 +38,25 @@ public class AddCheatsDialogBox {
 
         //finding the appropriate string resource prefix
         String foodExamplePrefix = "";
-        foodExamplePrefix += meal.getVegCount()>0 ? "V" : "";
-        foodExamplePrefix += meal.getProteinCount()>0 ? "M" : "";
-        foodExamplePrefix += meal.getDairyCount()>0 ? "D" : "";
-        foodExamplePrefix += meal.getGrainCount()>0 ? "G" : "";
-        foodExamplePrefix += meal.getFruitCount()>0 ? "F" : "";
+        if(isDrink) {
+            foodExamplePrefix = "drink_";
+            foodExamplePrefix += meal.getWaterCount() > 0 ? "W" : "";
+            foodExamplePrefix += meal.getDairyCount() > 0 ? "M" : "";
+            foodExamplePrefix += meal.getCaffieneCount() > 0 ? "C" : "";
+            foodExamplePrefix += meal.getAlcoholStandards() > 0 ? "A" : "";
+        } else {
+            foodExamplePrefix += meal.getVegCount() > 0 ? "V" : "";
+            foodExamplePrefix += meal.getProteinCount() > 0 ? "M" : "";
+            foodExamplePrefix += meal.getDairyCount() > 0 ? "D" : "";
+            foodExamplePrefix += meal.getGrainCount() > 0 ? "G" : "";
+            foodExamplePrefix += meal.getFruitCount() > 0 ? "F" : "";
+        }
+        if(mode.equals("vegan")) {
+            foodExamplePrefix = "VN_" + foodExamplePrefix;
+        } else if(mode.equals("vegetarian")) {
+            foodExamplePrefix = "VG_" + foodExamplePrefix;
+        }
+
         //putting the appropriate string into the example text
         exampleFood.setText(
             activity.getResources()

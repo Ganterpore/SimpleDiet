@@ -291,7 +291,7 @@ public class BasicDietController implements DietController {
         }
         if(fortnightlyProtein > (14* overallDiet.getDailyProtein() + 7)) {
             overAte = true;
-            overAteMessage += "meats, ";
+            overAteMessage += "proteins, ";
         }
         if(fortnightlyDairy > (14* overallDiet.getDailyDairy() + 7)) {
             overAte = true;
@@ -319,7 +319,7 @@ public class BasicDietController implements DietController {
         }
         if(fortnightlyProtein < (14* overallDiet.getDailyProtein() - 7)) {
             underAte = true;
-            underAteMessage += "meats, ";
+            underAteMessage += "proteins, ";
         }
         if(fortnightlyDairy < (14* overallDiet.getDailyDairy() - 7)) {
             underAte = true;

@@ -94,7 +94,7 @@
             android:id="@+id/protein_count_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Meat"
+            android:text="Proteins"
             android:textStyle="bold"
             android:textAlignment="center"/>
 

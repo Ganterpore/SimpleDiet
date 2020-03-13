@@ -63,7 +63,7 @@
             android:id="@+id/protein_count_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="M"
+            android:text="P"
             android:textStyle="bold"
             android:textAlignment="center"/>
 
