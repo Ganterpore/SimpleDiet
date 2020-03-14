@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -23,6 +24,7 @@ import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -225,8 +227,16 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                     todaysMeal.pushToDB()
                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    Toast.makeText(activity, "Added Meal", Toast.LENGTH_SHORT).show();
+                                public void onSuccess(final DocumentReference documentReference) {
+                                    Snackbar.make(activity.findViewById(R.id.whole_package),
+                                            "Added Meal", Snackbar.LENGTH_LONG)
+                                            .setAction("Undo", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    documentReference.delete();
+                                                }
+                                            })
+                                            .show();
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {

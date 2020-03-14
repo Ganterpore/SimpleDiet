@@ -97,7 +97,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             //setting up the notifications
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
         } else {
             //if we are not doing evening alarms, confirm they are cancelled
             Intent intent = new Intent(this, NotificationReciever.class);
