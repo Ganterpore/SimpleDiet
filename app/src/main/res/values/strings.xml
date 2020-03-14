@@ -48,14 +48,17 @@ Or only occasionally:\n
  - 2 large (120g) eggs\n
  - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
  - 170g tofu\n
- - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste</string>
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste\n
+ When choosing a meat free alternative, make sure to consult a dietitian, and consider the protein and
+  iron levels in your diet</string>
 
  <string name="serve_proteins_vegan">A standard serve is (500–600kJ):\n
 
  - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
  - 170g tofu\n
- - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste</string>
-
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste\n
+ When choosing a meat free alternative, make sure to consult a dietitian, and consider the protein and
+ iron levels in your diet</string>
     <string name="serve_dairy">A standard serve is (500–600kJ):\n
 
  - 1 cup (250ml) fresh, UHT long life, reconstituted powdered milk or buttermilk\n
@@ -69,7 +72,9 @@ Or only occasionally:\n
  - 100g almonds with skin\n
  - 60g sardines, canned in water\n
  - 1/2 cup (100g) canned pink salmon with bones\n
- - 100g firm tofu (check the label as calcium levels vary)</string>
+ - 100g firm tofu (check the label as calcium levels vary)\n
+  When choosing a dairy free alternative, make sure to consult a dietitian, and consider the calcium
+  levels in your diet</string>
 
  <string name="serve_excess">
   An excess serve is a serve of anything that doesn\'t provide nutritional value from any of the other 5 food groups
@@ -110,4 +115,5 @@ Either set the standards directly, or use the percentage slider to calculate the
 
 
  <string name="cheat_score_description">Select a cheat score that measures how much of a cheat meal this was. The higher the score, the worse it is for you.</string>
+    <string name="cheat_description_template">Your current diet plan has you having X serves per day. At this current daily limit, you are having Y points per serve.</string>
 </resources>

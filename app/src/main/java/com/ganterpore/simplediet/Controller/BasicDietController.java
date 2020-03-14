@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 public class BasicDietController implements DietController {
-
     private static final String TAG = "BasicDietController";
+    private static BasicDietController instance;
     private List<DocumentSnapshot> data;
     private DietControllerListener listener;
     private String user;
@@ -39,6 +39,10 @@ public class BasicDietController implements DietController {
     private FirebaseFirestore db;
     private SparseArray<DailyMeals> daysAgoMeals;
     private SparseBooleanArray mealNeedsUpdate;
+
+    public static BasicDietController getInstance() {
+        return instance;
+    }
 
     public BasicDietController(DietControllerListener listener) {
         //initialising variables
@@ -52,6 +56,7 @@ public class BasicDietController implements DietController {
         //updating data
         getCurrentDietPlanFromDB();
         getCurrentMealDataFromDB();
+        instance = this;
     }
 
     private void getCurrentMealDataFromDB() {
@@ -191,7 +196,7 @@ public class BasicDietController implements DietController {
         return isHydrationCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
     private boolean isHydrationCompleted(DailyMeals meals, DietPlan dietPlan) {
-        return meals.getHydrationScore() >= dietPlan.getDailyWater();
+        return meals.getHydrationScore() >= dietPlan.getDailyHydration();
     }
 
     @Override
@@ -286,7 +291,7 @@ public class BasicDietController implements DietController {
         }
         if(fortnightlyProtein > (14* overallDiet.getDailyProtein() + 7)) {
             overAte = true;
-            overAteMessage += "meats, ";
+            overAteMessage += "proteins, ";
         }
         if(fortnightlyDairy > (14* overallDiet.getDailyDairy() + 7)) {
             overAte = true;
@@ -314,7 +319,7 @@ public class BasicDietController implements DietController {
         }
         if(fortnightlyProtein < (14* overallDiet.getDailyProtein() - 7)) {
             underAte = true;
-            underAteMessage += "meats, ";
+            underAteMessage += "proteins, ";
         }
         if(fortnightlyDairy < (14* overallDiet.getDailyDairy() - 7)) {
             underAte = true;
@@ -328,7 +333,7 @@ public class BasicDietController implements DietController {
             underAte = true;
             underAteMessage += "fruit, ";
         }
-        if(fortnightlyWater < (14* overallDiet.getDailyWater() - 7)) {
+        if(fortnightlyWater < (14* overallDiet.getDailyHydration() - 7)) {
             underAte = true;
             underAteMessage += "water, ";
         }

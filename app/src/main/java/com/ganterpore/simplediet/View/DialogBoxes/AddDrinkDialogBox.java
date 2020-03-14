@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,9 @@ import com.google.firebase.firestore.DocumentReference;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     private final TextView milkCountTV;
@@ -201,6 +205,14 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         foodExamplePrefix += milkServes>0 ? "M" : "";
         foodExamplePrefix += caffieneServes>0 ? "C" : "";
         foodExamplePrefix += alcoholServes>0 ? "A" : "";
+
+        SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        String mode = preferences.getString("mode", "normal");
+        if(mode.equals("vegan")) {
+            foodExamplePrefix = "VN_" + foodExamplePrefix;
+        } else if(mode.equals("vegetarian")) {
+            foodExamplePrefix = "VG_" + foodExamplePrefix;
+        }
 
         //getting the cheat score to find the relevant food example with the given cheat score
         final String finalFoodExamplePrefix = foodExamplePrefix;

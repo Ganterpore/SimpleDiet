@@ -35,6 +35,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+
 
 public class MealHistoryDisplay  {
     public static final String EXPIRY_TAG = "_expiry";
@@ -75,7 +78,7 @@ public class MealHistoryDisplay  {
         }
 
         //check if the recommendation should be hidden. If not, then add it to the viewable recommendations.
-        SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
         for(DietController.Recommendation recommendation : allRecomendations) {
             //getting the expiry date of the notification hide feature
             long hideNotificationExpiry = preferences.getLong(recommendation.getId() + EXPIRY_TAG, 0);
@@ -241,7 +244,7 @@ public class MealHistoryDisplay  {
         private void hideRecommendation() {
             final DietController.Recommendation recommendation = recommendations.get(position);
             //updating the expiry of the recommendation id
-            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
             Date expiry = new Date(System.currentTimeMillis() + recommendation.getExpiry());
             preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
 
@@ -327,14 +330,21 @@ public class MealHistoryDisplay  {
             TextView fruitCount = itemView.findViewById(R.id.fruit_count);
             TextView waterCount = itemView.findViewById(R.id.water_count);
             TextView cheatCount = itemView.findViewById(R.id.cheat_count);
+            TextView proteinCountHeader = itemView.findViewById(R.id.protein_count_header);
 
             vegCount.setText((df.format(day.getVegCount()) + "/" + df.format(daysPlan.getDailyVeges())));
             proteinCount.setText((df.format(day.getProteinCount()) + "/" + df.format(daysPlan.getDailyProtein())));
             dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
             grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
             fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
-            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyWater())));
+            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration())));
             cheatCount.setText((df.format(day.getTotalCheats())));
+
+            SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+            String mode = preferences.getString("mode", "normal");
+            if(mode.equals("vegan") || mode.equals("vegetarian")) {
+                proteinCountHeader.setText("P");
+            }
         }
     }
 

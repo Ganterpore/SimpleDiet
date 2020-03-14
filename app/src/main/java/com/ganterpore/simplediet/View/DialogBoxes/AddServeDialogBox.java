@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,8 +25,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+
 
 public class AddServeDialogBox  {
+    private static SharedPreferences preferences;
     public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
     public static final double DRINK_STANDARD_SERVE = 250;
     public static final String TAG = "AddServeDialogBox";
@@ -32,6 +38,8 @@ public class AddServeDialogBox  {
 
 
     public static void addServe(final Activity activity, final Intent intent, final ServeListener listener) {
+        preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        String mode = preferences.getString("mode", "normal");
         //getting values from intent
         final FoodType foodType = (FoodType) intent.getSerializableExtra("foodType");
         final boolean isDrink = foodType == FoodType.MILK || foodType == FoodType.WATER;
@@ -183,14 +191,27 @@ public class AddServeDialogBox  {
         //setting up the dialog box depending on the food used
         switch(foodType) {
             case MEAT:
-                oneServe.setText(R.string.serve_proteins);
-                foodPicture.setImageResource(R.drawable.meat_full);
-                addServeDialog.setTitle("Add serve of meat");
+                if(mode.equals("normal")) {
+                    addServeDialog.setTitle("Add serve of meat");
+                    oneServe.setText(R.string.serve_proteins);
+                    foodPicture.setImageResource(R.drawable.meat_full);
+                } else if(mode.equals("vegetarian")) {
+                    addServeDialog.setTitle("Add serve of Protein");
+                    oneServe.setText(R.string.serve_proteins_vegetarian);
+                    foodPicture.setImageResource(R.drawable.vegan_meat_full);
+                } else  if(mode.equals("vegan")) {
+                    addServeDialog.setTitle("Add serve of Protein");
+                    oneServe.setText(R.string.serve_proteins_vegan);
+                    foodPicture.setImageResource(R.drawable.vegan_meat_full);
+                }
                 break;
             case DAIRY:
                 oneServe.setText(R.string.serve_dairy);
                 foodPicture.setImageResource(R.drawable.dairy_full);
                 addServeDialog.setTitle("Add serve of dairy");
+                if (mode.equals("vegan")) {
+                    oneServe.setText(R.string.serve_dairy_vegan);
+                }
                 break;
             case FRUIT:
                 oneServe.setText(R.string.serve_fruits);
@@ -314,7 +335,7 @@ public class AddServeDialogBox  {
                             snack.setName("Drink");
                         }
                     }
-                    AddCheatsDialogBox.addCheats(activity, snack);
+                    AddCheatsDialogBox.addCheats(activity, snack, isDrink);
                 } else {
                     //otherwise inform listener of the serves added
                     listener.serveAdded(foodType, serve);

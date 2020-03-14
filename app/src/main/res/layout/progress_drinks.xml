@@ -86,6 +86,14 @@
 <!--        android:src="@drawable/progress_circle_background"-->
 <!--        android:layout_marginBottom="3dp"/>-->
 
+<!--    <ImageView-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintLeft_toLeftOf="parent"-->
+<!--        app:layout_constraintRight_toRightOf="parent"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:src="@drawable/symbol_water_incomplete" />-->
+
     <ProgressBar
         android:id="@+id/progress_water"
         app:layout_constraintTop_toTopOf="parent"
@@ -94,9 +102,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:indeterminate="false"
+        android:background="@drawable/symbol_water_incomplete"
         android:progressDrawable="@drawable/progress_bar_water"
         style="?android:attr/progressBarStyleHorizontal"
-        android:progress="100"/>
+        android:progress="30"/>
 
     <ImageView
         android:id="@+id/caffeine_image"

@@ -3,6 +3,7 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
@@ -27,6 +29,9 @@ import com.google.firebase.firestore.DocumentReference;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     public static final String TAG = "AddMealDialogBox";
@@ -69,6 +74,11 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         grainButton.setOnClickListener(onClick);
         fruitButton.setOnClickListener(onClick);
         excessButton.setOnClickListener(onClick);
+        SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        String mode = preferences.getString("mode", "normal");
+        if(mode.equals("vegan") || mode.equals("vegetarian")) {
+            proteinButton.setImageResource(R.drawable.vegan_meat_full);
+        }
 
         //getting all the text views from the view
         mealNameTV = addMealLayout.findViewById(R.id.meal_name);
@@ -253,6 +263,14 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         foodExamplePrefix += Double.parseDouble(dairyCountTV.getText().toString())>0 ? "D" : "";
         foodExamplePrefix += Double.parseDouble(grainCountTV.getText().toString())>0 ? "G" : "";
         foodExamplePrefix += Double.parseDouble(fruitCountTV.getText().toString())>0 ? "F" : "";
+
+        SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        String mode = preferences.getString("mode", "normal");
+        if(mode.equals("vegan")) {
+            foodExamplePrefix = "VN_" + foodExamplePrefix;
+        } else if(mode.equals("vegetarian")) {
+            foodExamplePrefix = "VG_" + foodExamplePrefix;
+        }
 
         //getting the cheat score to find the relevant food example with the given cheat score
         final String finalFoodExamplePrefix = foodExamplePrefix;

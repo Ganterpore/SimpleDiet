@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<rotate-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:fromDegrees="270"-->
+<!--    android:toDegrees="270">-->
+<!--    <shape-->
+<!--        android:shape="ring"-->
+<!--        android:innerRadiusRatio="2.5"-->
+<!--        android:thickness="5dp"-->
+<!--        android:useLevel="true">-->
+<!--        <gradient-->
+<!--            android:angle="0"-->
+<!--            android:endColor="#666666"-->
+<!--            android:startColor="#666666"-->
+<!--            android:type="sweep"-->
+<!--            android:useLevel="false"/>-->
+<!--    </shape>-->
+
+
+<!--</rotate>-->
+
 <shape
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="ring"
-    android:innerRadius="0dp"
-    android:thicknessRatio="2"
+    android:thickness="5dp"
+    android:innerRadiusRatio="2.5"
     android:useLevel="false">
 
     <solid android:color="@android:color/transparent"/>
