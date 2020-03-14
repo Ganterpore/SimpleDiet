@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -18,7 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.ganterpore.simplediet.Controller.NotificationReciever;
+import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
@@ -38,7 +37,8 @@ import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREF
 public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     public static final String TAG = "AddMealDialogBox";
     public static final int MEAL = 1;
-    public static final int RECIPE = 2;
+    public static final int NEW_RECIPE = 2;
+    public static final int RECIPE = 3;
 
     private final TextView vegCountTV;
     private final TextView proteinCountTV;
@@ -53,10 +53,11 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     private Activity activity;
 
     public AddMealDialogBox(final Activity activity) {
-        this(activity, MEAL);
+        this(activity, new Intent());
     }
 
-    public AddMealDialogBox(final Activity activity, int type) {
+    public AddMealDialogBox(final Activity activity, final Intent intent) {
+        final int type = intent.getIntExtra("type", MEAL);
         this.activity = activity;
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
@@ -103,8 +104,38 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         }else if(timeOfDay >= 22 || timeOfDay < 4){
             mealNameTV.setText("Midnight Meal");
         }
+
+        //if the type is a recipe, then update the values to the recipes values
+        if(type==RECIPE) {
+            mealNameTV.setText(intent.getStringExtra("name"));
+            vegCountTV.setText(String.valueOf(intent.getDoubleExtra("vegCount", 0)));
+            proteinCountTV.setText(String.valueOf(intent.getDoubleExtra("proteinCount", 0)));
+            dairyCountTV.setText(String.valueOf(intent.getDoubleExtra("dairyCount", 0)));
+            grainCountTV.setText(String.valueOf(intent.getDoubleExtra("grainCount", 0)));
+            fruitCountTV.setText(String.valueOf(intent.getDoubleExtra("fruitCount", 0)));
+            excessCountTV.setText(String.valueOf(intent.getDoubleExtra("excessServes", 0)));
+        }
+
         //setting up example food suggester
         cheatSelector = addMealLayout.findViewById(R.id.cheat_selector);
+        if(type==RECIPE) {
+            int cheatScore = (int) intent.getDoubleExtra("cheatScore", 0);
+            switch (cheatScore) {
+                case 3:
+                    cheatSelector.check(R.id.cheat_3);
+                    break;
+                case 2:
+                    cheatSelector.check(R.id.cheat_2);
+                    break;
+                case 1:
+                    cheatSelector.check(R.id.cheat_1);
+                    break;
+                case 0:
+                default:
+                    cheatSelector.check(R.id.cheat_0);
+                    break;
+            }
+        }
         exampleFood = addMealLayout.findViewById(R.id.example_food);
         updateExampleFood();
         //setting up cheat selector to update example food when changed
@@ -117,14 +148,15 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
 
         final RadioGroup daySelector = addMealLayout.findViewById(R.id.day_selector);
         //can't select the day if it is a recipe
-        if(type==RECIPE) {
+        if(type== NEW_RECIPE) {
             daySelector.setVisibility(View.GONE);
         }
 
         //Build the dialog box
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(activity);
         addMealDialog.setView(addMealLayout);
-        addMealDialog.setNeutralButton("Save Recipe", new DialogInterface.OnClickListener() {
+        String updateRecipeText = type==RECIPE ? "Update Recipe" : "Save Recipe";
+        addMealDialog.setNeutralButton(updateRecipeText, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         int cheatScore;
@@ -157,12 +189,22 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                                 cheatScore,
                                 FirebaseAuth.getInstance().getCurrentUser().getUid()
                         );
-
+                        if(type==RECIPE) {
+                            RecipeBookController.deleteRecipe(intent.getStringExtra("id"));
+                        }
                         recipe.pushToDB()
                                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                     @Override
-                                    public void onSuccess(DocumentReference documentReference) {
-                                        Toast.makeText(activity, "Added Recipe", Toast.LENGTH_SHORT).show();
+                                    public void onSuccess(final DocumentReference documentReference) {
+                                        Snackbar.make(activity.findViewById(R.id.whole_package),
+                                                "Added Recipe", Snackbar.LENGTH_LONG)
+                                                .setAction("Undo", new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        documentReference.delete();
+                                                    }
+                                                })
+                                                .show();
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -175,7 +217,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                     }
                 });
         addMealDialog.setNegativeButton("Cancel", null);
-        if(type==MEAL) {
+        if(type==MEAL || type==RECIPE) {
             addMealDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -258,8 +300,8 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     public static void addMeal(final Activity activity) {
         AddMealDialogBox addMealListener = new AddMealDialogBox(activity);
     }
-    public static void addMeal(final Activity activity, int type) {
-        AddMealDialogBox addMealListener = new AddMealDialogBox(activity, type);
+    public static void addMeal(final Activity activity, Intent intent) {
+        AddMealDialogBox addMealListener = new AddMealDialogBox(activity, intent);
     }
 
     /**

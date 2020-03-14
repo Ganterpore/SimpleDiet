@@ -19,7 +19,7 @@ public class Recipe {
     private double excessServes;
 
     private double waterCount;
-    private double caffieneCount;
+    private double caffeineCount;
     private double alcoholStandards;
     private double hydrationScore;
 
@@ -52,7 +52,7 @@ public class Recipe {
         drink.name = name;
         drink.waterCount = waterCount;
         drink.dairyCount = dairyCount;
-        drink.caffieneCount = caffieneCount;
+        drink.caffeineCount = caffieneCount;
         drink.alcoholStandards = alcoholStandards;
         drink.hydrationScore = hydrationFactor;
         drink.cheatScore = cheatScore;
@@ -110,8 +110,8 @@ public class Recipe {
         if(getFruitCount() > 0){
             output += "    F:" + df.format(getFruitCount());
         }
-        if(getCaffieneCount() > 0){
-            output += "    C:" + df.format(getCaffieneCount());
+        if(getCaffeineCount() > 0){
+            output += "    C:" + df.format(getCaffeineCount());
         }
         if(getAlcoholStandards() > 0){
             output += "    A:" + df.format(getAlcoholStandards());
@@ -141,7 +141,7 @@ public class Recipe {
         meal.setFruitCount(fruitCount);
         meal.setExcessServes(excessServes);
         meal.setWaterCount(waterCount);
-        meal.setCaffieneCount(caffieneCount);
+        meal.setCaffieneCount(caffeineCount);
         meal.setAlcoholStandards(alcoholStandards);
         meal.setHydrationScore(hydrationScore);
         meal.setCheatScore(cheatScore);
@@ -206,12 +206,12 @@ public class Recipe {
         this.waterCount = waterCount;
     }
 
-    public double getCaffieneCount() {
-        return caffieneCount;
+    public double getCaffeineCount() {
+        return caffeineCount;
     }
 
-    public void setCaffieneCount(double caffieneCount) {
-        this.caffieneCount = caffieneCount;
+    public void setCaffeineCount(double caffeineCount) {
+        this.caffeineCount = caffeineCount;
     }
 
     public double getAlcoholStandards() {

@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -18,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
@@ -35,6 +35,10 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
+    public static final int DRINK = 1;
+    public static final int NEW_RECIPE = 2;
+    public static final int RECIPE = 3;
+
     private final TextView milkCountTV;
     private final TextView waterCountTV;
     private final TextView caffeineCountTV;
@@ -50,7 +54,14 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     private final RadioGroup cheatSelector;
     private Activity activity;
 
+    NumberFormat df = new DecimalFormat("##.##");
+
     public AddDrinkDialogBox(final Activity activity) {
+        this(activity, new Intent());
+    }
+
+    public AddDrinkDialogBox(final Activity activity, final Intent intent) {
+        final int type = intent.getIntExtra("type", DRINK);
         this.activity = activity;
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
@@ -78,6 +89,40 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         final EditText drinkNameET = addDrinkLayout.findViewById(R.id.drink_name);
 
         cheatSelector = addDrinkLayout.findViewById(R.id.cheat_selector);
+        if(type==RECIPE) {
+            int cheatScore = (int) intent.getDoubleExtra("cheatScore", 0);
+            switch (cheatScore) {
+                case 3:
+                    cheatSelector.check(R.id.cheat_3);
+                    break;
+                case 2:
+                    cheatSelector.check(R.id.cheat_2);
+                    break;
+                case 1:
+                    cheatSelector.check(R.id.cheat_1);
+                    break;
+                case 0:
+                default:
+                    cheatSelector.check(R.id.cheat_0);
+                    break;
+            }
+            drinkNameET.setText(intent.getStringExtra("name"));
+            milkServes = intent.getDoubleExtra("dairyCount", 0);
+            milkCountTV.setText(String.valueOf(milkServes));
+            waterServes = intent.getDoubleExtra("waterCount", 0);
+            waterCountTV.setText(String.valueOf(waterServes));
+            caffieneServes = intent.getDoubleExtra("caffeineCount", 0);
+            caffeineCountTV.setText(String.valueOf(caffieneServes));
+            alcoholServes = intent.getDoubleExtra("alcoholStandards", 0);
+            alcoholCountTV.setText(String.valueOf(alcoholServes));
+            volumeTV.setText(String.valueOf(250*(milkServes+waterServes)));
+            String hydrationText = df.format(waterServes) + " water + " + df.format(milkServes) + " milk - "
+                    + df.format(caffieneServes) + " caffeine - " + df.format(alcoholServes) + " alcohol = "
+                    + df.format(waterServes + milkServes - caffieneServes - alcoholServes);
+
+            hydrationFactor.setText(hydrationText);
+
+        }
         final RadioGroup daySelector = addDrinkLayout.findViewById(R.id.day_selector);
         updateExampleDrink();
         cheatSelector.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -94,7 +139,8 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         //building the alert dialog
         final AlertDialog.Builder addDrinkDialog = new AlertDialog.Builder(activity);
         addDrinkDialog.setView(addDrinkLayout);
-        addDrinkDialog.setNeutralButton("Save Recipe", new DialogInterface.OnClickListener() {
+        String updateRecipeText = type==RECIPE ? "Update Recipe" : "Save Recipe";
+        addDrinkDialog.setNeutralButton(updateRecipeText, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 int cheatScore;
@@ -119,11 +165,22 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                 Recipe recipe = Recipe.drinkRecipe(drinkNameET.getText().toString(),
                         waterServes, milkServes, caffieneServes, alcoholServes, hydrationFactor,
                         cheatScore, FirebaseAuth.getInstance().getCurrentUser().getUid());
+                if(type==RECIPE) {
+                    RecipeBookController.deleteRecipe(intent.getStringExtra("id"));
+                }
                 recipe.pushToDB()
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Toast.makeText(activity, "Added Recipe", Toast.LENGTH_SHORT).show();
+                            public void onSuccess(final DocumentReference documentReference) {
+                                Snackbar.make(activity.findViewById(R.id.whole_package),
+                                        "Added Recipe", Snackbar.LENGTH_LONG)
+                                        .setAction("Undo", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                documentReference.delete();
+                                            }
+                                        })
+                                        .show();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -180,7 +237,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                             @Override
                             public void onSuccess(final DocumentReference documentReference) {
                                 Snackbar.make(activity.findViewById(R.id.whole_package),
-                                        "Added Meal", Snackbar.LENGTH_LONG)
+                                        "Added Drink", Snackbar.LENGTH_LONG)
                                         .setAction("Undo", new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
@@ -203,6 +260,9 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
 
     public static void addDrink(Activity activity) {
         new AddDrinkDialogBox(activity);
+    }
+    public static void addDrink(Activity activity, Intent intent) {
+        new AddDrinkDialogBox(activity, intent);
     }
 
     /**
@@ -259,7 +319,6 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     @Override
     public void serveAdded(AddServeDialogBox.FoodType type, double serve) {
         //update the serve text
-        NumberFormat df = new DecimalFormat("##.##");
         switch (type) {
             case WATER:
                 waterCountTV.setText(df.format(serve) +"/"+df.format(serve*AddServeDialogBox.DRINK_STANDARD_SERVE)+"mL");

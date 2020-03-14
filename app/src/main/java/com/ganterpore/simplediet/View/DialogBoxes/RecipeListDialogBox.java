@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +32,7 @@ public class RecipeListDialogBox {
         //inflating the views
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View recipeBookLayout = layoutInflater.inflate(R.layout.dialog_box_recipe_book, null);
-        final Context context = activity;
+//        final Context context = activity;
 
         //creating the Dialog box
         final AlertDialog.Builder recipeBookDialogBuilder = new AlertDialog.Builder(activity);
@@ -41,9 +41,10 @@ public class RecipeListDialogBox {
         recipeBookDialogBuilder.setNeutralButton("Create New Recipe", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                AddMealDialogBox.addMeal(activity, AddMealDialogBox.RECIPE);
+                AddMealDialogBox.addMeal(activity, new Intent().putExtra("type", AddMealDialogBox.NEW_RECIPE));
             }
         });
+        recipeBookDialogBuilder.setNegativeButton("Close", null);
         final AlertDialog recipeBookDialog = recipeBookDialogBuilder.show();
 
         //Creating the recyclerView of the list of recipes
@@ -61,7 +62,8 @@ public class RecipeListDialogBox {
             final int DRINK_W_HEADER = 4;
             @Override
             protected void onBindViewHolder(@NonNull RecipeViewHolder holder, int position, @NonNull Recipe recipe) {
-                holder.build(recipe);
+                String documentID = getSnapshots().getSnapshot(position).getId();
+                holder.build(recipe, documentID);
             }
 
             @NonNull
@@ -82,7 +84,7 @@ public class RecipeListDialogBox {
                     recipeListItem = LayoutInflater.from(viewGroup.getContext())
                             .inflate(R.layout.list_item_recipe, viewGroup, false);
                 }
-                return new RecipeViewHolder(recipeListItem, recipeBookDialog, context);
+                return new RecipeViewHolder(recipeListItem, recipeBookDialog, activity);
             }
 
             @Override
@@ -101,7 +103,6 @@ public class RecipeListDialogBox {
                     }
                     return MEAL;
                 }
-
             }
         };
         adapter.notifyDataSetChanged();
@@ -115,10 +116,11 @@ public class RecipeListDialogBox {
     public static class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         View itemView;
         Recipe recipe;
-        Context context;
+        Activity context;
         AlertDialog dialog;
+        String documentID;
 
-        RecipeViewHolder(View itemView, AlertDialog dialog, Context context) {
+        RecipeViewHolder(View itemView, AlertDialog dialog, Activity context) {
             super(itemView);
             this.itemView = itemView;
             this.setIsRecyclable(false);
@@ -131,8 +133,9 @@ public class RecipeListDialogBox {
          * Builds the view based on the recipe given
          * @param recipe, the recipe to build around
          */
-        void build(final Recipe recipe) {
+        void build(final Recipe recipe, String documentID) {
             this.recipe = recipe;
+            this.documentID = documentID;
             TextView recipeName = itemView.findViewById(R.id.recipe_name);
             TextView servingCount = itemView.findViewById(R.id.serving_count);
             recipeName.setText(recipe.getName());
@@ -142,20 +145,26 @@ public class RecipeListDialogBox {
         @Override
         public void onClick(View v) {
             //when the list item is clicked, create a dialog to add the meal
-            AlertDialog.Builder confirmMeal = new AlertDialog.Builder(context);
-            //TODO open actual meal, so user can edit or add.
-            confirmMeal.setTitle("Would you like to add " + recipe.getName() + "?");
-            confirmMeal.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Meal recipeMeal = recipe.convertToMeal();
-                    recipeMeal.pushToDB();
-                    //close the recipe book dialog if a meal is added
-                    closeRecipeBook();
-                }
-            });
-            confirmMeal.setNegativeButton("Cancel", null);
-            confirmMeal.show();
+            Intent intent = new Intent()
+                    .putExtra("type", AddMealDialogBox.RECIPE)
+                    .putExtra("name", recipe.getName())
+                    .putExtra("vegCount", recipe.getVegCount())
+                    .putExtra("proteinCount", recipe.getProteinCount())
+                    .putExtra("dairyCount", recipe.getDairyCount())
+                    .putExtra("grainCount", recipe.getGrainCount())
+                    .putExtra("fruitCount", recipe.getFruitCount())
+                    .putExtra("excessServes", recipe.getExcessServes())
+                    .putExtra("waterCount", recipe.getWaterCount())
+                    .putExtra("caffeineCount", recipe.getCaffeineCount())
+                    .putExtra("alcoholStandards", recipe.getAlcoholStandards())
+                    .putExtra("cheatScore", recipe.getCheatScore())
+                    .putExtra("id", documentID);
+            if(recipe.isDrink()) {
+                AddDrinkDialogBox.addDrink(context, intent);
+            } else {
+                AddMealDialogBox.addMeal(context, intent);
+            }
+            closeRecipeBook();
         }
 
         public void closeRecipeBook() {

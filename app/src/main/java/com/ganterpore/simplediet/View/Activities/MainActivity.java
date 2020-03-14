@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                 openCloseFoodFAB();
                 break;
             case R.id.addMealFAB:
-                AddMealDialogBox.addMeal(this, AddMealDialogBox.MEAL);
+                AddMealDialogBox.addMeal(this);
                 openCloseFoodFAB();
                 break;
             case R.id.addDrinkFAB:
