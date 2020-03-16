@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +28,7 @@ import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.DietPlan;
+import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
@@ -39,16 +39,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class MainActivity extends AppCompatActivity implements DietController.DietControllerListener {
+public class MainActivity extends AppCompatActivity implements DietController.DietControllerListener,
+SnackbarReady{
     private static final String TAG = "MainActivity";
     public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
     private FirebaseAuth mAuth;
@@ -413,5 +416,34 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         objectAnimator.start();
 
         mealView.refreshRecommendations();
+    }
+
+    @Override
+    public void undoDelete(Object savedObject) {
+        if(savedObject instanceof Meal) {
+            final Meal savedMeal = (Meal) savedObject;
+            Snackbar.make(findViewById(R.id.whole_package),
+                    "Deleted Meal", Snackbar.LENGTH_LONG)
+                    .setAction("Undo", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            savedMeal.pushToDB();
+                        }
+                    })
+                    .show();
+        }
+    }
+
+    @Override
+    public void undoAdd(final DocumentReference documentReference) {
+        Snackbar.make(findViewById(R.id.whole_package),
+                "Added Meal", Snackbar.LENGTH_LONG)
+                .setAction("Undo", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        documentReference.delete();
+                    }
+                })
+                .show();
     }
 }

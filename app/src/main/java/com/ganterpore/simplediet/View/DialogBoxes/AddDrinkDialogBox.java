@@ -21,9 +21,9 @@ import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
+import com.ganterpore.simplediet.View.Activities.SnackbarReady;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -172,24 +172,9 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(final DocumentReference documentReference) {
-                                Snackbar.make(activity.findViewById(R.id.whole_package),
-                                        "Added Recipe", Snackbar.LENGTH_LONG)
-                                        .setAction("Undo", new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                documentReference.delete();
-                                            }
-                                        })
-                                        .show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(activity, "Recipe add fail", Toast.LENGTH_SHORT).show();
+                                new RecipeListDialogBox(activity).undoAdd(documentReference);
                             }
                         });
-                RecipeListDialogBox.openRecipeBook(activity);
             }
         });
         addDrinkDialog.setNegativeButton("Cancel", null);
@@ -236,15 +221,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(final DocumentReference documentReference) {
-                                Snackbar.make(activity.findViewById(R.id.whole_package),
-                                        "Added Drink", Snackbar.LENGTH_LONG)
-                                        .setAction("Undo", new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                documentReference.delete();
-                                            }
-                                        })
-                                        .show();
+                                ((SnackbarReady) activity).undoAdd(documentReference);
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {

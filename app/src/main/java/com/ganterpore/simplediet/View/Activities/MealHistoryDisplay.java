@@ -4,12 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -23,13 +17,18 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.common.primitives.Ints;
 
 import java.text.DateFormat;
@@ -43,7 +42,6 @@ import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
-import static com.google.common.primitives.Ints.min;
 
 
 public class MealHistoryDisplay  {
@@ -252,7 +250,6 @@ public class MealHistoryDisplay  {
             Date expiry = new Date(System.currentTimeMillis() + recommendation.getExpiry());
             preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
 
-//            adapter.notifyItemRemoved(position);
             //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
             refreshRecommendations();
         }
@@ -505,15 +502,7 @@ public class MealHistoryDisplay  {
                             ((MealsViewHolder) viewHolder).deleteMeal();
                             ((MealsAdapter) recyclerView.getAdapter()).meals.remove(viewHolder.getAdapterPosition());
                             recyclerView.getAdapter().notifyItemRemoved(viewHolder.getAdapterPosition());
-                            Snackbar.make(activity.findViewById(R.id.whole_package),
-                                    "Deleted Meal", Snackbar.LENGTH_LONG)
-                                    .setAction("Undo", new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            savedMeal.pushToDB();
-                                        }
-                                    })
-                                    .show();
+                            ((SnackbarReady) activity).undoDelete(savedMeal);
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {

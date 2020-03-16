@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioGroup;
@@ -15,9 +14,9 @@ import androidx.annotation.NonNull;
 
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
+import com.ganterpore.simplediet.View.Activities.SnackbarReady;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentReference;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -121,21 +120,7 @@ public class AddCheatsDialogBox {
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(final DocumentReference documentReference) {
-                                Snackbar.make(activity.findViewById(R.id.whole_package),
-                                        "Added Meal", Snackbar.LENGTH_LONG)
-                                        .setAction("Undo", new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                documentReference.delete();
-                                            }
-                                        })
-                                        .show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(activity, "Snack add fail", Toast.LENGTH_SHORT).show();
+                                ((SnackbarReady) activity).undoAdd(documentReference);
                             }
                         });
             }

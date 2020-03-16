@@ -21,9 +21,9 @@ import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
+import com.ganterpore.simplediet.View.Activities.SnackbarReady;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -59,6 +59,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     public AddMealDialogBox(final Activity activity, final Intent intent) {
         final int type = intent.getIntExtra("type", MEAL);
         this.activity = activity;
+        final SnackbarReady snackbarView = (SnackbarReady) activity;
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View addMealLayout = layoutInflater.inflate(R.layout.dialog_box_meal, null);
@@ -192,28 +193,13 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                         if(type==RECIPE) {
                             RecipeBookController.deleteRecipe(intent.getStringExtra("id"));
                         }
-                        recipe.pushToDB()
-                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                    @Override
-                                    public void onSuccess(final DocumentReference documentReference) {
-                                        Snackbar.make(activity.findViewById(R.id.whole_package),
-                                                "Added Recipe", Snackbar.LENGTH_LONG)
-                                                .setAction("Undo", new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        documentReference.delete();
-                                                    }
-                                                })
-                                                .show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(activity, "Recipe add fail", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                        RecipeListDialogBox.openRecipeBook(activity);
+                        recipe.pushToDB().addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                new RecipeListDialogBox(activity).undoAdd(documentReference);
+                            }
+                        });
+
                     }
                 });
         addMealDialog.setNegativeButton("Cancel", null);
@@ -252,7 +238,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                             cheatScore = 0;
                     }
                     //create a meal object from the dialog box data
-                    Meal todaysMeal = new Meal(
+                    final Meal todaysMeal = new Meal(
                             Double.parseDouble(vegCountTV.getText().toString()),
                             Double.parseDouble(proteinCountTV.getText().toString()),
                             Double.parseDouble(dairyCountTV.getText().toString()),
@@ -270,15 +256,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(final DocumentReference documentReference) {
-                                    Snackbar.make(activity.findViewById(R.id.whole_package),
-                                            "Added Meal", Snackbar.LENGTH_LONG)
-                                            .setAction("Undo", new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    documentReference.delete();
-                                                }
-                                            })
-                                            .show();
+                                    snackbarView.undoAdd(documentReference);
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {

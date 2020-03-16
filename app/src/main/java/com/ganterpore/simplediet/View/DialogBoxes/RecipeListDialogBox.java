@@ -1,14 +1,7 @@
 package com.ganterpore.simplediet.View.DialogBoxes;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,19 +12,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.ganterpore.simplediet.Controller.RecipeBookController;
-import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
-import com.ganterpore.simplediet.View.Activities.MealHistoryDisplay;
+import com.ganterpore.simplediet.View.Activities.SnackbarReady;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.primitives.Ints;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
 
-public class RecipeListDialogBox {
+import java.util.Objects;
+
+public class RecipeListDialogBox implements SnackbarReady {
     private static final String TAG = "RecipeListDialogBox";
     private View recipeBookLayout;
     private final AlertDialog recipeBookDialog;
@@ -64,20 +65,40 @@ public class RecipeListDialogBox {
         recipeBookDialogBuilder.setNegativeButton("Close", null);
         recipeBookDialog = recipeBookDialogBuilder.show();
 
-        //Creating the recyclerView of the list of recipes
+        //Creating the recyclerView and adapter of the list of recipes
         RecyclerView allRecipes = recipeBookLayout.findViewById(R.id.meal_recipe_list);
         Query getRecipes = RecipeBookController.getAllRecipes();
-
         FirestoreRecyclerOptions<Recipe> options = new FirestoreRecyclerOptions.Builder<Recipe>()
                 .setQuery(getRecipes, Recipe.class).build();
-
         FirestoreRecyclerAdapter<Recipe, RecipeViewHolder> adapter;
-        adapter = new FirestoreRecyclerAdapter<Recipe, RecipeViewHolder>(options) {
+        adapter = new RecipeAdapter(options);
+
+        //setting up swipe capabilities of the Recycler View
+        RecipeSwipeController swipeController = new RecipeSwipeController(activity, allRecipes);
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(allRecipes);
+
+        //attaching the adapter to the recyclerView
+        adapter.notifyDataSetChanged();
+        allRecipes.setAdapter(adapter);
+        adapter.startListening();
+    }
+
+    private class RecipeAdapter extends FirestoreRecyclerAdapter<Recipe, RecipeViewHolder> {
             final int MEAL = 1;
             final int MEAL_W_HEADER = 2;
             final int DRINK = 3;
             final int DRINK_W_HEADER = 4;
-            @Override
+
+        /**
+         * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
+         * FirestoreRecyclerOptions} for configuration options.
+         */
+        RecipeAdapter(@NonNull FirestoreRecyclerOptions<Recipe> options) {
+            super(options);
+        }
+
+        @Override
             protected void onBindViewHolder(@NonNull RecipeViewHolder holder, int position, @NonNull Recipe recipe) {
                 String documentID = getSnapshots().getSnapshot(position).getId();
                 holder.build(recipe, documentID);
@@ -87,19 +108,24 @@ public class RecipeListDialogBox {
             @Override
             public RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
                 View recipeListItem;
-                if(viewType==MEAL_W_HEADER) {
-                    recipeListItem = LayoutInflater.from(viewGroup.getContext())
-                            .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
-                    TextView header = recipeListItem.findViewById(R.id.header);
-                    header.setText("  Meals");
-                } else if(viewType==DRINK_W_HEADER) {
-                    recipeListItem = LayoutInflater.from(viewGroup.getContext())
-                            .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
-                    TextView header = recipeListItem.findViewById(R.id.header);
-                    header.setText("  Drinks");
-                } else {
-                    recipeListItem = LayoutInflater.from(viewGroup.getContext())
-                            .inflate(R.layout.list_item_recipe, viewGroup, false);
+                TextView header;
+                switch (viewType) {
+                    case MEAL_W_HEADER:
+                        recipeListItem = LayoutInflater.from(viewGroup.getContext())
+                                .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
+                        header = recipeListItem.findViewById(R.id.header);
+                        header.setText("  Meals");
+                        break;
+                    case DRINK_W_HEADER:
+                        recipeListItem = LayoutInflater.from(viewGroup.getContext())
+                                .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
+                        header = recipeListItem.findViewById(R.id.header);
+                        header.setText("  Drinks");
+                        break;
+                    default:
+                        recipeListItem = LayoutInflater.from(viewGroup.getContext())
+                                .inflate(R.layout.list_item_recipe, viewGroup, false);
+                        break;
                 }
                 return new RecipeViewHolder(recipeListItem, recipeBookDialog, activity);
             }
@@ -121,20 +147,12 @@ public class RecipeListDialogBox {
                     return MEAL;
                 }
             }
-        };
-        RecipeSwipeController swipeController = new RecipeSwipeController(activity, allRecipes);
-        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
-        itemTouchhelper.attachToRecyclerView(allRecipes);
-
-        adapter.notifyDataSetChanged();
-        allRecipes.setAdapter(adapter);
-        adapter.startListening();
-    }
+        }
 
     /**
      * ViewHolder for the recipe list items in the recipe book recyclerView
      */
-    public static class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         View itemView;
         Recipe recipe;
         Activity context;
@@ -185,10 +203,6 @@ public class RecipeListDialogBox {
             } else {
                 AddMealDialogBox.addMeal(context, intent);
             }
-            closeRecipeBook();
-        }
-
-        public void closeRecipeBook() {
             dialog.dismiss();
         }
     }
@@ -200,7 +214,7 @@ public class RecipeListDialogBox {
         private Drawable icon;
         private ColorDrawable background;
 
-        public RecipeSwipeController(Activity activity, RecyclerView recyclerView) {
+        RecipeSwipeController(Activity activity, RecyclerView recyclerView) {
             this.activity = activity;
             this.recyclerView = recyclerView;
             icon = ContextCompat.getDrawable(activity,
@@ -210,6 +224,7 @@ public class RecipeListDialogBox {
 
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            //creates and animates the red background and bin icon when the user swipes away a recipe
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             View itemView = viewHolder.itemView;
             int backgroundCornerOffset = 20;
@@ -242,17 +257,19 @@ public class RecipeListDialogBox {
         }
 
         @Override
-        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         }
 
         @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+        public boolean onMove(@NonNull RecyclerView recyclerView,
+                              @NonNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull RecyclerView.ViewHolder target) {
             return false;
         }
 
         @Override
-        public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+        public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
             new AlertDialog.Builder(activity)
                     .setTitle("Are you sure you want to remove this?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -262,7 +279,7 @@ public class RecipeListDialogBox {
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            ((RecipeViewHolder) viewHolder).closeRecipeBook();
+                                            ((RecipeViewHolder) viewHolder).dialog.dismiss();
                                             RecipeListDialogBox recipeListDialogBox =  new RecipeListDialogBox(activity);
                                             recipeListDialogBox.undoDelete(((RecipeViewHolder) viewHolder).recipe);
                                         }
@@ -272,7 +289,7 @@ public class RecipeListDialogBox {
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            recyclerView.getAdapter().notifyDataSetChanged();
+                            Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
                         }
                     })
                     .setCancelable(false)
@@ -280,7 +297,8 @@ public class RecipeListDialogBox {
         }
     }
 
-    private void undoDelete(final Recipe savedRecipe) {
+    public void undoDelete(final Object savedObject) {
+        final Recipe savedRecipe = (Recipe) savedObject;
         Snackbar.make(recipeBookLayout,
                 "Deleted Recipe", Snackbar.LENGTH_LONG)
                 .setAction("Undo", new View.OnClickListener() {
@@ -289,6 +307,17 @@ public class RecipeListDialogBox {
                         savedRecipe.pushToDB();
                         recipeBookDialog.dismiss();
                         RecipeListDialogBox.openRecipeBook(activity);
+                    }
+                })
+                .show();
+    }
+    public void undoAdd(final DocumentReference documentReference) {
+        Snackbar.make(recipeBookLayout,
+                "Added Recipe", Snackbar.LENGTH_LONG)
+                .setAction("Undo", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        documentReference.delete();
                     }
                 })
                 .show();
