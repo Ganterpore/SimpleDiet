@@ -1,6 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
-import com.ganterpore.simplediet.Model.Recipe;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -22,10 +22,10 @@ public class RecipeBookController {
 
     }
 
-    public static void deleteRecipe(String id) {
+    public static Task<Void> deleteRecipe(String id) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String user = FirebaseAuth.getInstance().getUid();
-        db.collection(RECIPES).document(id).delete();
+        return db.collection(RECIPES).document(id).delete();
     }
 
     public static Query getMealRecipes() {

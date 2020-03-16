@@ -2,14 +2,18 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +29,8 @@ import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.common.primitives.Ints;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -37,6 +43,7 @@ import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+import static com.google.common.primitives.Ints.min;
 
 
 public class MealHistoryDisplay  {
@@ -55,13 +62,9 @@ public class MealHistoryDisplay  {
         history.setAdapter(new DayHistoryAdapter(activity, 7));
         this.history = history;
 
-        SwipeController swipeController = new SwipeController(activity, history);
+        RecommendationSwipeController swipeController = new RecommendationSwipeController(activity, history);
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(history);
-    }
-
-    public void setDietController(DietController dietController) {
-        this.dietController = dietController;
     }
 
     /**
@@ -92,11 +95,11 @@ public class MealHistoryDisplay  {
         }
     }
 
-    class SwipeController extends ItemTouchHelper.Callback {
+    class RecommendationSwipeController extends ItemTouchHelper.Callback {
 
         Activity activity;
         RecyclerView recyclerView;
-        public SwipeController(Activity activity, RecyclerView recyclerView) {
+        public RecommendationSwipeController(Activity activity, RecyclerView recyclerView) {
             this.activity = activity;
             this.recyclerView = recyclerView;
         }
@@ -134,6 +137,7 @@ public class MealHistoryDisplay  {
                             recyclerView.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
                         }
                     })
+                    .setCancelable(false)
                     .show();
         }
     }
@@ -345,6 +349,10 @@ public class MealHistoryDisplay  {
             if(mode.equals("vegan") || mode.equals("vegetarian")) {
                 proteinCountHeader.setText("P");
             }
+
+            MealSwipeController swipeController = new MealSwipeController(activity, mealsList);
+            ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+            itemTouchhelper.attachToRecyclerView(mealsList);
         }
     }
 
@@ -354,7 +362,7 @@ public class MealHistoryDisplay  {
     public class MealsAdapter extends RecyclerView.Adapter<MealsViewHolder> {
 
         private Activity activity;
-        private List<Meal> meals;
+        public List<Meal> meals;
         private final int HAS_MEAL = 1;
         private final int NO_MEAL = 2;
 
@@ -405,18 +413,117 @@ public class MealHistoryDisplay  {
      * View holder for the meal list item
      */
     public class MealsViewHolder extends RecyclerView.ViewHolder {
+        private Meal meal;
 
         public MealsViewHolder(@NonNull View itemView) {
             super(itemView);
         }
 
         public void build(Meal meal) {
+            this.meal = meal;
             if(meal.getName() != null) {
                 TextView mealNameTV = itemView.findViewById(R.id.meal_name);
                 mealNameTV.setText(meal.getName());
             }
             TextView servingCountTV = itemView.findViewById(R.id.serving_count);
             servingCountTV.setText(meal.serveCountText());
+        }
+
+        public void deleteMeal() {
+            meal.deleteMeal();
+        }
+    }
+
+    class MealSwipeController extends ItemTouchHelper.Callback {
+
+        private Activity activity;
+        private RecyclerView recyclerView;
+        private Drawable icon;
+        private final ColorDrawable background;
+
+        public MealSwipeController(Activity activity, RecyclerView recyclerView) {
+            this.activity = activity;
+            this.recyclerView = recyclerView;
+            icon = ContextCompat.getDrawable(activity,
+                    android.R.drawable.ic_menu_delete);
+            background = new ColorDrawable(Color.RED);
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            View itemView = viewHolder.itemView;
+            int backgroundCornerOffset = 20;
+            int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconTop = itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconBottom = iconTop + icon.getIntrinsicHeight();
+
+            if (dX > 0) { // Swiping to the right
+                int iconLeft = Ints.min(itemView.getLeft()+(int)dX - icon.getIntrinsicWidth(), itemView.getLeft() + iconMargin);
+                int iconRight = Ints.min(itemView.getLeft()+(int)dX, itemView.getLeft() + iconMargin + icon.getIntrinsicWidth());
+                icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+
+                background.setBounds(itemView.getLeft(), itemView.getTop(),
+                        itemView.getLeft() + ((int) dX) - backgroundCornerOffset,
+                        itemView.getBottom());
+                background.draw(c);
+                icon.draw(c);
+            } else if (dX < 0) { // Swiping to the left
+                int iconLeft = Ints.max(itemView.getRight()+(int)dX, itemView.getRight() - iconMargin-icon.getIntrinsicWidth());
+                int iconRight = Ints.max(itemView.getRight()+(int)dX +  icon.getIntrinsicWidth(), itemView.getRight() - iconMargin);
+                icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+
+                background.setBounds(itemView.getRight() + ((int) dX) + backgroundCornerOffset,
+                        itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                background.draw(c);
+                icon.draw(c);
+            } else { // view is unSwiped
+                background.setBounds(0, 0, 0, 0);
+            }
+
+
+        }
+
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+            new AlertDialog.Builder(activity)
+                    .setTitle("Are you sure you want to remove this?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final Meal savedMeal = ((MealsViewHolder) viewHolder).meal;
+                            ((MealsViewHolder) viewHolder).deleteMeal();
+                            ((MealsAdapter) recyclerView.getAdapter()).meals.remove(viewHolder.getAdapterPosition());
+                            recyclerView.getAdapter().notifyItemRemoved(viewHolder.getAdapterPosition());
+                            Snackbar.make(activity.findViewById(R.id.whole_package),
+                                    "Deleted Meal", Snackbar.LENGTH_LONG)
+                                    .setAction("Undo", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            savedMeal.pushToDB();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            recyclerView.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
         }
     }
 

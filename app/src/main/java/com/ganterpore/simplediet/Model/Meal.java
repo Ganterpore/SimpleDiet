@@ -1,7 +1,5 @@
 package com.ganterpore.simplediet.Model;
 
-import android.util.Log;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -14,6 +12,9 @@ import java.text.SimpleDateFormat;
 
 public class Meal {
     private static final String TAG = "Meal";
+    public static final String COLLECTION_PATH = "Meals";
+
+    private String id;
     //food fields
     private double vegCount;
     private double proteinCount;
@@ -102,13 +103,19 @@ public class Meal {
      */
     public Task<DocumentReference> pushToDB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        return db.collection("Meals").add(this);
+        return db.collection(COLLECTION_PATH).add(this);
+    }
+
+    public Task<Void> deleteMeal() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        return db.collection(COLLECTION_PATH).document(id).delete();
     }
 
     public Meal() {
     }
 
     public Meal(DocumentSnapshot docMeal) {
+        id = docMeal.getId();
         if(docMeal.contains("cheatScore")) {
             this.cheatScore = docMeal.getDouble("cheatScore");
         } else {
@@ -229,6 +236,10 @@ public class Meal {
 
     public String dateAsString() {
         return dateFormat.format(day);
+    }
+
+    public String getId() {
+        return id;
     }
 
     public double getVegCount() {
