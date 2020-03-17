@@ -68,20 +68,26 @@ SnackbarReady{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        //initialising services
         mAuth = FirebaseAuth.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
         FirebaseFirestore.getInstance().setFirestoreSettings(settings);
+        NotificationReciever.buildChannels(this);
 
+        //setting up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+        initialiseScrollEffect();
+    }
 
-
-        NotificationReciever.buildChannels(this);
-        preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
-
+    /**
+     * Makes sure that items in the app bar scale appropriately when the main view is scrolled
+     */
+    private void initialiseScrollEffect() {
         final ConstraintLayout progressCircle = findViewById(R.id.progress_sphere);
         final ConstraintLayout progressCheats = findViewById(R.id.cheats_progress);
         final ConstraintLayout progressDrinks = findViewById(R.id.drinks_progress);
@@ -99,7 +105,6 @@ SnackbarReady{
                 progressCheats.setScaleY(scaleFactor);
                 progressDrinks.setScaleX(scaleFactor);
                 progressDrinks.setScaleY(scaleFactor);
-
             }
         });
     }
@@ -108,19 +113,27 @@ SnackbarReady{
     protected void onResume() {
         super.onResume();
         String mode = preferences.getString("mode", "normal");
-        if (mode.equals("vegan") || mode.equals("vegetarian")) {
-            ProgressBar meatProgress = findViewById(R.id.progress_meat);
+        ProgressBar meatProgress = findViewById(R.id.progress_meat);
+        //if the mode has not been set, then just leave as is
+        if(mode==null) {
+            return;
+        }
+        //if in one mode, and we are seeing the wrong image, update it
+        if ((mode.equals("vegan") || mode.equals("vegetarian"))
+                && meatProgress.getProgressDrawable().equals(getResources().getDrawable(R.drawable.progress_bar_meat))) {
             meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat_vegan));
+        } else if(mode.equals("normal")
+                && meatProgress.getProgressDrawable().equals(getResources().getDrawable(R.drawable.progress_bar_meat_vegan))) {
+            meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat));
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
         // Check if user is signed in (non-null) and update UI accordingly.
+        //TODO improve new user sign in
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        Log.d(TAG, "onStart: checking user");
         if(currentUser==null) {
             //if no user, then create an anonymous account
             new AlertDialog.Builder(this)
@@ -183,12 +196,10 @@ SnackbarReady{
                         }
                     }
                 });
-
     }
 
     public void signUpAnonymous() {
         final Activity activity = this;
-        Log.d(TAG, "signUpAnonymous: signing up");
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -276,6 +287,10 @@ SnackbarReady{
         }
     }
 
+    /**
+     * When a snack is pressed, get type from the view that clicked it, and open correct
+     * window
+     */
     public void addSnack(final View view) {
         AddServeDialogBox.FoodType type;
         Intent intent = new Intent();
@@ -313,8 +328,8 @@ SnackbarReady{
      * updates the values of all the views on the screen to up to date values
      */
     public void refresh() {
-        final int SCALE_FACTOR = 100;
-
+        final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
+        NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
         DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
         DailyMeals today = dietController.getTodaysMeals();
 
@@ -357,10 +372,9 @@ SnackbarReady{
                             todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyCaffeine(),
                             todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyHydration()};
 
-        NumberFormat df = new DecimalFormat("##.##");
-
         //updating text for all the main food groups
         for(int i=0;i<textViewsCount.length;i++) {
+            //getting vaules from the arrays for this index
             TextView countTV = textViewsCount[i];
             TextView leftTV = textViewsLeft[i];
             ProgressBar progressBar = progressBars[i];
@@ -368,6 +382,7 @@ SnackbarReady{
             double plan = plans[i];
             double servesLeft = plan - count;
 
+            //if meal group has been completed, update the UI to reflect this
             if(servesLeft <= 0.2) {
                 if(countTV != null) {
                     countTV.setText(df.format(count) + "/" + df.format(plan));
@@ -404,7 +419,7 @@ SnackbarReady{
                 objectAnimator.start();
             }
         }
-        //updating text on other texts
+        //updating other texts
         cheatTV.setText(df.format(today.getWeeklyCheats()) + "/" + df.format(todaysDietPlan.getWeeklyCheats()));
         cheatsTodayTV.setText(df.format(today.getTotalCheats()) + " today!");
         //animating any updates to the cheat progress bar
@@ -415,14 +430,17 @@ SnackbarReady{
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();
 
+        //regresshing the other views
         mealView.refreshRecommendations();
     }
+
+    /////////Functions for the SnackbarReady interface
 
     @Override
     public void undoDelete(Object savedObject) {
         if(savedObject instanceof Meal) {
             final Meal savedMeal = (Meal) savedObject;
-            Snackbar.make(findViewById(R.id.whole_package),
+            Snackbar.make(findViewById(R.id.coordinator_overlay),
                     "Deleted Meal", Snackbar.LENGTH_LONG)
                     .setAction("Undo", new View.OnClickListener() {
                         @Override
@@ -436,7 +454,7 @@ SnackbarReady{
 
     @Override
     public void undoAdd(final DocumentReference documentReference) {
-        Snackbar.make(findViewById(R.id.whole_package),
+        Snackbar.make(findViewById(R.id.coordinator_overlay),
                 "Added Meal", Snackbar.LENGTH_LONG)
                 .setAction("Undo", new View.OnClickListener() {
                     @Override
