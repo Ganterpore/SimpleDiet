@@ -1,6 +1,7 @@
 package com.ganterpore.simplediet.Model;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -40,7 +41,20 @@ public class DietPlan {
         this.user = user;
     }
 
+    /**
+     * Creates an empty DietPLan with default values
+     */
     public DietPlan() {
+        this.dailyVeges = 6;
+        this.dailyProtein = 3;
+        this.dailyDairy = 2.5;
+        this.dailyGrain = 6;
+        this.dailyFruit = 2;
+        this.dailyHydration = 10;
+        this.weeklyCheats = 0;
+        this.dailyCaffeine = 4;
+        this.dailyAlcohol = 4;
+        this.user = FirebaseAuth.getInstance().getUid();
     }
 
     /**

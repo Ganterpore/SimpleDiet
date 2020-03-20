@@ -34,7 +34,9 @@ import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
+import com.ganterpore.simplediet.View.DialogBoxes.UpdateCheatsDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox;
+import com.ganterpore.simplediet.View.DialogBoxes.UpdateDrinkDietPlanDialogBox;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
@@ -204,7 +206,10 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "onComplete: signed up");
                         if (task.isSuccessful()) {
+                            onStart();
                             // Sign in success, update UI with the signed-in user's information
+                            UpdateCheatsDialogBox.updateDiet(activity);
+                            UpdateDrinkDietPlanDialogBox.updateDiet(activity);
                             UpdateDietDialogBox.updateDiet(activity);
                         } else {
                             // If sign in fails, display a message to the user.

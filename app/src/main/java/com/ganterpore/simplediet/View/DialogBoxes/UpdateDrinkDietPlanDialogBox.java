@@ -67,19 +67,20 @@ public class UpdateDrinkDietPlanDialogBox {
                 newPlan.setWeeklyCaffeine(Double.parseDouble(weeklyCaffeine.getText().toString()));
                 newPlan.setDailyAlcohol(Double.parseDouble(dailyAlcohol.getText().toString()));
                 newPlan.setWeeklyAlcohol(Double.parseDouble(weeklyAlcohol.getText().toString()));
-                newPlan.pushToDB()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void documentReference) {
-                                Toast.makeText(context, "Updated Diet Plan", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(context, "Diet Plan Update Failed", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                BasicDietController.getInstance().updateDietPlan(newPlan);
+//                newPlan.pushToDB()
+//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void documentReference) {
+//                                Toast.makeText(context, "Updated Diet Plan", Toast.LENGTH_SHORT).show();
+//                            }
+//                        })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Toast.makeText(context, "Diet Plan Update Failed", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
 
             }
         }).show();

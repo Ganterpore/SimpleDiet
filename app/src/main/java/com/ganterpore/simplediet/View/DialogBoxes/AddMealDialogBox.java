@@ -196,7 +196,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                         calendar.set(year, month, date, 0, 0, 0);
                         day = calendar.getTimeInMillis() - DateUtils.HOUR_IN_MILLIS;
                     }
-                    int cheatScore = getCheatScoreFromID(checkedRadioButtonId);
+                    int cheatScore = getCheatScoreFromID(cheatSelector.getCheckedRadioButtonId());
                     //create a meal object from the dialog box data
                     final Meal todaysMeal = new Meal(
                             Double.parseDouble(vegCountTV.getText().toString()),
