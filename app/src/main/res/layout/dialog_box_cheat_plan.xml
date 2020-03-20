@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp">
+
+    <TextView
+        android:layout_marginStart="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cheat_points_description" />
+
+
+    <LinearLayout
+        android:layout_marginStart="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/daily_cheat_points"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/daily_cheats"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:text="@string/default_daily_cheats" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_marginStart="8dp"
+        android:id="@+id/cheat_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cheat_description_template"
+        android:textStyle="italic"/>
+
+</LinearLayout>

@@ -5,102 +5,158 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <EditText
+        android:id="@+id/meal_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/veg_count"
+        android:layout_height="wrap_content"
+        android:text="@string/meal"
+        android:inputType="textCapWords"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+
+    <RadioGroup
+        android:id="@+id/day_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/todays_meal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/today"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/yesterdays_meal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/yesterday"
+            android:checked="false"/>
+
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/tap_a_food_group_to_add_serves"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of serves of veges:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:orientation="horizontal">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/protein_count"
+            <ImageView
+                android:id="@+id/veg_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/vegetables_full"
+                android:rotation="270"
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
+
+            <TextView
+                android:id="@+id/veg_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/num_0"
+                android:layout_gravity="bottom"/>
+
+            <ImageView
+                android:id="@+id/protein_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/meat_full"
+                android:rotation="270"
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
+
+            <TextView
+                android:id="@+id/protein_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/num_0"
+                android:layout_gravity="bottom"/>
+
+            <ImageView
+                android:id="@+id/dairy_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/dairy_full"
+                android:rotation="270"
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
+
+            <TextView
+                android:id="@+id/dairy_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/num_0"
+                android:layout_gravity="bottom"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of serves of meat:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:orientation="horizontal">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/dairy_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter number of serves of dairy:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:id="@+id/grain_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/grain_full"
+                android:rotation="270"
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/grain_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter number of serves of grain:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/grain_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/num_0"
+                android:layout_gravity="bottom"/>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/fruit_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter number of serves of fruit:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:id="@+id/fruit_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/fruit_full"
+                android:rotation="270"
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/water_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter number of serves of water:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/fruit_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/num_0"
+                android:layout_gravity="bottom"/>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/excess_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter number of excess serves:"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:id="@+id/excess_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/excess"
+                android:rotation="270"
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cheat_score"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter cheat score (0-3):"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/excess_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/num_0"
+                android:layout_gravity="bottom"/>
 
-
-
+        </LinearLayout>
+    </LinearLayout>
+    <include
+        layout="@layout/dialog_box_add_cheats"/>
 </LinearLayout>

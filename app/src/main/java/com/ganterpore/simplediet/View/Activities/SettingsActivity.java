@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.ActionBar;
@@ -14,10 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
-import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.R;
-import com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox;
 
 import java.util.Calendar;
 
@@ -41,6 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        //before leaving the settings, make sure the notifications are set
         updateNotifications();
     }
 
@@ -69,7 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             //setting up the notifications
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR*8, pendingIntent);
         } else {
             //if we are not doing morning alarms, confirm they are cancelled
             Intent intent = new Intent(this, NotificationReciever.class);
@@ -77,7 +75,6 @@ public class SettingsActivity extends AppCompatActivity {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, NotificationReciever.MORNING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.cancel(pendingIntent);
         }
-
 
         if(preferences.getBoolean(NotificationReciever.EVENING_NOTIFICATION_CHANNEL, false)) {
             //if we are doing morning notifications, then set it up

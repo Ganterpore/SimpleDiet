@@ -39,8 +39,8 @@ public interface DietController {
     /**
      * @return if the user has had all their water
      */
-    boolean isWaterCompletedToday();
-    boolean isWaterCompleted(int nDaysAgo);
+    boolean isHydrationCompletedToday();
+    boolean isHydrationCompleted(int nDaysAgo);
 
     /**
      * @return if the user has gone over their cheat limit

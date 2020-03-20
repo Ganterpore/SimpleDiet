@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item app:state_completed="true"
-        android:drawable="@drawable/symbol_food_completed"/>
+        android:drawable="@drawable/symbol_food_completed" />
     <item
         app:state_completed="false"
         android:drawable="@drawable/symbol_food_incomplete"/>

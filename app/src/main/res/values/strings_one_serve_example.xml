@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="serve_vegetables">A standard serve is about 75g (100–350kJ) or:\n
+
+ - 1/2 cup cooked green or orange vegetables\n
+ - 1/2 cup cooked dried or canned beans, peas or lentils\n
+ - 1 cup green leafy or raw salad vegetables\n
+ - 1/2 cup sweet corn\n
+ - 1/2 medium potato or other starchy vegetables\n
+ - 1 medium tomato</string>
+
+    <string name="serve_fruits">A standard serve is about 150g (350kJ) or:\n
+
+ - 1 medium apple, banana, orange or pear\n
+ - 2 small apricots, kiwi fruits or plums\n
+ - 1 cup diced or canned fruit\n
+Or only occasionally:\n
+
+ - 125ml (½ cup) fruit juice\n
+ - 30g dried fruit</string>
+
+    <string name="serve_grains">A standard serve is (500kJ) or:\n
+
+ - 1 slice (40g) bread\n
+ - 1/2 medium (40g) roll or flat bread\n
+ - 1/2 cup (75-120g) cooked rice, pasta, noodles, barley, buckwheat, semolina, polenta, bulgur or quinoa\n
+ - 1/2 cup (120g) cooked porridge\n
+ - 2/3 cup (30g) wheat cereal flakes\n
+ - 1/4 cup (30g) muesli\n
+ - 3 (35g) crispbreads\n
+ - 1 (60g) crumpet\n
+ - 1 small (35g) English muffin or scone</string>
+
+    <string name="serve_proteins">A standard serve is (500–600kJ):\n
+
+ - 65g cooked lean red meats (about 90-100g raw)\n
+ - 80g cooked lean poultry (100g raw)\n
+ - 100g cooked fish fillet (about 115g raw) or one small can of fish\n
+ - 2 large (120g) eggs\n
+ - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
+ - 170g tofu\n
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste</string>
+
+    <string name="serve_proteins_vegetarian">A standard serve is (500–600kJ):\n
+
+ - 2 large (120g) eggs\n
+ - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
+ - 170g tofu\n
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste\n
+ When choosing a meat free alternative, make sure to consult a dietitian, and consider the protein and
+  iron levels in your diet</string>
+
+    <string name="serve_proteins_vegan">A standard serve is (500–600kJ):\n
+
+ - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
+ - 170g tofu\n
+ - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste\n
+ When choosing a meat free alternative, make sure to consult a dietitian, and consider the protein and
+ iron levels in your diet</string>
+    <string name="serve_dairy">A standard serve is (500–600kJ):\n
+
+ - 1 cup (250ml) fresh, UHT long life, reconstituted powdered milk or buttermilk\n
+ - 1/2 cup (120ml) evaporated milk\n
+ - 2 slices (40g) or 4 x 3 x 2cm cube (40g) of hard cheese, such as cheddar\n
+ - 1/2 cup (120g) ricotta cheese\n
+ - 3/4 cup (200g) yoghurt\n</string>
+
+    <string name="serve_dairy_vegan">A standard serve is (500–600kJ):\n
+ - 1 cup (250ml) soy, rice or other cereal drink with at least 100mg of added calcium per 100ml\n
+ - 100g almonds with skin\n
+ - 60g sardines, canned in water\n
+ - 1/2 cup (100g) canned pink salmon with bones\n
+ - 100g firm tofu (check the label as calcium levels vary)\n
+  When choosing a dairy free alternative, make sure to consult a dietitian, and consider the calcium
+  levels in your diet</string>
+
+    <string name="serve_excess">
+  An excess serve is a serve of anything that doesn\'t provide nutritional value from any of the other 5 food groups
+  for example:\n
+   - a handful of lollies\n
+   - a small cup of dipping sauce\n
+   - a layer of spread on toast
+ </string>
+
+    <string name="serve_water">
+  A serve of a water based drink is one glass, or approximately 250mL. Most drinks are water based,
+  for example:\n
+   - a glass of spring water\n
+   - a glass of soft drink or soda\n
+   - a bottle of beer
+ </string>
+
+    <string name="serve_milk">
+  A serve of milk or other dairy drinks is generally one glass, or approximately 250mL.
+  for example:\n
+   - a glass of skim milk\n
+   - a glass of almond milk\n
+   - half a glass of evaporated milk
+ </string>
+
+    <string name="serve_caffeine">
+  A serve of caffeine is about 95mg. The amount of caffeine in a given drink varies wildly, but a serve is approximately:\n
+   - a shot of espresso\n
+   - one cup (250ml) of coffee\n
+   - approximately four cans of cola\n
+   - one regular strength energy drink
+ </string>
+
+    <string name="serve_alcohol">
+One standard drink of alcohol is equal to the percentage of alcohol, times the volume in litres, times 0.789.\n
+Either set the standards directly, or use the percentage slider to calculate the standards.
+ </string>
+
+</resources>

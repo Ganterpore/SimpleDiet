@@ -24,9 +24,16 @@
             app:title="Update your diet plan"
             app:useSimpleSummaryProvider="true" />
 
-        <Preference
+        <com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogPreference
+            app:key="update_hydration"
+            app:title="Update your drinking plan"
+            app:dialogLayout="@layout/dialog_box_drink_diet_plan"
+            app:useSimpleSummaryProvider="true" />
+
+        <com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogPreference
             app:key="update_cheat_points"
             app:title="Update your cheat points"
+            app:dialogLayout="@layout/dialog_box_cheat_plan"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
@@ -37,17 +44,18 @@
             app:title="Select Mode"
             app:useSimpleSummaryProvider="true" />
 
-        <SwitchPreferenceCompat
-            app:key="track_diet"
-            app:title="Track Diet" />
+        <!--    TODO add ability to only track some items    -->
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="track_diet"-->
+<!--            app:title="Track Diet" />-->
 
-        <SwitchPreferenceCompat
-            app:key="track_water"
-            app:title="Track water intake" />
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="track_water"-->
+<!--            app:title="Track water intake" />-->
 
-        <SwitchPreferenceCompat
-            app:key="track_cheats"
-            app:title="Track cheat points" />
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="track_cheats"-->
+<!--            app:title="Track cheat points" />-->
 
     </PreferenceCategory>
 

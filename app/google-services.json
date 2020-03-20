@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "594908666995",
+    "firebase_url": "https://simplediet-c1c5b.firebaseio.com",
+    "project_id": "simplediet-c1c5b",
+    "storage_bucket": "simplediet-c1c5b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594908666995:android:3ef6c23bed8fa015689e06",
+        "android_client_info": {
+          "package_name": "com.ganterpore.simplediet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594908666995-ve3bmeskn3tn8flgdp4vb2oiqfnnamgq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ganterpore.simplediet",
+            "certificate_hash": "b511d9d04cfe421fdec4e6d1be509bc606eac13b"
+          }
+        },
+        {
+          "client_id": "594908666995-s0kv87k28e556j6rga8fcgdpgir3gmd1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFLTLVoRu1OiS24Knol2LCvlsma-07qLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "594908666995-s0kv87k28e556j6rga8fcgdpgir3gmd1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

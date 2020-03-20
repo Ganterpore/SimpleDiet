@@ -1,56 +1,75 @@
 package com.ganterpore.simplediet.View.Activities;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
+import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
+import com.google.common.primitives.Ints;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class MealHistoryDisplay  {
+import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+
+
+class MealHistoryDisplay  {
     public static final String EXPIRY_TAG = "_expiry";
-    private static final String TAG = "MealHistoryDisplay";
+    public static final String TAG = "MealHistoryDisplay";
     private Activity activity;
     private DietController dietController;
     private List<DietController.Recommendation> recommendations;
     private RecyclerView history;
 
-    public MealHistoryDisplay(Activity activity, DietController dietController) {
+    MealHistoryDisplay(Activity activity, DietController dietController) {
         this.activity = activity;
         this.dietController = dietController;
         RecyclerView history = activity.findViewById(R.id.day_history_list);
         recommendations = new ArrayList<>();
         history.setAdapter(new DayHistoryAdapter(activity, 7));
         this.history = history;
-    }
 
-    public void setDietController(DietController dietController) {
-        this.dietController = dietController;
+        //setting up ability to swipe recommendations
+        RecommendationSwipeController swipeController = new RecommendationSwipeController(activity, history);
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(history);
     }
 
     /**
-     * called to update the list of recommendations for the user, to all recommendations that are
-     * not hidden
+     * Updates the list of recommendations
      */
-    public void refreshRecommendations() {
+    void refreshRecommendations() {
         //getting all recommendations, and clearing the list of visible recommendations.
         List<DietController.Recommendation> allRecomendations = dietController.getRecommendations();
         if(recommendations != null) {
@@ -60,7 +79,7 @@ public class MealHistoryDisplay  {
         }
 
         //check if the recommendation should be hidden. If not, then add it to the viewable recommendations.
-        SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
         for(DietController.Recommendation recommendation : allRecomendations) {
             //getting the expiry date of the notification hide feature
             long hideNotificationExpiry = preferences.getLong(recommendation.getId() + EXPIRY_TAG, 0);
@@ -75,32 +94,67 @@ public class MealHistoryDisplay  {
     }
 
     /**
+     * Makes recommendations able to be swiped away by the user
+     */
+    class RecommendationSwipeController extends ItemTouchHelper.Callback {
+        Activity activity;
+        RecyclerView recyclerView;
+        RecommendationSwipeController(Activity activity, RecyclerView recyclerView) {
+            this.activity = activity;
+            this.recyclerView = recyclerView;
+        }
+
+        @Override
+        public int getMovementFlags(@NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            int type = viewHolder.getItemViewType();
+            if(type == DayHistoryAdapter.RECOMMENDATION_VIEW) {
+                return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+            } else {
+                return makeMovementFlags(0, 0);
+            }
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
+            ((DayHistoryViewHolder) viewHolder).hideRecommendation();
+        }
+    }
+
+    /**
      * adapter for the day history list.
      */
     public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder> {
 
-        public final static int RECOMMENDATION_VIEW = 1;
-        public final static int MEAL_HISTORY_VIEW = 2;
+        final static int RECOMMENDATION_VIEW = 1;
+        final static int MEAL_HISTORY_VIEW = 2;
 
         int nDays;
         Activity activity;
+        SparseBooleanArray nDaysAgoVisible;
 
-        public DayHistoryAdapter(Activity activity, int nDays) {
+        DayHistoryAdapter(Activity activity, int nDays) {
             this.activity = activity;
             this.nDays = nDays;
+            this.nDaysAgoVisible = new SparseBooleanArray();
         }
 
         @NonNull
         @Override
         public DayHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
             View view;
-            //openning either a recommendation or day history item
+            //opening either a recommendation or day history item
             if(viewType==RECOMMENDATION_VIEW) {
                 view = LayoutInflater.from(activity).inflate(R.layout.list_item_recommendation, viewGroup, false);
             } else {
                 view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_history, viewGroup, false);
             }
-            return new DayHistoryViewHolder(activity, view, viewType);
+            return new DayHistoryViewHolder(activity, view, viewType, this);
         }
 
         @Override
@@ -132,16 +186,20 @@ public class MealHistoryDisplay  {
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         Activity activity;
         int viewType;
+        DayHistoryAdapter adapter;
+        int position;
 
-        public DayHistoryViewHolder(Activity activity, @NonNull View itemView,
-                                    int viewType) {
+        DayHistoryViewHolder(Activity activity, @NonNull View itemView,
+                             int viewType, DayHistoryAdapter adapter) {
             super(itemView);
             this.itemView = itemView;
             this.activity = activity;
             this.viewType = viewType;
+            this.adapter = adapter;
         }
 
         public void build(int position) {
+            this.position = position;
             int daysAgo = position - recommendations.size();
             if(daysAgo<0) {
                 buildRecommendation(position);
@@ -163,7 +221,7 @@ public class MealHistoryDisplay  {
             exitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hideRecommendation(recommendation);
+                    hideRecommendation();
                 }
             });
         }
@@ -171,14 +229,33 @@ public class MealHistoryDisplay  {
         /**
          * used to hide a recommendation, and make sure it doesn't reappear until the expiry date
          */
-        private void hideRecommendation(DietController.Recommendation recommendation) {
-            //updating the expiry of the recommendation id
-            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
-            Date expiry = new Date(System.currentTimeMillis() + recommendation.getExpiry());
-            preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
+        private void hideRecommendation() {
+            //confirm with the user if they actually want to remove notification
+            new AlertDialog.Builder(activity)
+                    .setTitle("Are you sure you want to remove this?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //if so, proceed with removal
+                            final DietController.Recommendation recommendation = recommendations.get(position);
+                            //updating the expiry of the recommendation id
+                            SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
+                            Date expiry = new Date(System.currentTimeMillis() + recommendation.getExpiry());
+                            preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
 
-            //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
-            refreshRecommendations();
+                            //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
+                            refreshRecommendations();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //if not, move back if swiped away
+                            adapter.notifyItemChanged(getAdapterPosition());
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
         }
 
         /**
@@ -196,37 +273,87 @@ public class MealHistoryDisplay  {
             return calendar.getTime();
         }
 
-        private void buildMeal(int nDaysAgo) {
+        private void buildMeal(final int nDaysAgo) {
+            final int SCALE_FACTOR = 100;
+
             DailyMeals day = dietController.getDaysMeals(nDaysAgo);
+            DietPlan daysPlan = dietController.getDaysDietPlan(nDaysAgo);
             //getting and updating values for the views
             TextView dateTV = itemView.findViewById(R.id.date);
             CompletableItemView completedFoodTV = itemView.findViewById(R.id.completed_food);
             CompletableItemView completedWaterTV = itemView.findViewById(R.id.completed_water);
             CompletableItemView didntCheatTV = itemView.findViewById(R.id.didnt_cheat);
+            ProgressBar cheatsProgress = itemView.findViewById(R.id.progress_cheats);
 
             dateTV.setText(dateFormat.format(day.getDate()));
             completedFoodTV.setCompleted(dietController.isFoodCompleted(nDaysAgo));
-            completedWaterTV.setCompleted(dietController.isWaterCompleted(nDaysAgo));
-            didntCheatTV.setCompleted(dietController.isOverCheatScore(nDaysAgo));
+            completedWaterTV.setCompleted(dietController.isHydrationCompleted(nDaysAgo));
+            didntCheatTV.setCompleted(!dietController.isOverCheatScore(nDaysAgo));
+            cheatsProgress.setMax((int) daysPlan.getWeeklyCheats() * SCALE_FACTOR);
+            cheatsProgress.setProgress((int) day.getWeeklyCheats() * SCALE_FACTOR);
 
             //creating a list of the meals eaten that day
-            final RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
+            RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
             mealsList.setAdapter(new MealsAdapter(activity, day.getMeals()));
 
-            //creating functionality for the button that shows meals eaten that day
+            final ConstraintLayout expandableView = itemView.findViewById(R.id.expanded_layout);
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
+
+            //making sure view is shown as it should be
+            if(adapter.nDaysAgoVisible.get(nDaysAgo, false)) {
+                expandableView.setVisibility(View.VISIBLE);
+                dropdownButton.setRotation(180);
+            } else {
+                expandableView.setVisibility(View.GONE);
+                dropdownButton.setRotation(0);
+            }
+
+            //creating functionality for the button that shows meals eaten that day
             dropdownButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(mealsList.getVisibility() == View.GONE) {
-                        mealsList.setVisibility(View.VISIBLE);
-                        dropdownButton.setImageDrawable(activity.getResources().getDrawable(android.R.drawable.arrow_up_float));
+                    if(expandableView.getVisibility() == View.GONE) {
+                        expandableView.setVisibility(View.VISIBLE);
+                        dropdownButton.animate().setDuration(200).rotation(180);
+                        adapter.nDaysAgoVisible.append(nDaysAgo, true);
+                        adapter.notifyItemChanged(position);
                     } else {
-                        mealsList.setVisibility(View.GONE);
-                        dropdownButton.setImageDrawable(activity.getResources().getDrawable(android.R.drawable.arrow_down_float));
+                        expandableView.setVisibility(View.GONE);
+                        dropdownButton.animate().setDuration(200).rotation(0);
+                        adapter.nDaysAgoVisible.append(nDaysAgo, false);
+                        adapter.notifyItemChanged(position);
                     }
                 }
             });
+
+            //updating text views
+            NumberFormat df = new DecimalFormat("##.##");
+            TextView vegCount = itemView.findViewById(R.id.veg_count);
+            TextView proteinCount = itemView.findViewById(R.id.protein_count);
+            TextView dairyCount = itemView.findViewById(R.id.dairy_count);
+            TextView grainCount = itemView.findViewById(R.id.grain_count);
+            TextView fruitCount = itemView.findViewById(R.id.fruit_count);
+            TextView waterCount = itemView.findViewById(R.id.water_count);
+            TextView cheatCount = itemView.findViewById(R.id.cheat_count);
+            TextView proteinCountHeader = itemView.findViewById(R.id.protein_count_header);
+
+            vegCount.setText((df.format(day.getVegCount()) + "/" + df.format(daysPlan.getDailyVeges())));
+            proteinCount.setText((df.format(day.getProteinCount()) + "/" + df.format(daysPlan.getDailyProtein())));
+            dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
+            grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
+            fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
+            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration())));
+            cheatCount.setText((df.format(day.getTotalCheats())));
+
+            SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+            String mode = preferences.getString("mode", "normal");
+            if (mode != null && (mode.equals("vegan") || mode.equals("vegetarian"))) {
+                proteinCountHeader.setText("P");
+            }
+
+            MealSwipeController swipeController = new MealSwipeController(activity, mealsList);
+            ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+            itemTouchhelper.attachToRecyclerView(mealsList);
         }
     }
 
@@ -236,11 +363,11 @@ public class MealHistoryDisplay  {
     public class MealsAdapter extends RecyclerView.Adapter<MealsViewHolder> {
 
         private Activity activity;
-        private List<Meal> meals;
+        List<Meal> meals;
         private final int HAS_MEAL = 1;
         private final int NO_MEAL = 2;
 
-        public MealsAdapter(Activity activity, List<Meal> meals) {
+        MealsAdapter(Activity activity, List<Meal> meals) {
             this.activity = activity;
             this.meals = meals;
         }
@@ -287,12 +414,14 @@ public class MealHistoryDisplay  {
      * View holder for the meal list item
      */
     public class MealsViewHolder extends RecyclerView.ViewHolder {
+        private Meal meal;
 
-        public MealsViewHolder(@NonNull View itemView) {
+        MealsViewHolder(@NonNull View itemView) {
             super(itemView);
         }
 
         public void build(Meal meal) {
+            this.meal = meal;
             if(meal.getName() != null) {
                 TextView mealNameTV = itemView.findViewById(R.id.meal_name);
                 mealNameTV.setText(meal.getName());
@@ -300,7 +429,92 @@ public class MealHistoryDisplay  {
             TextView servingCountTV = itemView.findViewById(R.id.serving_count);
             servingCountTV.setText(meal.serveCountText());
         }
+
+        void deleteMeal() {
+            meal.deleteMeal();
+        }
     }
 
+    class MealSwipeController extends ItemTouchHelper.Callback {
 
+        private Activity activity;
+        private RecyclerView recyclerView;
+        private Drawable icon;
+        private final ColorDrawable background;
+
+        MealSwipeController(Activity activity, RecyclerView recyclerView) {
+            this.activity = activity;
+            this.recyclerView = recyclerView;
+            icon = ContextCompat.getDrawable(activity,
+                    android.R.drawable.ic_menu_delete);
+            background = new ColorDrawable(Color.RED);
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            View itemView = viewHolder.itemView;
+            int backgroundCornerOffset = 20;
+            int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconTop = itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconBottom = iconTop + icon.getIntrinsicHeight();
+
+            if (dX > 0) { // Swiping to the right
+                int iconLeft = Ints.min(itemView.getLeft()+(int)dX - icon.getIntrinsicWidth(), itemView.getLeft() + iconMargin);
+                int iconRight = Ints.min(itemView.getLeft()+(int)dX, itemView.getLeft() + iconMargin + icon.getIntrinsicWidth());
+                icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+
+                background.setBounds(itemView.getLeft(), itemView.getTop(),
+                        itemView.getLeft() + ((int) dX) - backgroundCornerOffset,
+                        itemView.getBottom());
+                background.draw(c);
+                icon.draw(c);
+            } else if (dX < 0) { // Swiping to the left
+                int iconLeft = Ints.max(itemView.getRight()+(int)dX, itemView.getRight() - iconMargin-icon.getIntrinsicWidth());
+                int iconRight = Ints.max(itemView.getRight()+(int)dX +  icon.getIntrinsicWidth(), itemView.getRight() - iconMargin);
+                icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+
+                background.setBounds(itemView.getRight() + ((int) dX) + backgroundCornerOffset,
+                        itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                background.draw(c);
+                icon.draw(c);
+            } else { // view is unSwiped
+                background.setBounds(0, 0, 0, 0);
+            }
+        }
+
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+            new AlertDialog.Builder(activity)
+                    .setTitle("Are you sure you want to remove this?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final Meal savedMeal = ((MealsViewHolder) viewHolder).meal;
+                            ((MealsViewHolder) viewHolder).deleteMeal();
+                            ((MealsAdapter) recyclerView.getAdapter()).meals.remove(viewHolder.getAdapterPosition());
+                            recyclerView.getAdapter().notifyItemRemoved(viewHolder.getAdapterPosition());
+                            ((SnackbarReady) activity).undoDelete(savedMeal);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            recyclerView.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
+    }
 }

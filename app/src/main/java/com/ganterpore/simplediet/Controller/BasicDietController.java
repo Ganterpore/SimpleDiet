@@ -1,5 +1,6 @@
 package com.ganterpore.simplediet.Controller;
 
+import android.os.Build;
 import android.text.format.DateUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -21,15 +22,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
-public class BasicDietController implements DietController {
-
+public class  BasicDietController implements DietController {
     private static final String TAG = "BasicDietController";
+    private static BasicDietController instance;
     private List<DocumentSnapshot> data;
     private DietControllerListener listener;
     private String user;
@@ -37,6 +39,10 @@ public class BasicDietController implements DietController {
     private FirebaseFirestore db;
     private SparseArray<DailyMeals> daysAgoMeals;
     private SparseBooleanArray mealNeedsUpdate;
+
+    public static BasicDietController getInstance() {
+        return instance;
+    }
 
     public BasicDietController(DietControllerListener listener) {
         //initialising variables
@@ -50,17 +56,30 @@ public class BasicDietController implements DietController {
         //updating data
         getCurrentDietPlanFromDB();
         getCurrentMealDataFromDB();
+        instance = this;
     }
 
     private void getCurrentMealDataFromDB() {
         Query dataQuery = db.collection(DailyMeals.MEALS).whereEqualTo("user", user);
-        //check to update the data when it changes
+        //check to update the data when it changes. This will also run through on the first time
         dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                 if(queryDocumentSnapshots != null) {
                     //update data to the new changes
                     data = queryDocumentSnapshots.getDocuments();
+                    //if running new enough android, sort the data by day
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        data.sort(new Comparator<DocumentSnapshot>() {
+                            @Override
+                            public int compare(DocumentSnapshot o1, DocumentSnapshot o2) {
+                                double rawScore =  o1.getDouble("day") - o2.getDouble("day");
+                                if(rawScore > 0) {return -1;}
+                                else if(rawScore < 0) {return 1;}
+                                else {return 0;}
+                            }
+                        });
+                    }
 
                     //check which data has changed, and set them to be updated when next accessed
                     List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();
@@ -169,15 +188,15 @@ public class BasicDietController implements DietController {
     }
 
     @Override
-    public boolean isWaterCompletedToday() {
-        return isWaterCompleted(0);
+    public boolean isHydrationCompletedToday() {
+        return isHydrationCompleted(0);
     }
     @Override
-    public boolean isWaterCompleted(int nDaysAgo) {
-        return isWaterCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
+    public boolean isHydrationCompleted(int nDaysAgo) {
+        return isHydrationCompleted(getDaysMeals(nDaysAgo), getDaysDietPlan(nDaysAgo));
     }
-    private boolean isWaterCompleted(DailyMeals meals, DietPlan dietPlan) {
-        return meals.getWaterCount() >= dietPlan.getDailyWater();
+    private boolean isHydrationCompleted(DailyMeals meals, DietPlan dietPlan) {
+        return meals.getHydrationScore() >= dietPlan.getDailyHydration();
     }
 
     @Override
@@ -272,7 +291,7 @@ public class BasicDietController implements DietController {
         }
         if(fortnightlyProtein > (14* overallDiet.getDailyProtein() + 7)) {
             overAte = true;
-            overAteMessage += "meats, ";
+            overAteMessage += "proteins, ";
         }
         if(fortnightlyDairy > (14* overallDiet.getDailyDairy() + 7)) {
             overAte = true;
@@ -300,7 +319,7 @@ public class BasicDietController implements DietController {
         }
         if(fortnightlyProtein < (14* overallDiet.getDailyProtein() - 7)) {
             underAte = true;
-            underAteMessage += "meats, ";
+            underAteMessage += "proteins, ";
         }
         if(fortnightlyDairy < (14* overallDiet.getDailyDairy() - 7)) {
             underAte = true;
@@ -314,7 +333,7 @@ public class BasicDietController implements DietController {
             underAte = true;
             underAteMessage += "fruit, ";
         }
-        if(fortnightlyWater < (14* overallDiet.getDailyWater() - 7)) {
+        if(fortnightlyWater < (14* overallDiet.getDailyHydration() - 7)) {
             underAte = true;
             underAteMessage += "water, ";
         }
