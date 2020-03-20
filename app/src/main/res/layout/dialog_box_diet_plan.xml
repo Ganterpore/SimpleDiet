@@ -9,7 +9,7 @@
         android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select a default diet plan from the list"/>
+        android:text="@string/select_default_diet_explanation"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/default_diets"
@@ -22,103 +22,77 @@
         android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Personalise your diet plan here"/>
+        android:text="@string/personalise_diet_plan_title"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/veg_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Veges"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/veg_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/veges"
+                android:inputType="numberDecimal"
+                android:imeOptions="actionNext"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/protein_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Meat"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/protein_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/meat"
+                android:inputType="numberDecimal"
+                android:imeOptions="actionNext"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/dairy_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Dairy"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/dairy_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/dairy"
+                android:inputType="numberDecimal"
+                android:imeOptions="actionNext"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/grain_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Grain"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/grain_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/grain"
+                android:inputType="numberDecimal"
+                android:imeOptions="actionNext"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/fruit_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Fruit"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionNext"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_weight="1"-->
-<!--        android:layout_height="wrap_content">-->
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/water_count"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:hint="Enter number of serves of water:"-->
-<!--            android:inputType="numberDecimal"-->
-<!--            android:imeOptions="actionNext"/>-->
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_weight="1"-->
-<!--        android:layout_height="wrap_content">-->
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/cheat_score"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:hint="Enter cheat points per week:"-->
-<!--            android:inputType="numberDecimal"-->
-<!--            android:imeOptions="actionNext"/>-->
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
-
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/fruit_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fruit"
+                android:inputType="numberDecimal"
+                android:imeOptions="actionNext"/>
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </LinearLayout>

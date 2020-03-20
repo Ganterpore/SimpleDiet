@@ -112,7 +112,7 @@ public class DailyMeals {
             grainCount += meal.getGrainCount();
             fruitCount += meal.getFruitCount();
             waterCount += meal.getWaterCount();
-            caffieneCount += meal.getCaffieneCount();
+            caffieneCount += meal.getCaffeineCount();
             alcoholCount += meal.getAlcoholStandards();
             hydrationScore += meal.getHydrationScore();
             excessServes += meal.getExcessServes();

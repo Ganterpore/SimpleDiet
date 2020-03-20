@@ -10,9 +10,7 @@
         android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cheat points determine how bad a meal is for you. The worse the meal, the more cheat points it costs. Choose an amount of cheat points you are allowed to use each day."
-        />
-
+        android:text="@string/cheat_points_description" />
 
 
     <LinearLayout
@@ -23,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Daily Cheat Points"
+            android:text="@string/daily_cheat_points"
             android:textStyle="bold"/>
 
         <EditText
@@ -32,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="numberDecimal"
-            android:text="0"/>
+            android:text="@string/default_daily_cheats" />
 
     </LinearLayout>
 

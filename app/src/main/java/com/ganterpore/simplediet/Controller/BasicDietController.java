@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
-public class BasicDietController implements DietController {
+public class  BasicDietController implements DietController {
     private static final String TAG = "BasicDietController";
     private static BasicDietController instance;
     private List<DocumentSnapshot> data;
@@ -61,7 +61,7 @@ public class BasicDietController implements DietController {
 
     private void getCurrentMealDataFromDB() {
         Query dataQuery = db.collection(DailyMeals.MEALS).whereEqualTo("user", user);
-        //check to update the data when it changes
+        //check to update the data when it changes. This will also run through on the first time
         dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -73,7 +73,7 @@ public class BasicDietController implements DietController {
                         data.sort(new Comparator<DocumentSnapshot>() {
                             @Override
                             public int compare(DocumentSnapshot o1, DocumentSnapshot o2) {
-                                Double rawScore =  o1.getDouble("day") - o2.getDouble("day");
+                                double rawScore =  o1.getDouble("day") - o2.getDouble("day");
                                 if(rawScore > 0) {return -1;}
                                 else if(rawScore < 0) {return 1;}
                                 else {return 0;}

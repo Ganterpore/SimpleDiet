@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="dd-MMM-yyyy"
+            android:text="@string/default_date"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -110,7 +110,8 @@
                 android:id="@+id/dropdown_button"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@android:drawable/arrow_down_float" />
+                android:src="@android:drawable/arrow_down_float"
+                android:contentDescription="@string/down_arrow" />
 
             <Space
                 android:layout_width="0dp"

@@ -44,15 +44,15 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 
-public class MealHistoryDisplay  {
+class MealHistoryDisplay  {
     public static final String EXPIRY_TAG = "_expiry";
-    private static final String TAG = "MealHistoryDisplay";
+    public static final String TAG = "MealHistoryDisplay";
     private Activity activity;
     private DietController dietController;
     private List<DietController.Recommendation> recommendations;
     private RecyclerView history;
 
-    public MealHistoryDisplay(Activity activity, DietController dietController) {
+    MealHistoryDisplay(Activity activity, DietController dietController) {
         this.activity = activity;
         this.dietController = dietController;
         RecyclerView history = activity.findViewById(R.id.day_history_list);
@@ -60,16 +60,16 @@ public class MealHistoryDisplay  {
         history.setAdapter(new DayHistoryAdapter(activity, 7));
         this.history = history;
 
+        //setting up ability to swipe recommendations
         RecommendationSwipeController swipeController = new RecommendationSwipeController(activity, history);
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(history);
     }
 
     /**
-     * called to update the list of recommendations for the user, to all recommendations that are
-     * not hidden
+     * Updates the list of recommendations
      */
-    public void refreshRecommendations() {
+    void refreshRecommendations() {
         //getting all recommendations, and clearing the list of visible recommendations.
         List<DietController.Recommendation> allRecomendations = dietController.getRecommendations();
         if(recommendations != null) {
@@ -93,17 +93,19 @@ public class MealHistoryDisplay  {
         }
     }
 
+    /**
+     * Makes recommendations able to be swiped away by the user
+     */
     class RecommendationSwipeController extends ItemTouchHelper.Callback {
-
         Activity activity;
         RecyclerView recyclerView;
-        public RecommendationSwipeController(Activity activity, RecyclerView recyclerView) {
+        RecommendationSwipeController(Activity activity, RecyclerView recyclerView) {
             this.activity = activity;
             this.recyclerView = recyclerView;
         }
 
         @Override
-        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        public int getMovementFlags(@NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             int type = viewHolder.getItemViewType();
             if(type == DayHistoryAdapter.RECOMMENDATION_VIEW) {
                 return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
@@ -113,30 +115,14 @@ public class MealHistoryDisplay  {
         }
 
         @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull RecyclerView.ViewHolder target) {
             return false;
         }
 
-
-
         @Override
-        public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-            new AlertDialog.Builder(activity)
-                    .setTitle("Are you sure you want to remove this?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ((DayHistoryViewHolder) viewHolder).hideRecommendation();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            recyclerView.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
+        public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
+            ((DayHistoryViewHolder) viewHolder).hideRecommendation();
         }
     }
 
@@ -145,14 +131,14 @@ public class MealHistoryDisplay  {
      */
     public class DayHistoryAdapter extends RecyclerView.Adapter<DayHistoryViewHolder> {
 
-        public final static int RECOMMENDATION_VIEW = 1;
-        public final static int MEAL_HISTORY_VIEW = 2;
+        final static int RECOMMENDATION_VIEW = 1;
+        final static int MEAL_HISTORY_VIEW = 2;
 
         int nDays;
         Activity activity;
-        public SparseBooleanArray nDaysAgoVisible;
+        SparseBooleanArray nDaysAgoVisible;
 
-        public DayHistoryAdapter(Activity activity, int nDays) {
+        DayHistoryAdapter(Activity activity, int nDays) {
             this.activity = activity;
             this.nDays = nDays;
             this.nDaysAgoVisible = new SparseBooleanArray();
@@ -162,7 +148,7 @@ public class MealHistoryDisplay  {
         @Override
         public DayHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
             View view;
-            //openning either a recommendation or day history item
+            //opening either a recommendation or day history item
             if(viewType==RECOMMENDATION_VIEW) {
                 view = LayoutInflater.from(activity).inflate(R.layout.list_item_recommendation, viewGroup, false);
             } else {
@@ -203,8 +189,8 @@ public class MealHistoryDisplay  {
         DayHistoryAdapter adapter;
         int position;
 
-        public DayHistoryViewHolder(Activity activity, @NonNull View itemView,
-                                    int viewType, DayHistoryAdapter adapter) {
+        DayHistoryViewHolder(Activity activity, @NonNull View itemView,
+                             int viewType, DayHistoryAdapter adapter) {
             super(itemView);
             this.itemView = itemView;
             this.activity = activity;
@@ -244,14 +230,32 @@ public class MealHistoryDisplay  {
          * used to hide a recommendation, and make sure it doesn't reappear until the expiry date
          */
         private void hideRecommendation() {
-            final DietController.Recommendation recommendation = recommendations.get(position);
-            //updating the expiry of the recommendation id
-            SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
-            Date expiry = new Date(System.currentTimeMillis() + recommendation.getExpiry());
-            preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
+            //confirm with the user if they actually want to remove notification
+            new AlertDialog.Builder(activity)
+                    .setTitle("Are you sure you want to remove this?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //if so, proceed with removal
+                            final DietController.Recommendation recommendation = recommendations.get(position);
+                            //updating the expiry of the recommendation id
+                            SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
+                            Date expiry = new Date(System.currentTimeMillis() + recommendation.getExpiry());
+                            preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
 
-            //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
-            refreshRecommendations();
+                            //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
+                            refreshRecommendations();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //if not, move back if swiped away
+                            adapter.notifyItemChanged(getAdapterPosition());
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
         }
 
         /**
@@ -343,7 +347,7 @@ public class MealHistoryDisplay  {
 
             SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
             String mode = preferences.getString("mode", "normal");
-            if(mode.equals("vegan") || mode.equals("vegetarian")) {
+            if (mode != null && (mode.equals("vegan") || mode.equals("vegetarian"))) {
                 proteinCountHeader.setText("P");
             }
 
@@ -359,11 +363,11 @@ public class MealHistoryDisplay  {
     public class MealsAdapter extends RecyclerView.Adapter<MealsViewHolder> {
 
         private Activity activity;
-        public List<Meal> meals;
+        List<Meal> meals;
         private final int HAS_MEAL = 1;
         private final int NO_MEAL = 2;
 
-        public MealsAdapter(Activity activity, List<Meal> meals) {
+        MealsAdapter(Activity activity, List<Meal> meals) {
             this.activity = activity;
             this.meals = meals;
         }
@@ -412,7 +416,7 @@ public class MealHistoryDisplay  {
     public class MealsViewHolder extends RecyclerView.ViewHolder {
         private Meal meal;
 
-        public MealsViewHolder(@NonNull View itemView) {
+        MealsViewHolder(@NonNull View itemView) {
             super(itemView);
         }
 
@@ -426,7 +430,7 @@ public class MealHistoryDisplay  {
             servingCountTV.setText(meal.serveCountText());
         }
 
-        public void deleteMeal() {
+        void deleteMeal() {
             meal.deleteMeal();
         }
     }
@@ -438,7 +442,7 @@ public class MealHistoryDisplay  {
         private Drawable icon;
         private final ColorDrawable background;
 
-        public MealSwipeController(Activity activity, RecyclerView recyclerView) {
+        MealSwipeController(Activity activity, RecyclerView recyclerView) {
             this.activity = activity;
             this.recyclerView = recyclerView;
             icon = ContextCompat.getDrawable(activity,
@@ -477,8 +481,6 @@ public class MealHistoryDisplay  {
             } else { // view is unSwiped
                 background.setBounds(0, 0, 0, 0);
             }
-
-
         }
 
         @Override
@@ -515,6 +517,4 @@ public class MealHistoryDisplay  {
                     .show();
         }
     }
-
-
 }

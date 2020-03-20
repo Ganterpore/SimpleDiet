@@ -11,7 +11,7 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Default Title"
+        android:text="@string/default_title"
         android:textStyle="bold"
         style="@style/TextAppearance.AppCompat.Medium"/>
 
@@ -24,39 +24,37 @@
             android:id="@+id/veges_diet_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Veges:0"
+            android:text="@string/veges_default_counter"
             android:layout_marginBottom="8dp"
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/meat_diet_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Meat:0"
+            android:text="@string/meat_default_counter"
             android:layout_weight="1"
             android:layout_marginBottom="8dp"/>
         <TextView
             android:id="@+id/dairy_diet_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dairy:0"
+            android:text="@string/dairy_default_counter"
             android:layout_weight="1"
             android:layout_marginBottom="8dp"/>
         <TextView
             android:id="@+id/grain_diet_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Grain:0"
+            android:text="@string/grain_default_counter"
             android:layout_weight="1"
             android:layout_marginBottom="8dp"/>
         <TextView
             android:id="@+id/fruit_diet_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Fruit:0"
+            android:text="@string/fruit_default_counter"
             android:layout_weight="1"
             android:layout_marginBottom="8dp"/>
-
-
     </LinearLayout>
 
     <View
@@ -65,8 +63,4 @@
         android:background="@color/colorAccent"
         android:layout_marginTop="2dp"
         android:layout_marginBottom="2dp"/>
-
-
-
-
 </LinearLayout>

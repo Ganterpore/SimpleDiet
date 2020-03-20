@@ -2,118 +2,66 @@
     <string name="app_name">SimpleDiet</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="serve_vegetables">A standard serve is about 75g (100–350kJ) or:\n
-
- - 1/2 cup cooked green or orange vegetables\n
- - 1/2 cup cooked dried or canned beans, peas or lentils\n
- - 1 cup green leafy or raw salad vegetables\n
- - 1/2 cup sweet corn\n
- - 1/2 medium potato or other starchy vegetables\n
- - 1 medium tomato</string>
-
-    <string name="serve_fruits">A standard serve is about 150g (350kJ) or:\n
-
- - 1 medium apple, banana, orange or pear\n
- - 2 small apricots, kiwi fruits or plums\n
- - 1 cup diced or canned fruit\n
-Or only occasionally:\n
-
- - 125ml (½ cup) fruit juice\n
- - 30g dried fruit</string>
-
-    <string name="serve_grains">A standard serve is (500kJ) or:\n
-
- - 1 slice (40g) bread\n
- - 1/2 medium (40g) roll or flat bread\n
- - 1/2 cup (75-120g) cooked rice, pasta, noodles, barley, buckwheat, semolina, polenta, bulgur or quinoa\n
- - 1/2 cup (120g) cooked porridge\n
- - 2/3 cup (30g) wheat cereal flakes\n
- - 1/4 cup (30g) muesli\n
- - 3 (35g) crispbreads\n
- - 1 (60g) crumpet\n
- - 1 small (35g) English muffin or scone</string>
-    
-    <string name="serve_proteins">A standard serve is (500–600kJ):\n
-
- - 65g cooked lean red meats (about 90-100g raw)\n
- - 80g cooked lean poultry (100g raw)\n
- - 100g cooked fish fillet (about 115g raw) or one small can of fish\n
- - 2 large (120g) eggs\n
- - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
- - 170g tofu\n
- - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste</string>
-
- <string name="serve_proteins_vegetarian">A standard serve is (500–600kJ):\n
-
- - 2 large (120g) eggs\n
- - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
- - 170g tofu\n
- - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste\n
- When choosing a meat free alternative, make sure to consult a dietitian, and consider the protein and
-  iron levels in your diet</string>
-
- <string name="serve_proteins_vegan">A standard serve is (500–600kJ):\n
-
- - 1 cup (150g) cooked or canned legumes/beans such as lentils, chick peas or split peas\n
- - 170g tofu\n
- - 30g nuts, seeds, peanut or almond butter or tahini or other nut or seed paste\n
- When choosing a meat free alternative, make sure to consult a dietitian, and consider the protein and
- iron levels in your diet</string>
-    <string name="serve_dairy">A standard serve is (500–600kJ):\n
-
- - 1 cup (250ml) fresh, UHT long life, reconstituted powdered milk or buttermilk\n
- - 1/2 cup (120ml) evaporated milk\n
- - 2 slices (40g) or 4 x 3 x 2cm cube (40g) of hard cheese, such as cheddar\n
- - 1/2 cup (120g) ricotta cheese\n
- - 3/4 cup (200g) yoghurt\n</string>
-
- <string name="serve_dairy_vegan">A standard serve is (500–600kJ):\n
- - 1 cup (250ml) soy, rice or other cereal drink with at least 100mg of added calcium per 100ml\n
- - 100g almonds with skin\n
- - 60g sardines, canned in water\n
- - 1/2 cup (100g) canned pink salmon with bones\n
- - 100g firm tofu (check the label as calcium levels vary)\n
-  When choosing a dairy free alternative, make sure to consult a dietitian, and consider the calcium
-  levels in your diet</string>
-
- <string name="serve_excess">
-  An excess serve is a serve of anything that doesn\'t provide nutritional value from any of the other 5 food groups
-  for example:\n
-   - a handful of lollies\n
-   - a small cup of dipping sauce\n
-   - a layer of spread on toast
- </string>
-
- <string name="serve_water">
-  A serve of a water based drink is one glass, or approximately 250mL. Most drinks are water based,
-  for example:\n
-   - a glass of spring water\n
-   - a glass of soft drink or soda\n
-   - a bottle of beer
- </string>
-
- <string name="serve_milk">
-  A serve of milk or other dairy drinks is generally one glass, or approximately 250mL.
-  for example:\n
-   - a glass of skim milk\n
-   - a glass of almond milk\n
-   - half a glass of evaporated milk
- </string>
-
- <string name="serve_caffeine">
-  A serve of caffeine is about 95mg. The amount of caffeine in a given drink varies wildly, but a serve is approximately:\n
-   - a shot of espresso\n
-   - one cup (250ml) of coffee\n
-   - approximately four cans of cola\n
-   - one regular strength energy drink
- </string>
-
- <string name="serve_alcohol">
-One standard drink of alcohol is equal to the percentage of alcohol, times the volume in litres, times 0.789.\n
-Either set the standards directly, or use the percentage slider to calculate the standards.
- </string>
-
-
  <string name="cheat_score_description">Select a cheat score that measures how much of a cheat meal this was. The higher the score, the worse it is for you.</string>
     <string name="cheat_description_template">Your current diet plan has you having X serves per day. At this current daily limit, you are having Y points per serve.</string>
+    <string name="cheat_points_description">Cheat points determine how bad a meal is for you. The worse the meal, the more cheat points it costs. Choose an amount of cheat points you are allowed to use each day.</string>
+    <string name="daily_cheat_points">Daily Cheat Points</string>
+    <string name="default_daily_cheats">0</string>
+    <string name="select_default_diet_explanation">Select a default diet plan from the list</string>
+    <string name="personalise_diet_plan_title">Personalise your diet plan here</string>
+    <string name="veges">Veges</string>
+    <string name="meat">Meat</string>
+    <string name="dairy">Dairy</string>
+    <string name="grain">Grain</string>
+    <string name="fruit">Fruit</string>
+    <string name="default_title">Default Title</string>
+    <string name="veges_default_counter">Veges:0</string>
+    <string name="meat_default_counter">Meat:0</string>
+    <string name="dairy_default_counter">Dairy:0</string>
+    <string name="grain_default_counter">Grain:0</string>
+    <string name="fruit_default_counter">Fruit:0</string>
+    <string name="daily_liquid_intake_explanation">Set your daily liquid intake. It is suggested to have at least 10 serves of water, and no more that 4 serves of caffeine and alcohol one any one day.</string>
+    <string name="daily_water">Daily Water</string>
+    <string name="daily_caffeine">Daily Caffeine</string>
+    <string name="daily_alcohol">Daily Alcohol</string>
+    <string name="recommended_caffeine_alcohol">For long term benefits, it is recommended to have less than 14 serves of caffeine, and 10 standards of alcohol per week.</string>
+    <string name="weekly_caffeine">Weekly Caffeine</string>
+    <string name="weekly_alcohol">Weekly Alcohol</string>
+   <string name="default_header">Header</string>
+   <string name="set_cheat_score">Set Cheat Score</string>
+   <string name="num_0">0</string>
+   <string name="num_1">1</string>
+   <string name="num_2">2</string>
+   <string name="num_3">3</string>
+   <string name="image_description_food_group">Image depicting food group</string>
+   <string name="plus_1">+1</string>
+   <string name="plus_one_quarter">+¼</string>
+   <string name="num_1_0">1.0</string>
+   <string name="minus_one_quarter">-¼</string>
+   <string name="minus_1">-1</string>
+    <string name="plus_cup">+cup</string>
+    <string name="plus_shot">+shot</string>
+    <string name="num_250">250</string>
+    <string name="ml">mL</string>
+    <string name="minus_shot">-shot</string>
+    <string name="minus_cup">-cup</string>
+    <string name="up_arrow">up arrow</string>
+    <string name="down_arrow">down arrow</string>
+    <string name="current_volume_ml">current volume: 250mL</string>
+    <string name="num_4">4</string>
+    <string name="percent_symbol">%</string>
+    <string name="drink">Drink</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="tap_to_add_serves_to_your_drink">Tap to add serves to your drink</string>
+    <string name="water_slash_other">Water/ Other</string>
+    <string name="milk">Milk</string>
+    <string name="tap_to_add_additions_to_your_drink">Tap to add additions to your drink</string>
+    <string name="caffeine">Caffeine</string>
+    <string name="alcohol">Alcohol</string>
+    <string name="hydration_factor">Hydration Factor</string>
+    <string name="default_hydration_factor">water+milk-caffiene-alcohol</string>
+    <string name="meal">Meal</string>
+    <string name="tap_a_food_group_to_add_serves">Tap a food group to add serves</string>
+    <string name="default_date">dd-MMM-yyyy</string>
 </resources>

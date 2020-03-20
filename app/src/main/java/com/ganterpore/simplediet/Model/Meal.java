@@ -24,7 +24,7 @@ public class Meal {
 
     //drink fields
     private double waterCount;
-    private double caffieneCount;
+    private double caffeineCount;
     private double alcoholStandards;
     private double hydrationScore;
 
@@ -60,7 +60,7 @@ public class Meal {
         Meal drink = new Meal();
         drink.waterCount = waterCount;
         drink.dairyCount = dairyCount;
-        drink.caffieneCount = caffieneCount;
+        drink.caffeineCount = caffieneCount;
         drink.alcoholStandards = alcoholStandards;
         drink.hydrationScore = hydrationScore;
         drink.cheatScore = cheatScore;
@@ -74,7 +74,7 @@ public class Meal {
      * @param waterCount, number of serves of water (one serve is 250mL)
      * @param dairyCount, number of serves of milk
      * @param alcoholPercent, the percentage abv of alcohol, in percent (4.7 etc (not 0.047))
-     * @return
+     * @return number of standards of alcohol
      */
     public static double getStandardsFromPercent(double waterCount, double dairyCount, double alcoholPercent) {
         double serves = waterCount + dairyCount;
@@ -88,7 +88,7 @@ public class Meal {
      * @param waterCount, number of serves of water (one serve is 250mL)
      * @param dairyCount, number of serves of milk
      * @param alcoholStandards, the number of standard drinks of alcohol
-     * @return
+     * @return alcohol percent in drink
      */
     public static double getPercentFromStandards(double waterCount, double dairyCount, double alcoholStandards) {
         double serves = waterCount + dairyCount;
@@ -164,10 +164,10 @@ public class Meal {
         } else {
             this.waterCount = 0.0;
         }
-        if(docMeal.contains("caffieneCount")) {
-            this.caffieneCount = docMeal.getDouble("caffieneCount");
+        if(docMeal.contains("caffeineCount")) {
+            this.caffeineCount = docMeal.getDouble("caffeineCount");
         } else {
-            this.caffieneCount = 0.0;
+            this.caffeineCount = 0.0;
         }
         if(docMeal.contains("alcoholStandards")) {
             this.alcoholStandards = docMeal.getDouble("alcoholStandards");
@@ -217,8 +217,8 @@ public class Meal {
         if(getFruitCount() > 0){
             output += "    F:" + df.format(getFruitCount());
         }
-        if(getCaffieneCount() > 0){
-            output += "    C:" + df.format(getCaffieneCount());
+        if(getCaffeineCount() > 0){
+            output += "    C:" + df.format(getCaffeineCount());
         }
         if(getAlcoholStandards() > 0){
             output += "    A:" + df.format(getAlcoholStandards());
@@ -298,12 +298,12 @@ public class Meal {
         this.excessServes = excessServes;
     }
 
-    public double getCaffieneCount() {
-        return caffieneCount;
+    public double getCaffeineCount() {
+        return caffeineCount;
     }
 
-    public void setCaffieneCount(double caffieneCount) {
-        this.caffieneCount = caffieneCount;
+    public void setCaffeineCount(double caffeineCount) {
+        this.caffeineCount = caffeineCount;
     }
 
     public double getAlcoholStandards() {

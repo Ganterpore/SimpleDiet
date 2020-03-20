@@ -2,7 +2,6 @@ package com.ganterpore.simplediet.View.DialogBoxes;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,20 +11,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.preference.DialogPreference;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.ganterpore.simplediet.Controller.BasicDietController;
-import com.ganterpore.simplediet.Controller.DietController;
-import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Model.DietPlan;
-import com.ganterpore.simplediet.Model.Recipe;
 import com.ganterpore.simplediet.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.Query;
 
 import java.text.DecimalFormat;
@@ -33,17 +27,20 @@ import java.text.NumberFormat;
 
 public class UpdateDietDialogBox {
     private static NumberFormat df = new DecimalFormat("##.##");
-    private static EditText vegCountET;
-    private static EditText proteinCountET;
-    private static EditText dairyCountET;
-    private static EditText grainCountET;
-    private static EditText fruitCountET;
+    private EditText vegCountET;
+    private EditText proteinCountET;
+    private EditText dairyCountET;
+    private EditText grainCountET;
+    private EditText fruitCountET;
 
     /**
      * opens a dialogue box recieving information on diet plans
      * then adds the meal to the database
      */
     public static void updateDiet(final Context context) {
+        new UpdateDietDialogBox(context);
+    }
+    public UpdateDietDialogBox(final Context context) {
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View updateDietLayout = layoutInflater.inflate(R.layout.dialog_box_diet_plan, null);
@@ -60,8 +57,6 @@ public class UpdateDietDialogBox {
         dairyCountET.setText(df.format(dietPlan.getDailyDairy()));
         grainCountET.setText(df.format(dietPlan.getDailyGrain()));
         fruitCountET.setText(df.format(dietPlan.getDailyFruit()));
-//        final EditText waterCountET = updateDietLayout.findViewById(R.id.water_count);
-//        final EditText cheatScoreET = updateDietLayout.findViewById(R.id.cheat_score);
 
         //setting up the recycler view for the default diets
         RecyclerView defaultDiets = updateDietLayout.findViewById(R.id.default_diets);
@@ -101,10 +96,7 @@ public class UpdateDietDialogBox {
                 newPlan.setDailyDairy(Double.parseDouble(dairyCountET.getText().toString()));
                 newPlan.setDailyGrain(Double.parseDouble(grainCountET.getText().toString()));
                 newPlan.setDailyFruit(Double.parseDouble(fruitCountET.getText().toString()));
-//                        plan.setDaily(Double.parseDouble(waterCountET.getText().toString()));
-//                        plan.setDaily(Double.parseDouble(cheatScoreET.getText().toString()));
 //                        FirebaseAuth.getInstance().getCurrentUser().getUid()
-//                );
                 newPlan.pushToDB()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -123,17 +115,17 @@ public class UpdateDietDialogBox {
         }).show();
     }
 
-    public static class DietViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class DietViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View itemView;
         private DietPlan dietPlan;
 
-        public DietViewHolder(@NonNull View itemView) {
+        DietViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             itemView.setOnClickListener(this);
         }
 
-        public void build(DietPlan dietPlan) {
+        void build(DietPlan dietPlan) {
             this.dietPlan = dietPlan;
             TextView title = itemView.findViewById(R.id.title);
             TextView vegeCount = itemView.findViewById(R.id.veges_diet_count);
@@ -143,11 +135,11 @@ public class UpdateDietDialogBox {
             TextView fruitCount = itemView.findViewById(R.id.fruit_diet_count);
 
             title.setText(dietPlan.getDietName());
-            vegeCount.setText("V: " + df.format(dietPlan.getDailyVeges()));
-            meatCount.setText("M: " + df.format(dietPlan.getDailyProtein()));
-            dairyCount.setText("D: " + df.format(dietPlan.getDailyDairy()));
-            grainCount.setText("G: " + df.format(dietPlan.getDailyGrain()));
-            fruitCount.setText("F: " + df.format(dietPlan.getDailyFruit()));
+            vegeCount.setText(String.format("V: %s", df.format(dietPlan.getDailyVeges())));
+            meatCount.setText(String.format("M: %s", df.format(dietPlan.getDailyProtein())));
+            dairyCount.setText(String.format("D: %s", df.format(dietPlan.getDailyDairy())));
+            grainCount.setText(String.format("G: %s", df.format(dietPlan.getDailyGrain())));
+            fruitCount.setText(String.format("F: %s", df.format(dietPlan.getDailyFruit())));
         }
 
         @Override
@@ -160,18 +152,4 @@ public class UpdateDietDialogBox {
             fruitCountET.setText(df.format(dietPlan.getDailyFruit()));
         }
     }
-
-//    public class UpdateDietDialogPreference extends DialogPreference {
-//        Context context;
-//
-//        public UpdateDietDialogPreference(Context context, AttributeSet attrs) {
-//            super(context, attrs);
-//            this.context = context;
-//        }
-//
-//        @Override
-//        protected void onClick() {
-//            updateDiet(context);
-//        }
-//    }
 }

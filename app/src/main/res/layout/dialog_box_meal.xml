@@ -9,7 +9,7 @@
         android:id="@+id/meal_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Meal"
+        android:text="@string/meal"
         android:inputType="textCapWords"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Today"
+            android:text="@string/today"
             android:checked="true"/>
 
         <RadioButton
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Yesterday"
+            android:text="@string/yesterday"
             android:checked="false"/>
 
     </RadioGroup>
@@ -40,7 +40,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tap a food group to add serves"/>
+        android:text="@string/tap_a_food_group_to_add_serves"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,13 +58,14 @@
                 android:layout_height="64dp"
                 android:src="@drawable/vegetables_full"
                 android:rotation="270"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:id="@+id/veg_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
 
             <ImageView
@@ -73,13 +74,14 @@
                 android:layout_height="64dp"
                 android:src="@drawable/meat_full"
                 android:rotation="270"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:id="@+id/protein_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
 
             <ImageView
@@ -88,13 +90,14 @@
                 android:layout_height="64dp"
                 android:src="@drawable/dairy_full"
                 android:rotation="270"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:id="@+id/dairy_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
 
         </LinearLayout>
@@ -110,13 +113,14 @@
                 android:layout_height="64dp"
                 android:src="@drawable/grain_full"
                 android:rotation="270"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:id="@+id/grain_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
 
             <ImageView
@@ -125,13 +129,14 @@
                 android:layout_height="64dp"
                 android:src="@drawable/fruit_full"
                 android:rotation="270"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:id="@+id/fruit_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
 
             <ImageView
@@ -140,21 +145,18 @@
                 android:layout_height="64dp"
                 android:src="@drawable/excess"
                 android:rotation="270"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:id="@+id/excess_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
 
         </LinearLayout>
-
     </LinearLayout>
-
     <include
         layout="@layout/dialog_box_add_cheats"/>
-
-
 </LinearLayout>

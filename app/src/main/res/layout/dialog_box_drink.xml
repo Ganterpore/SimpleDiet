@@ -9,7 +9,7 @@
         android:id="@+id/drink_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Drink"
+        android:text="@string/drink"
         android:inputType="textCapWords"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Today"
+            android:text="@string/today"
             android:checked="true"/>
 
         <RadioButton
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Yesterday"
+            android:text="@string/yesterday"
             android:checked="false"/>
 
     </RadioGroup>
@@ -40,7 +40,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tap to add serves to your drink"/>
+        android:text="@string/tap_to_add_serves_to_your_drink"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -60,12 +60,13 @@
                 android:id="@+id/water_image"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:src="@drawable/symbol_water_completed" />
+                android:src="@drawable/symbol_water_completed"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Water/\nOther"/>
+                android:text="@string/water_slash_other"/>
 
         </LinearLayout>
 
@@ -73,7 +74,7 @@
             android:id="@+id/water_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="@string/num_0"
             android:layout_gravity="bottom"/>
         <Space
             android:layout_width="wrap_content"
@@ -89,12 +90,13 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:src="@drawable/dairy_full"
-                android:rotation="270"/>
+                android:rotation="270"
+                android:contentDescription="@string/image_description_food_group" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Milk"/>
+                android:text="@string/milk"/>
 
         </LinearLayout>
 
@@ -102,7 +104,7 @@
             android:id="@+id/milk_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="@string/num_0"
             android:layout_gravity="bottom"/>
 
         <Space
@@ -124,14 +126,14 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textStyle="bold"
-            android:text="0"/>
+            android:text="@string/num_0"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textStyle="bold"
-            android:text="mL"/>
+            android:text="@string/ml"/>
 
 
     </LinearLayout>
@@ -139,7 +141,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tap to add additions to your drink"/>
+            android:text="@string/tap_to_add_additions_to_your_drink"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -159,11 +161,12 @@
                     android:id="@+id/caffeine_image"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/caffiene" />
+                    android:src="@drawable/caffiene"
+                    android:contentDescription="@string/image_description_food_group" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Caffeine"/>
+                    android:text="@string/caffeine"/>
 
             </LinearLayout>
 
@@ -171,7 +174,7 @@
                 android:id="@+id/caffiene_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
             <Space
                 android:layout_width="wrap_content"
@@ -187,11 +190,12 @@
                     android:id="@+id/alcohol_image"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/alcohol" />
+                    android:src="@drawable/alcohol"
+                    android:contentDescription="@string/image_description_food_group" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Alcohol"/>
+                    android:text="@string/alcohol"/>
 
             </LinearLayout>
 
@@ -199,7 +203,7 @@
                 android:id="@+id/alcohol_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
 
             <Space
@@ -213,7 +217,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="Hydration Factor"
+            android:text="@string/hydration_factor"
             android:textStyle="bold"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
@@ -221,10 +225,8 @@
             android:id="@+id/hydration_factor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="water+milk-caffiene-alcohol"/>
+            android:text="@string/default_hydration_factor"/>
 
     <include
         layout="@layout/dialog_box_add_cheats"/>
-
-
 </LinearLayout>

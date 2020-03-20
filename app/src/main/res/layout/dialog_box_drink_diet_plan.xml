@@ -9,12 +9,13 @@
         android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Set your daily liquid intake. It is suggested to have at least 10 serves of water, and no more that 4 serves of caffeine and alcohol one any one day."/>
+        android:text="@string/daily_liquid_intake_explanation"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
@@ -24,7 +25,7 @@
                 android:id="@+id/water_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Daily Water"
+                android:hint="@string/daily_water"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -37,7 +38,7 @@
                 android:id="@+id/daily_caffeine_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Daily Caffeine"
+                android:hint="@string/daily_caffeine"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -50,7 +51,7 @@
                 android:id="@+id/daily_alcohol_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Daily Alcohol"
+                android:hint="@string/daily_alcohol"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -60,13 +61,14 @@
         android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="For long term benifits, it is recommended to have less than 14 serves of caffeine, and 10 standards of alcohol per week."/>
+        android:text="@string/recommended_caffeine_alcohol"/>
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
@@ -76,7 +78,7 @@
                 android:id="@+id/weekly_caffeine_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Weekly Caffeine"
+                android:hint="@string/weekly_caffeine"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -89,11 +91,9 @@
                 android:id="@+id/weekly_alcohol_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Weekly Alcohol"
+                android:hint="@string/weekly_alcohol"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
         </com.google.android.material.textfield.TextInputLayout>
-
-
     </LinearLayout>
 </LinearLayout>

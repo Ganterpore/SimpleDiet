@@ -52,6 +52,17 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     private RadioGroup cheatSelector;
     private Activity activity;
 
+    /**
+     * opens a dialogue box recieving information on the meal to be added
+     * then adds the meal to the database
+     */
+    public static void addMeal(final Activity activity) {
+        AddMealDialogBox addMealListener = new AddMealDialogBox(activity);
+    }
+    public static void addMeal(final Activity activity, Intent intent) {
+        AddMealDialogBox addMealListener = new AddMealDialogBox(activity, intent);
+    }
+
     public AddMealDialogBox(final Activity activity) {
         this(activity, new Intent());
     }
@@ -78,9 +89,11 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         grainButton.setOnClickListener(onClick);
         fruitButton.setOnClickListener(onClick);
         excessButton.setOnClickListener(onClick);
+
+        //updating the view if in vegan or vegetarian mode
         SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         String mode = preferences.getString("mode", "normal");
-        if(mode.equals("vegan") || mode.equals("vegetarian")) {
+        if (mode != null && (mode.equals("vegan") || mode.equals("vegetarian"))) {
             proteinButton.setImageResource(R.drawable.vegan_meat_full);
         }
 
@@ -92,6 +105,9 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         grainCountTV = addMealLayout.findViewById(R.id.grain_count);
         fruitCountTV = addMealLayout.findViewById(R.id.fruit_count);
         excessCountTV = addMealLayout.findViewById(R.id.excess_count);
+        cheatSelector = addMealLayout.findViewById(R.id.cheat_selector);
+        exampleFood = addMealLayout.findViewById(R.id.example_food);
+        final RadioGroup daySelector = addMealLayout.findViewById(R.id.day_selector);
 
         //setting the default meal name up based on the time of day
         Calendar c = Calendar.getInstance();
@@ -108,38 +124,11 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
 
         //if the type is a recipe, then update the values to the recipes values
         if(type==RECIPE) {
-            mealNameTV.setText(intent.getStringExtra("name"));
-            vegCountTV.setText(String.valueOf(intent.getDoubleExtra("vegCount", 0)));
-            proteinCountTV.setText(String.valueOf(intent.getDoubleExtra("proteinCount", 0)));
-            dairyCountTV.setText(String.valueOf(intent.getDoubleExtra("dairyCount", 0)));
-            grainCountTV.setText(String.valueOf(intent.getDoubleExtra("grainCount", 0)));
-            fruitCountTV.setText(String.valueOf(intent.getDoubleExtra("fruitCount", 0)));
-            excessCountTV.setText(String.valueOf(intent.getDoubleExtra("excessServes", 0)));
+            updateValuesToMatchRecipe(intent);
         }
 
-        //setting up example food suggester
-        cheatSelector = addMealLayout.findViewById(R.id.cheat_selector);
-        if(type==RECIPE) {
-            int cheatScore = (int) intent.getDoubleExtra("cheatScore", 0);
-            switch (cheatScore) {
-                case 3:
-                    cheatSelector.check(R.id.cheat_3);
-                    break;
-                case 2:
-                    cheatSelector.check(R.id.cheat_2);
-                    break;
-                case 1:
-                    cheatSelector.check(R.id.cheat_1);
-                    break;
-                case 0:
-                default:
-                    cheatSelector.check(R.id.cheat_0);
-                    break;
-            }
-        }
-        exampleFood = addMealLayout.findViewById(R.id.example_food);
-        updateExampleFood();
         //setting up cheat selector to update example food when changed
+        updateExampleFood();
         cheatSelector.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -147,9 +136,8 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
             }
         });
 
-        final RadioGroup daySelector = addMealLayout.findViewById(R.id.day_selector);
         //can't select the day if it is a recipe
-        if(type== NEW_RECIPE) {
+        if(type == NEW_RECIPE) {
             daySelector.setVisibility(View.GONE);
         }
 
@@ -157,27 +145,12 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(activity);
         addMealDialog.setView(addMealLayout);
         String updateRecipeText = type==RECIPE ? "Update Recipe" : "Save Recipe";
+        final int checkedRadioButtonId = cheatSelector.getCheckedRadioButtonId();
         addMealDialog.setNeutralButton(updateRecipeText, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        int cheatScore;
-                        switch (cheatSelector.getCheckedRadioButtonId()) {
-                            case R.id.cheat_0:
-                                cheatScore = 0;
-                                break;
-                            case R.id.cheat_1:
-                                cheatScore = 1;
-                                break;
-                            case R.id.cheat_2:
-                                cheatScore = 2;
-                                break;
-                            case R.id.cheat_3:
-                                cheatScore = 3;
-                                break;
-                            default:
-                                cheatScore = 0;
-                        }
-                        //create a meal object from the dialog box data
+                        int cheatScore = getCheatScoreFromID(checkedRadioButtonId);
+                        //create a recipe object from the dialog box data
                         Recipe recipe = new Recipe(
                                 mealNameTV.getText().toString(),
                                 Double.parseDouble(vegCountTV.getText().toString()),
@@ -190,12 +163,14 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                                 cheatScore,
                                 FirebaseAuth.getInstance().getCurrentUser().getUid()
                         );
+                        //if we are updating a recipe, delete the old one
                         if(type==RECIPE) {
                             RecipeBookController.deleteRecipe(intent.getStringExtra("id"));
                         }
                         recipe.pushToDB().addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
+                                //create a new recipe item, and push the undo snackbar to it
                                 new RecipeListDialogBox(activity).undoAdd(documentReference);
                             }
                         });
@@ -203,6 +178,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                     }
                 });
         addMealDialog.setNegativeButton("Cancel", null);
+        //can only add meal from recipe or meal, new recipes cannot be eaten
         if(type==MEAL || type==RECIPE) {
             addMealDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                 @Override
@@ -220,23 +196,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                         calendar.set(year, month, date, 0, 0, 0);
                         day = calendar.getTimeInMillis() - DateUtils.HOUR_IN_MILLIS;
                     }
-                    int cheatScore;
-                    switch (cheatSelector.getCheckedRadioButtonId()) {
-                        case R.id.cheat_0:
-                            cheatScore = 0;
-                            break;
-                        case R.id.cheat_1:
-                            cheatScore = 1;
-                            break;
-                        case R.id.cheat_2:
-                            cheatScore = 2;
-                            break;
-                        case R.id.cheat_3:
-                            cheatScore = 3;
-                            break;
-                        default:
-                            cheatScore = 0;
-                    }
+                    int cheatScore = getCheatScoreFromID(checkedRadioButtonId);
                     //create a meal object from the dialog box data
                     final Meal todaysMeal = new Meal(
                             Double.parseDouble(vegCountTV.getText().toString()),
@@ -272,41 +232,13 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
     }
 
     /**
-     * opens a dialogue box recieving information on the meal to be added
-     * then adds the meal to the database
+     * Converts the cheat_id from the cheat selector to a cheat score
+     * @param cheat_id, a cheat selector radio id
+     * @return the cheat score it is equivalent to
      */
-    public static void addMeal(final Activity activity) {
-        AddMealDialogBox addMealListener = new AddMealDialogBox(activity);
-    }
-    public static void addMeal(final Activity activity, Intent intent) {
-        AddMealDialogBox addMealListener = new AddMealDialogBox(activity, intent);
-    }
-
-    /**
-     * used to update the field that describes an example food in the mix of selected food groups
-     */
-    public void updateExampleFood() {
-        //finding the appropriate string resource prefix, based on the food groups being used
-        String foodExamplePrefix = "";
-        foodExamplePrefix += Double.parseDouble(vegCountTV.getText().toString())>0 ? "V" : "";
-        foodExamplePrefix += Double.parseDouble(proteinCountTV.getText().toString())>0 ? "M" : "";
-        foodExamplePrefix += Double.parseDouble(dairyCountTV.getText().toString())>0 ? "D" : "";
-        foodExamplePrefix += Double.parseDouble(grainCountTV.getText().toString())>0 ? "G" : "";
-        foodExamplePrefix += Double.parseDouble(fruitCountTV.getText().toString())>0 ? "F" : "";
-
-        SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
-        String mode = preferences.getString("mode", "normal");
-        if(mode.equals("vegan")) {
-            foodExamplePrefix = "VN_" + foodExamplePrefix;
-        } else if(mode.equals("vegetarian")) {
-            foodExamplePrefix = "VG_" + foodExamplePrefix;
-        }
-
-        //getting the cheat score to find the relevant food example with the given cheat score
-        final String finalFoodExamplePrefix = foodExamplePrefix;
+    private int getCheatScoreFromID(int cheat_id) {
         int cheatScore;
-        int checkedId = cheatSelector.getCheckedRadioButtonId();
-        switch (checkedId) {
+        switch (cheat_id) {
             case R.id.cheat_0:
                 cheatScore = 0;
                 break;
@@ -322,6 +254,66 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
             default:
                 cheatScore = 0;
         }
+        return cheatScore;
+    }
+
+    /**
+     * Updates the values of the dialog box so that they match the recipe they are passed from
+     * Recipe details should be contained on the intent
+     * @param intent, the intent containing all the information
+     */
+    private void updateValuesToMatchRecipe(Intent intent) {
+        //selecting the right cheat selector radio button
+        int cheatScore = (int) intent.getDoubleExtra("cheatScore", 0);
+        switch (cheatScore) {
+            case 3:
+                cheatSelector.check(R.id.cheat_3);
+                break;
+            case 2:
+                cheatSelector.check(R.id.cheat_2);
+                break;
+            case 1:
+                cheatSelector.check(R.id.cheat_1);
+                break;
+            case 0:
+            default:
+                cheatSelector.check(R.id.cheat_0);
+                break;
+        }
+        //updating the text values
+        mealNameTV.setText(intent.getStringExtra("name"));
+        vegCountTV.setText(String.valueOf(intent.getDoubleExtra("vegCount", 0)));
+        proteinCountTV.setText(String.valueOf(intent.getDoubleExtra("proteinCount", 0)));
+        dairyCountTV.setText(String.valueOf(intent.getDoubleExtra("dairyCount", 0)));
+        grainCountTV.setText(String.valueOf(intent.getDoubleExtra("grainCount", 0)));
+        fruitCountTV.setText(String.valueOf(intent.getDoubleExtra("fruitCount", 0)));
+        excessCountTV.setText(String.valueOf(intent.getDoubleExtra("excessServes", 0)));
+    }
+
+    /**
+     * used to update the field that describes an example food in the mix of selected food groups
+     */
+    private void updateExampleFood() {
+        //finding the appropriate string resource prefix, based on the food groups being used
+        String foodExamplePrefix = "";
+        foodExamplePrefix += Double.parseDouble(vegCountTV.getText().toString())>0 ? "V" : "";
+        foodExamplePrefix += Double.parseDouble(proteinCountTV.getText().toString())>0 ? "M" : "";
+        foodExamplePrefix += Double.parseDouble(dairyCountTV.getText().toString())>0 ? "D" : "";
+        foodExamplePrefix += Double.parseDouble(grainCountTV.getText().toString())>0 ? "G" : "";
+        foodExamplePrefix += Double.parseDouble(fruitCountTV.getText().toString())>0 ? "F" : "";
+
+        //adding the vegan/vegetarian prefix if necessary
+        SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        String mode = preferences.getString("mode", "normal");
+        if(mode.equals("vegan")) {
+            foodExamplePrefix = "VN_" + foodExamplePrefix;
+        } else if(mode.equals("vegetarian")) {
+            foodExamplePrefix = "VG_" + foodExamplePrefix;
+        }
+
+        //getting the cheat score to find the relevant food example with the given cheat score
+        final String finalFoodExamplePrefix = foodExamplePrefix;
+        int cheatScore = getCheatScoreFromID(cheatSelector.getCheckedRadioButtonId());
         //Getting the relevant string resource based on the information, and setting the example text to ity
         exampleFood.setText(
                 activity.getResources()
@@ -412,7 +404,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
                     break;
             }
             //if the number of serves is already set (>0), then set that to the default, otherwise use the default default
-            serves = Double.parseDouble(servesView.getText().toString());
+            serves = Double.parseDouble(servesView != null ? servesView.getText().toString() : "0.0");
             intent.putExtra("foodType", type);
             if(serves > 0) {
                 intent.putExtra("nServes", serves);

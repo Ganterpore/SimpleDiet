@@ -48,6 +48,7 @@ public class UpdateCheatsDialogBox {
 
             @Override
             public void afterTextChanged(Editable s) {
+                //after the text has changed, update the other fields to match
                 if(s.toString().isEmpty()) {
                     dietPlan.setWeeklyCheats(0);
                 } else {
@@ -60,7 +61,6 @@ public class UpdateCheatsDialogBox {
             }
         });
         dailyCheats.setText(df.format(dietPlan.getWeeklyCheats()/7));
-
 
         //Build the dialog box
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(context);

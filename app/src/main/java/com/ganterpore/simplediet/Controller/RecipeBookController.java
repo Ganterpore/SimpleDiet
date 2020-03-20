@@ -24,7 +24,6 @@ public class RecipeBookController {
 
     public static Task<Void> deleteRecipe(String id) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String user = FirebaseAuth.getInstance().getUid();
         return db.collection(RECIPES).document(id).delete();
     }
 

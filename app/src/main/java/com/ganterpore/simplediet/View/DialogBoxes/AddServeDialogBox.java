@@ -16,7 +16,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,10 +31,9 @@ import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREF
 public class AddServeDialogBox  {
     private static SharedPreferences preferences;
     public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
-    public static final double DRINK_STANDARD_SERVE = 250;
+    static final double DRINK_STANDARD_SERVE = 250;
     public static final String TAG = "AddServeDialogBox";
     private static NumberFormat df = new DecimalFormat("##.##");
-
 
     public static void addServe(final Activity activity, final Intent intent, final ServeListener listener) {
         preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
@@ -49,119 +47,19 @@ public class AddServeDialogBox  {
             nServes = nServes * DRINK_STANDARD_SERVE;
         }
 
-
-
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
-        View addServeLayout;
-        //if adding alcohol, adjust for different layout
+        View addServeLayout = null;
+        //alcohol has a completely different layout, so update view if so
         if(foodType == FoodType.ALCOHOL) {
-            //getting values
             final double servesLiquid = intent.getDoubleExtra("servesLiquid", 1);
             if(servesLiquid <= 0) {
                 Toast.makeText(activity, "You need to add serves of a base liquid (water or milk) first. Most alcohols (beer, spirits, wine) are water based.", Toast.LENGTH_LONG).show();
-                return;
+            } else {
+                addServeLayout = updateViewForAlcohol(activity, servesLiquid);
             }
-
-            addServeLayout = layoutInflater.inflate(R.layout.dialog_box_alcohol_serve, null);
-            final SeekBar alcoholSeekbar = addServeLayout.findViewById(R.id.alcohol_seekbar);
-            final EditText percentageValueET = addServeLayout.findViewById(R.id.alcohol_percent);
-            final EditText numberOfStandards = addServeLayout.findViewById(R.id.number_of_serves);
-            //updating the volume text
-            TextView volume = addServeLayout.findViewById(R.id.current_volume);
-            String volumeText = "Curent Volume: " + (int) servesLiquid * DRINK_STANDARD_SERVE + "mL";
-            volume.setText(volumeText);
-
-            //when the seekbar is updated, we want to update the percentage text
-            alcoholSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    //get the current percentage in the edittext
-                    double oldPercentage;
-                    if(percentageValueET.getText().toString().isEmpty()) {
-                        oldPercentage = 0;
-                    } else {
-                        oldPercentage = Double.parseDouble(percentageValueET.getText().toString());
-                    }
-                    //if the editText is different to the current percentage, update it
-                    //this is necessary so that they aren't fighting eachother for values
-                    if((int) oldPercentage != progress) {
-                        percentageValueET.setText(df.format(progress));
-                    }
-                }
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {}
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {}
-            });
-            //whenever the alcohol percent text changes, update the seekbar and number of standards
-            percentageValueET.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
-                @Override
-                public void afterTextChanged(Editable editablePercentage) {
-                    double percentage;
-                    if(editablePercentage.toString().isEmpty()) {
-                        percentage = 0;
-                    } else {
-                        percentage = Double.parseDouble(editablePercentage.toString());
-                    }
-                    alcoholSeekbar.setProgress((int) percentage);
-
-                    //getting number of standards
-                    double standards = Meal.getStandardsFromPercent(servesLiquid, 0, percentage);
-                    String numberOfstandardsString = numberOfStandards.getText().toString();
-                    //getting old number of standards
-                    double oldStandards;
-                    if(numberOfstandardsString.isEmpty()) {
-                        oldStandards = 0;
-                    } else {
-                        oldStandards = Double.parseDouble(numberOfstandardsString);
-                    }
-                    //if significant distance in old and new values, update the editText
-                    if(standards > oldStandards + 0.01 || standards < oldStandards - 0.01) {
-                        numberOfStandards.setText(df.format(standards));
-                    }
-                }
-            });
-            //when the number of standards updates, update the percentage
-            numberOfStandards.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
-                @Override
-                public void afterTextChanged(Editable editableStandards) {
-                    //getting the new standards count
-                    double standards;
-                    if(editableStandards.toString().isEmpty()) {
-                        standards = 0;
-                    } else {
-                        standards = Double.parseDouble(editableStandards.toString());
-                    }
-
-                    //getting the new percent
-                    double percent = Meal.getPercentFromStandards(servesLiquid,0,standards);
-                    //getting the old percent
-                    double oldPercentage;
-                    if(percentageValueET.getText().toString().isEmpty()) {
-                        oldPercentage = 0;
-                    } else {
-                        oldPercentage = Double.parseDouble(percentageValueET.getText().toString());
-                    }
-                    //if significant distance in old and new values, update the editText
-                    if(percent > oldPercentage + 0.5 || percent < oldPercentage - 0.5) {
-                        if(percent > 100) {
-                            percent = 100;
-                        }
-                        percentageValueET.setText(df.format(percent));
-                    }
-
-                }
-            });
-        } else {
+            if (addServeLayout == null) return;
+        } else { //otherwise get the drink or meal layout
             if(isDrink) {
                 addServeLayout = layoutInflater.inflate(R.layout.dialog_box_add_serves_drink, null);
             } else {
@@ -169,7 +67,7 @@ public class AddServeDialogBox  {
             }
         }
 
-        //getting fields
+        //getting fields from servelayout
         final TextView oneServe = addServeLayout.findViewById(R.id.one_serve_explanation);
         final ImageView foodPicture = addServeLayout.findViewById(R.id.food_group_picture);
         final EditText numberOfServes = addServeLayout.findViewById(R.id.number_of_serves);
@@ -186,30 +84,153 @@ public class AddServeDialogBox  {
         minusOneButton.setOnClickListener(serveChanger);
         minusOneQuarterButton.setOnClickListener(serveChanger);
 
+        //setting up the dialog box
         AlertDialog.Builder addServeDialog = new AlertDialog.Builder(activity);
+        updateFieldsFromFoodType(mode, foodType, oneServe, foodPicture, addServeDialog);
+        addServeDialog.setView(addServeLayout);
+        addServeDialog.setNegativeButton("Cancel", null);
+        addServeDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                double serve = Double.parseDouble(numberOfServes.getText().toString());
+                //if its a drink, convert from millilitres to standard serves
+                if(isDrink) {
+                    serve = serve/DRINK_STANDARD_SERVE;
+                }
+                //if there is no listener, then update meal and get cheats from user
+                if(listener==null) {
+                    Meal snack = new Meal();
+                    updateMealServe(snack, foodType, serve);
+                    snack.setUser(FirebaseAuth.getInstance().getUid());
+                    snack.setDay(System.currentTimeMillis());
+                    updateMealName(snack, isDrink);
+                    AddCheatsDialogBox.addCheats(activity, snack, isDrink);
+                } else {
+                    //otherwise inform listener of the serves added
+                    listener.serveAdded(foodType, serve);
+                }
+            }
+        });
+        addServeDialog.show();
+    }
 
-        //setting up the dialog box depending on the food used
+    /**
+     * Sets the name of the meal, based on the time of the day and whetyher it is a drink or not
+     * @param snack, the meal that is being updated
+     * @param isDrink, whether snack is a drink
+     */
+    private static void updateMealName(Meal snack, boolean isDrink) {
+        Calendar c = Calendar.getInstance();
+        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
+        if(!isDrink) {
+            if (timeOfDay >= 4 && timeOfDay < 11) {
+                snack.setName("Morning snack");
+            } else if (timeOfDay >= 11 && timeOfDay < 14) {
+                snack.setName("Midday snack");
+            } else if (timeOfDay >= 14 && timeOfDay < 18) {
+                snack.setName("Afternoon snack");
+            } else if (timeOfDay >= 18 && timeOfDay < 22) {
+                snack.setName("Evening snack");
+            } else if (timeOfDay >= 22 || timeOfDay < 4) {
+                snack.setName("Midnight snack");
+            } else {
+                snack.setName("Snack");
+            }
+        } else {
+            if (timeOfDay >= 4 && timeOfDay < 11) {
+                snack.setName("Morning drink");
+            } else if (timeOfDay >= 11 && timeOfDay < 14) {
+                snack.setName("Midday drink");
+            } else if (timeOfDay >= 14 && timeOfDay < 18) {
+                snack.setName("Afternoon drink");
+            } else if (timeOfDay >= 18 && timeOfDay < 22) {
+                snack.setName("Evening drink");
+            } else if (timeOfDay >= 22 || timeOfDay < 4) {
+                snack.setName("Midnight drink");
+            } else {
+                snack.setName("Drink");
+            }
+        }
+    }
+
+    /**
+     * Updates the number of serves in the snack, based on the count and foodtype
+     * @param snack, the meal to change the values of
+     * @param foodType, the foodtype being modified
+     * @param serve, the number of serves to add
+     */
+    private static void updateMealServe(Meal snack, FoodType foodType, double serve) {
+        switch (foodType) {
+            case VEGETABLE:
+                snack.setVegCount(serve);
+                break;
+            case MEAT:
+                snack.setProteinCount(serve);
+                break;
+            case DAIRY:
+                snack.setDairyCount(serve);
+                break;
+            case MILK:
+                snack.setDairyCount(serve);
+                snack.setHydrationScore(serve);
+                break;
+            case GRAIN:
+                snack.setGrainCount(serve);
+                break;
+            case FRUIT:
+                snack.setFruitCount(serve);
+                break;
+            case EXCESS:
+                snack.setExcessServes(serve);
+                break;
+            case WATER:
+                snack.setWaterCount(serve);
+                snack.setHydrationScore(serve);
+                break;
+            case CAFFEINE:
+                snack.setCaffeineCount(serve);
+                break;
+            case ALCOHOL:
+                snack.setAlcoholStandards(serve);
+        }
+    }
+
+    /**
+     * Using the foodtype, update values for various views
+     * @param mode, the mode (vegan, vegetarian or normal) set by the user
+     * @param foodType, the food group of the food being added
+     * @param oneServe, the text describing what one serve of said food is. This will be changed by the function
+     * @param foodPicture, the picture showing the food type. This will be changed by the function.
+     * @param addServeDialog, the title of the dialog box. This will be changed by the function.
+     */
+    private static void updateFieldsFromFoodType(String mode, FoodType foodType, TextView oneServe, ImageView foodPicture, AlertDialog.Builder addServeDialog) {
         switch(foodType) {
             case MEAT:
-                if(mode.equals("normal")) {
-                    addServeDialog.setTitle("Add serve of meat");
-                    oneServe.setText(R.string.serve_proteins);
-                    foodPicture.setImageResource(R.drawable.meat_full);
-                } else if(mode.equals("vegetarian")) {
-                    addServeDialog.setTitle("Add serve of Protein");
-                    oneServe.setText(R.string.serve_proteins_vegetarian);
-                    foodPicture.setImageResource(R.drawable.vegan_meat_full);
-                } else  if(mode.equals("vegan")) {
-                    addServeDialog.setTitle("Add serve of Protein");
-                    oneServe.setText(R.string.serve_proteins_vegan);
-                    foodPicture.setImageResource(R.drawable.vegan_meat_full);
+                if (mode != null) {
+                    switch (mode) {
+                        case "normal":
+                            addServeDialog.setTitle("Add serve of meat");
+                            oneServe.setText(R.string.serve_proteins);
+                            foodPicture.setImageResource(R.drawable.meat_full);
+                            break;
+                        case "vegetarian":
+                            addServeDialog.setTitle("Add serve of Protein");
+                            oneServe.setText(R.string.serve_proteins_vegetarian);
+                            foodPicture.setImageResource(R.drawable.vegan_meat_full);
+                            break;
+                        case "vegan":
+                            addServeDialog.setTitle("Add serve of Protein");
+                            oneServe.setText(R.string.serve_proteins_vegan);
+                            foodPicture.setImageResource(R.drawable.vegan_meat_full);
+                            break;
+                    }
                 }
                 break;
             case DAIRY:
                 oneServe.setText(R.string.serve_dairy);
                 foodPicture.setImageResource(R.drawable.dairy_full);
                 addServeDialog.setTitle("Add serve of dairy");
-                if (mode.equals("vegan")) {
+                if (mode != null && mode.equals("vegan")) {
                     oneServe.setText(R.string.serve_dairy_vegan);
                 }
                 break;
@@ -253,96 +274,117 @@ public class AddServeDialogBox  {
                 addServeDialog.setTitle("Add standard serves of alcohol");
                 break;
         }
+    }
 
-        addServeDialog.setView(addServeLayout);
-        addServeDialog.setNegativeButton("Cancel", null);
-        addServeDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+    /**
+     * Converts the view from a normal add serve view type, to one for adding alcohol
+     * @param activity, the activity the view is being created above
+     * @param servesLiquid, the number of serves of liquid added so far
+     * @return the new view
+     */
+    private static View updateViewForAlcohol(Activity activity, final double servesLiquid) {
+        //inflating view and getting sub views
+        LayoutInflater layoutInflater = LayoutInflater.from(activity);
+        View addServeLayout = layoutInflater.inflate(R.layout.dialog_box_alcohol_serve, null);
+        final SeekBar alcoholSeekbar = addServeLayout.findViewById(R.id.alcohol_seekbar);
+        final EditText percentageValueET = addServeLayout.findViewById(R.id.alcohol_percent);
+        final EditText numberOfStandards = addServeLayout.findViewById(R.id.number_of_serves);
+
+        //updating the volume text
+        TextView volume = addServeLayout.findViewById(R.id.current_volume);
+        String volumeText = "Curent Volume: " + (int) servesLiquid * DRINK_STANDARD_SERVE + "mL";
+        volume.setText(volumeText);
+
+        //when the seekbar is updated, we want to update the percentage text
+        alcoholSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                double serve = Double.parseDouble(numberOfServes.getText().toString());
-                //if its a drink, convert from millilitres to standard serves
-                if(isDrink) {
-                    serve = serve/DRINK_STANDARD_SERVE;
-                }
-                //if there is no listener, then get cheat count and push to db
-                if(listener==null) {
-                    Meal snack = new Meal();
-                    switch (foodType) {
-                        case VEGETABLE:
-                            snack.setVegCount(serve);
-                            break;
-                        case MEAT:
-                            snack.setProteinCount(serve);
-                            break;
-                        case DAIRY:
-                            snack.setDairyCount(serve);
-                            break;
-                        case MILK:
-                            snack.setDairyCount(serve);
-                            snack.setHydrationScore(serve);
-                            break;
-                        case GRAIN:
-                            snack.setGrainCount(serve);
-                            break;
-                        case FRUIT:
-                            snack.setFruitCount(serve);
-                            break;
-                        case EXCESS:
-                            snack.setExcessServes(serve);
-                            break;
-                        case WATER:
-                            snack.setWaterCount(serve);
-                            snack.setHydrationScore(serve);
-                            break;
-                        case CAFFEINE:
-                            snack.setCaffieneCount(serve);
-                            break;
-                        case ALCOHOL:
-                            snack.setAlcoholStandards(serve);
-                    }
-                    snack.setUser(FirebaseAuth.getInstance().getUid());
-                    snack.setDay(System.currentTimeMillis());
-
-                    //setting the snack name up based on the time of day
-                    Calendar c = Calendar.getInstance();
-                    int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-                    if(!isDrink) {
-                        if (timeOfDay >= 4 && timeOfDay < 11) {
-                            snack.setName("Morning snack");
-                        } else if (timeOfDay >= 11 && timeOfDay < 14) {
-                            snack.setName("Midday snack");
-                        } else if (timeOfDay >= 14 && timeOfDay < 18) {
-                            snack.setName("Afternoon snack");
-                        } else if (timeOfDay >= 18 && timeOfDay < 22) {
-                            snack.setName("Evening snack");
-                        } else if (timeOfDay >= 22 || timeOfDay < 4) {
-                            snack.setName("Midnight snack");
-                        } else {
-                            snack.setName("Snack");
-                        }
-                    } else {
-                        if (timeOfDay >= 4 && timeOfDay < 11) {
-                            snack.setName("Morning drink");
-                        } else if (timeOfDay >= 11 && timeOfDay < 14) {
-                            snack.setName("Midday drink");
-                        } else if (timeOfDay >= 14 && timeOfDay < 18) {
-                            snack.setName("Afternoon drink");
-                        } else if (timeOfDay >= 18 && timeOfDay < 22) {
-                            snack.setName("Evening drink");
-                        } else if (timeOfDay >= 22 || timeOfDay < 4) {
-                            snack.setName("Midnight drink");
-                        } else {
-                            snack.setName("Drink");
-                        }
-                    }
-                    AddCheatsDialogBox.addCheats(activity, snack, isDrink);
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //get the current percentage in the edittext
+                double oldPercentage;
+                if(percentageValueET.getText().toString().isEmpty()) {
+                    oldPercentage = 0;
                 } else {
-                    //otherwise inform listener of the serves added
-                    listener.serveAdded(foodType, serve);
+                    oldPercentage = Double.parseDouble(percentageValueET.getText().toString());
+                }
+                //if the editText is different to the current percentage, update it
+                //this is necessary so that they aren't fighting eachother for values
+                if((int) oldPercentage != progress) {
+                    percentageValueET.setText(df.format(progress));
+                }
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        //whenever the alcohol percent text changes, update the seekbar and number of standards
+        percentageValueET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable editablePercentage) {
+                double percentage;
+                if(editablePercentage.toString().isEmpty()) {
+                    percentage = 0;
+                } else {
+                    percentage = Double.parseDouble(editablePercentage.toString());
+                }
+                alcoholSeekbar.setProgress((int) percentage);
+
+                //getting number of standards
+                double standards = Meal.getStandardsFromPercent(servesLiquid, 0, percentage);
+                String numberOfstandardsString = numberOfStandards.getText().toString();
+                //getting old number of standards
+                double oldStandards;
+                if(numberOfstandardsString.isEmpty()) {
+                    oldStandards = 0;
+                } else {
+                    oldStandards = Double.parseDouble(numberOfstandardsString);
+                }
+                //if significant distance in old and new values, update the editText
+                if(standards > oldStandards + 0.01 || standards < oldStandards - 0.01) {
+                    numberOfStandards.setText(df.format(standards));
                 }
             }
         });
-        addServeDialog.show();
+        //when the number of standards updates, update the percentage
+        numberOfStandards.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable editableStandards) {
+                //getting the new standards count
+                double standards;
+                if(editableStandards.toString().isEmpty()) {
+                    standards = 0;
+                } else {
+                    standards = Double.parseDouble(editableStandards.toString());
+                }
+
+                //getting the new percent
+                double percent = Meal.getPercentFromStandards(servesLiquid,0,standards);
+                //getting the old percent
+                double oldPercentage;
+                if(percentageValueET.getText().toString().isEmpty()) {
+                    oldPercentage = 0;
+                } else {
+                    oldPercentage = Double.parseDouble(percentageValueET.getText().toString());
+                }
+                //if significant distance in old and new values, update the editText
+                if(percent > oldPercentage + 0.5 || percent < oldPercentage - 0.5) {
+                    if(percent > 100) {
+                        percent = 100;
+                    }
+                    percentageValueET.setText(df.format(percent));
+                }
+
+            }
+        });
+        return addServeLayout;
     }
 
     /**
@@ -352,7 +394,7 @@ public class AddServeDialogBox  {
         TextView servingCount; //the text to update
         boolean isDrink;
 
-        public ServeChanger(TextView servingCount, boolean isDrink) {
+        ServeChanger(TextView servingCount, boolean isDrink) {
             this.servingCount = servingCount;
             this.isDrink = isDrink;
         }

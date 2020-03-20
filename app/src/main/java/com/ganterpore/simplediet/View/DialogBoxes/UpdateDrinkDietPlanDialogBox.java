@@ -21,17 +21,20 @@ import java.text.NumberFormat;
 
 public class UpdateDrinkDietPlanDialogBox {
     private static NumberFormat df = new DecimalFormat("##.##");
-    private static EditText dailyHydration;
-    private static EditText dailyCaffeine;
-    private static EditText weeklyCaffeine;
-    private static EditText dailyAlcohol;
-    private static EditText weeklyAlcohol;
+    private EditText dailyHydration;
+    private EditText dailyCaffeine;
+    private EditText weeklyCaffeine;
+    private EditText dailyAlcohol;
+    private EditText weeklyAlcohol;
 
     /**
      * opens a dialogue box recieving information on diet plans
      * then adds the meal to the database
      */
     public static void updateDiet(final Context context) {
+        new UpdateDrinkDietPlanDialogBox(context);
+    }
+    public UpdateDrinkDietPlanDialogBox(final Context context) {
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View updateDietLayout = layoutInflater.inflate(R.layout.dialog_box_drink_diet_plan, null);
@@ -48,7 +51,6 @@ public class UpdateDrinkDietPlanDialogBox {
         weeklyCaffeine.setText(df.format(dietPlan.getWeeklyCaffeine()));
         dailyAlcohol.setText(df.format(dietPlan.getDailyAlcohol()));
         weeklyAlcohol.setText(df.format(dietPlan.getWeeklyAlcohol()));
-
 
         //Build the dialog box
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(context);

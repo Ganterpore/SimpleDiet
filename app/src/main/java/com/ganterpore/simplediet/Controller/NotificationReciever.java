@@ -22,11 +22,8 @@ public class NotificationReciever extends BroadcastReceiver {
     public static final String EVENING_NOTIFICATION_CHANNEL = "evening_notifications";
     public static final int EVENING_NOTIFICATION_ID = 2;
 
-    private Context context;
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        this.context = context;
         String id = intent.getStringExtra("id");
         //if there is no id, we cant do anything
         if(id==null) {

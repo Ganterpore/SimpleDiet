@@ -33,36 +33,44 @@ import java.util.Calendar;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+import static com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox.DRINK_STANDARD_SERVE;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     public static final int DRINK = 1;
     public static final int NEW_RECIPE = 2;
     public static final int RECIPE = 3;
 
+    private Activity activity;
     private final TextView milkCountTV;
     private final TextView waterCountTV;
     private final TextView caffeineCountTV;
     private final TextView alcoholCountTV;
     private double milkServes;
-    public double waterServes;
+    private double waterServes;
     private double caffieneServes;
     private double alcoholServes;
     private final TextView volumeTV;
     private TextView hydrationFactor;
     private TextView exampleDrink;
-
+    private EditText drinkNameET;
     private final RadioGroup cheatSelector;
-    private Activity activity;
 
-    NumberFormat df = new DecimalFormat("##.##");
+    private NumberFormat df = new DecimalFormat("##.##");
+
+    public static void addDrink(Activity activity) {
+        new AddDrinkDialogBox(activity);
+    }
+    public static void addDrink(Activity activity, Intent intent) {
+        new AddDrinkDialogBox(activity, intent);
+    }
 
     public AddDrinkDialogBox(final Activity activity) {
         this(activity, new Intent());
     }
 
     public AddDrinkDialogBox(final Activity activity, final Intent intent) {
-        final int type = intent.getIntExtra("type", DRINK);
         this.activity = activity;
+        final int type = intent.getIntExtra("type", DRINK);
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View addDrinkLayout = layoutInflater.inflate(R.layout.dialog_box_drink, null);
@@ -78,7 +86,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         caffeineButton.setOnClickListener(onClick);
         alcoholButton.setOnClickListener(onClick);
 
-        //getting all the textviews
+        //getting all the views
         milkCountTV = addDrinkLayout.findViewById(R.id.milk_count);
         waterCountTV = addDrinkLayout.findViewById(R.id.water_count);
         caffeineCountTV = addDrinkLayout.findViewById(R.id.caffiene_count);
@@ -86,48 +94,20 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         volumeTV = addDrinkLayout.findViewById(R.id.volume);
         hydrationFactor = addDrinkLayout.findViewById(R.id.hydration_factor);
         exampleDrink = addDrinkLayout.findViewById(R.id.example_food);
-        final EditText drinkNameET = addDrinkLayout.findViewById(R.id.drink_name);
-
+        drinkNameET = addDrinkLayout.findViewById(R.id.drink_name);
         cheatSelector = addDrinkLayout.findViewById(R.id.cheat_selector);
-        if(type==RECIPE) {
-            int cheatScore = (int) intent.getDoubleExtra("cheatScore", 0);
-            switch (cheatScore) {
-                case 3:
-                    cheatSelector.check(R.id.cheat_3);
-                    break;
-                case 2:
-                    cheatSelector.check(R.id.cheat_2);
-                    break;
-                case 1:
-                    cheatSelector.check(R.id.cheat_1);
-                    break;
-                case 0:
-                default:
-                    cheatSelector.check(R.id.cheat_0);
-                    break;
-            }
-            drinkNameET.setText(intent.getStringExtra("name"));
-            milkServes = intent.getDoubleExtra("dairyCount", 0);
-            milkCountTV.setText(String.valueOf(milkServes));
-            waterServes = intent.getDoubleExtra("waterCount", 0);
-            waterCountTV.setText(String.valueOf(waterServes));
-            caffieneServes = intent.getDoubleExtra("caffeineCount", 0);
-            caffeineCountTV.setText(String.valueOf(caffieneServes));
-            alcoholServes = intent.getDoubleExtra("alcoholStandards", 0);
-            alcoholCountTV.setText(String.valueOf(alcoholServes));
-            volumeTV.setText(String.valueOf(250*(milkServes+waterServes)));
-            String hydrationText = df.format(waterServes) + " water + " + df.format(milkServes) + " milk - "
-                    + df.format(caffieneServes) + " caffeine - " + df.format(alcoholServes) + " alcohol = "
-                    + df.format(waterServes + milkServes - caffieneServes - alcoholServes);
-
-            hydrationFactor.setText(hydrationText);
-
-        }
         final RadioGroup daySelector = addDrinkLayout.findViewById(R.id.day_selector);
+
+        //If it is a recipe, then update the values of the dialog box to match the recipe
+        if(type==RECIPE) {
+            updateValuesToMatchRecipe(intent);
+        }
         updateExampleDrink();
+        //when the cheat selector is changed, update the example text to match
         cheatSelector.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
+                //if there is alcohol, and the cheats are 0, warn the user of this
                 if(alcoholServes > 0 && checkedId==R.id.cheat_0) {
                     Toast.makeText(activity, "Alcohol is inherently unhealthy. We don't recommend making it a zero cheat score.", Toast.LENGTH_LONG)
                                 .show();
@@ -143,28 +123,14 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         addDrinkDialog.setNeutralButton(updateRecipeText, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                int cheatScore;
-                switch (cheatSelector.getCheckedRadioButtonId()) {
-                    case R.id.cheat_0:
-                        cheatScore = 0;
-                        break;
-                    case R.id.cheat_1:
-                        cheatScore = 1;
-                        break;
-                    case R.id.cheat_2:
-                        cheatScore = 2;
-                        break;
-                    case R.id.cheat_3:
-                        cheatScore = 3;
-                        break;
-                    default:
-                        cheatScore = 0;
-                }
+                //Get the values from the dialog box, and push them to the database
+                int cheatScore = getCheatScoreFromID(cheatSelector.getCheckedRadioButtonId());
                 double hydrationFactor = waterServes + milkServes - caffieneServes - alcoholServes;
-                //create a meal object from the dialog box data
+                //create a recipe object from the dialog box data
                 Recipe recipe = Recipe.drinkRecipe(drinkNameET.getText().toString(),
                         waterServes, milkServes, caffieneServes, alcoholServes, hydrationFactor,
                         cheatScore, FirebaseAuth.getInstance().getCurrentUser().getUid());
+                //if we are updating a recipe, then delete the old recipe first
                 if(type==RECIPE) {
                     RecipeBookController.deleteRecipe(intent.getStringExtra("id"));
                 }
@@ -172,6 +138,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(final DocumentReference documentReference) {
+                                //create a new recipe item, and push the undo snackbar to it
                                 new RecipeListDialogBox(activity).undoAdd(documentReference);
                             }
                         });
@@ -194,23 +161,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                     calendar.set(year, month, date, 0, 0, 0);
                     day = calendar.getTimeInMillis() - DateUtils.HOUR_IN_MILLIS;
                 }
-                int cheatScore;
-                switch (cheatSelector.getCheckedRadioButtonId()) {
-                    case R.id.cheat_0:
-                        cheatScore = 0;
-                        break;
-                    case R.id.cheat_1:
-                        cheatScore = 1;
-                        break;
-                    case R.id.cheat_2:
-                        cheatScore = 2;
-                        break;
-                    case R.id.cheat_3:
-                        cheatScore = 3;
-                        break;
-                    default:
-                        cheatScore = 0;
-                }
+                int cheatScore = getCheatScoreFromID(cheatSelector.getCheckedRadioButtonId());
                 double hydrationFactor = waterServes + milkServes - caffieneServes - alcoholServes;
                 //create a meal object from the dialog box data
                 Meal todaysDrink = Meal.Drink(waterServes, milkServes, caffieneServes, alcoholServes,
@@ -235,17 +186,74 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         addDrinkDialog.show();
     }
 
-    public static void addDrink(Activity activity) {
-        new AddDrinkDialogBox(activity);
+    /**
+     * Converts the cheat_id from the cheat selector to a cheat score
+     * @param cheat_id, a cheat selector radio id
+     * @return the cheat score it is equivalent to
+     */
+    private int getCheatScoreFromID(int cheat_id) {
+        int cheatScore;
+        switch (cheat_id) {
+            case R.id.cheat_3:
+                cheatScore = 3;
+                break;
+            case R.id.cheat_2:
+                cheatScore = 2;
+                break;
+            case R.id.cheat_1:
+                cheatScore = 1;
+                break;
+            case R.id.cheat_0:
+            default:
+                cheatScore = 0;
+        }
+        return cheatScore;
     }
-    public static void addDrink(Activity activity, Intent intent) {
-        new AddDrinkDialogBox(activity, intent);
+
+    /**
+     * Updates the values of the dialog box so that they match the recipe they are passed from
+     * Recipe details should be contained on the intent
+     * @param intent, the intent containing all the information
+     */
+    private void updateValuesToMatchRecipe(Intent intent) {
+        //selecting the right cheat selector radio button
+        int cheatScore = (int) intent.getDoubleExtra("cheatScore", 0);
+        switch (cheatScore) {
+            case 3:
+                cheatSelector.check(R.id.cheat_3);
+                break;
+            case 2:
+                cheatSelector.check(R.id.cheat_2);
+                break;
+            case 1:
+                cheatSelector.check(R.id.cheat_1);
+                break;
+            case 0:
+            default:
+                cheatSelector.check(R.id.cheat_0);
+                break;
+        }
+        //updating the text values
+        drinkNameET.setText(intent.getStringExtra("name"));
+        milkServes = intent.getDoubleExtra("dairyCount", 0);
+        milkCountTV.setText(String.valueOf(milkServes));
+        waterServes = intent.getDoubleExtra("waterCount", 0);
+        waterCountTV.setText(String.valueOf(waterServes));
+        caffieneServes = intent.getDoubleExtra("caffeineCount", 0);
+        caffeineCountTV.setText(String.valueOf(caffieneServes));
+        alcoholServes = intent.getDoubleExtra("alcoholStandards", 0);
+        alcoholCountTV.setText(String.valueOf(alcoholServes));
+        volumeTV.setText(String.valueOf(250*(milkServes+waterServes)));
+        String hydrationText = df.format(waterServes) + " water + " + df.format(milkServes) + " milk - "
+                + df.format(caffieneServes) + " caffeine - " + df.format(alcoholServes) + " alcohol = "
+                + df.format(waterServes + milkServes - caffieneServes - alcoholServes);
+        hydrationFactor.setText(hydrationText);
     }
 
     /**
      * used to update the field that describes an example food in the mix of selected food groups
      */
-    public void updateExampleDrink() {
+    private void updateExampleDrink() {
         //finding the appropriate string resource prefix, based on the food groups being used
         String foodExamplePrefix = "drink_";
         foodExamplePrefix += waterServes>0 ? "W" : "";
@@ -253,6 +261,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         foodExamplePrefix += caffieneServes>0 ? "C" : "";
         foodExamplePrefix += alcoholServes>0 ? "A" : "";
 
+        //adding the vegan/vegetarian prefix if necessary
         SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         String mode = preferences.getString("mode", "normal");
         if(mode.equals("vegan")) {
@@ -263,25 +272,8 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
 
         //getting the cheat score to find the relevant food example with the given cheat score
         final String finalFoodExamplePrefix = foodExamplePrefix;
-        int cheatScore;
-        int checkedId = cheatSelector.getCheckedRadioButtonId();
-        switch (checkedId) {
-            case R.id.cheat_0:
-                cheatScore = 0;
-                break;
-            case R.id.cheat_1:
-                cheatScore = 1;
-                break;
-            case R.id.cheat_2:
-                cheatScore = 2;
-                break;
-            case R.id.cheat_3:
-                cheatScore = 3;
-                break;
-            default:
-                cheatScore = 0;
-        }
-        //Getting the relevant string resource based on the information, and setting the example text to ity
+        int cheatScore = getCheatScoreFromID(cheatSelector.getCheckedRadioButtonId());
+        //Getting the relevant string resource based on the information, and setting the example text to it
         exampleDrink.setText(
                 activity.getResources()
                         .getIdentifier(finalFoodExamplePrefix +"_"+cheatScore, "string", activity.getPackageName())
@@ -298,11 +290,11 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         //update the serve text
         switch (type) {
             case WATER:
-                waterCountTV.setText(df.format(serve) +"/"+df.format(serve*AddServeDialogBox.DRINK_STANDARD_SERVE)+"mL");
+                waterCountTV.setText(String.format("%s/%smL", df.format(serve), df.format(serve * DRINK_STANDARD_SERVE)));
                 waterServes = serve;
                 break;
             case MILK:
-                milkCountTV.setText(df.format(serve) +"/"+df.format(serve*AddServeDialogBox.DRINK_STANDARD_SERVE)+"mL");
+                milkCountTV.setText(String.format("%s/%smL", df.format(serve), df.format(serve * DRINK_STANDARD_SERVE)));
                 milkServes = serve;
                 break;
             case CAFFEINE:
@@ -310,7 +302,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                 caffieneServes = serve;
                 break;
             case ALCOHOL:
-                alcoholCountTV.setText(df.format(serve) +"/"+df.format(Meal.getPercentFromStandards(waterServes, milkServes, serve))+"%");
+                alcoholCountTV.setText(String.format("%s/%s%%", df.format(serve), df.format(Meal.getPercentFromStandards(waterServes, milkServes, serve))));
                 alcoholServes = serve;
                 //if alcoholic, and the cheat score is 0, move to one as alcohol is unhealthy
                 if(alcoholServes > 0 && cheatSelector.getCheckedRadioButtonId()==R.id.cheat_0) {
@@ -332,11 +324,11 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     /**
      * OnClickListener, used to create a dialog to set a number of serves up for the given food type
      */
-    static class AddServesOnClick implements View.OnClickListener {
+    class AddServesOnClick implements View.OnClickListener {
         Activity activity;
         AddDrinkDialogBox dialogBox;
 
-        public AddServesOnClick(Activity activity, AddDrinkDialogBox parent) {
+        AddServesOnClick(Activity activity, AddDrinkDialogBox parent) {
             this.activity = activity;
             this.dialogBox = parent;
         }
@@ -344,7 +336,6 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         @Override
         public void onClick(View view) {
             AddServeDialogBox.FoodType type;
-            LinearLayout parent = (LinearLayout) view.getParent().getParent().getParent();
             double serves;
             Intent intent = new Intent();
             //from the id of the button that called it, figure out what food to add serves to, and the current serves

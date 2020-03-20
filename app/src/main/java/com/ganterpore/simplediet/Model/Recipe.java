@@ -141,7 +141,7 @@ public class Recipe {
         meal.setFruitCount(fruitCount);
         meal.setExcessServes(excessServes);
         meal.setWaterCount(waterCount);
-        meal.setCaffieneCount(caffeineCount);
+        meal.setCaffeineCount(caffeineCount);
         meal.setAlcoholStandards(alcoholStandards);
         meal.setHydrationScore(hydrationScore);
         meal.setCheatScore(cheatScore);

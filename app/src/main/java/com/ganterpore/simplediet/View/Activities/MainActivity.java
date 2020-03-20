@@ -51,16 +51,14 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class MainActivity extends AppCompatActivity implements DietController.DietControllerListener,
-SnackbarReady{
+                                                                SnackbarReady{
     private static final String TAG = "MainActivity";
     public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
     private FirebaseAuth mAuth;
+    private SharedPreferences preferences;
 
     private DietController dietController;
-
     private MealHistoryDisplay mealView;
-
-    private SharedPreferences preferences;
 
     private boolean isFABOpen = false;
 
@@ -389,6 +387,7 @@ SnackbarReady{
                 } if(leftTV != null) {
                     leftTV.setText("Done!");
                 }
+                //TODO update colors when food is completed
 //                countTV.setTextColor(Color.GREEN);
 //                leftTV.setTextColor(Color.GREEN);
 //                countTV.setAlpha((float) 1);
@@ -399,7 +398,7 @@ SnackbarReady{
                 } if (leftTV != null) {
                     leftTV.setText(df.format(servesLeft) + " left");
                 }
-
+                //TODO update colors when food is completed
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //                    countTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));
 //                    leftTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));
@@ -420,8 +419,8 @@ SnackbarReady{
             }
         }
         //updating other texts
-        cheatTV.setText(df.format(today.getWeeklyCheats()) + "/" + df.format(todaysDietPlan.getWeeklyCheats()));
-        cheatsTodayTV.setText(df.format(today.getTotalCheats()) + " today!");
+        cheatTV.setText(String.format("%s/%s", df.format(today.getWeeklyCheats()), df.format(todaysDietPlan.getWeeklyCheats())));
+        cheatsTodayTV.setText(String.format("%s today!", df.format(today.getTotalCheats())));
         //animating any updates to the cheat progress bar
         cheatsPB.setMax((int) (todaysDietPlan.getWeeklyCheats() * SCALE_FACTOR));
         ObjectAnimator objectAnimator = ObjectAnimator.ofInt(cheatsPB, "progress",
@@ -430,7 +429,7 @@ SnackbarReady{
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();
 
-        //regresshing the other views
+        //refreshing the other views
         mealView.refreshRecommendations();
     }
 
