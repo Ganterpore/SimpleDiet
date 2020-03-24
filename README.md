@@ -25,5 +25,14 @@ Features :
  ### Warnings and Recommendations
  Using the information that you input, the app will give you rcommendations of how to change your diet and warnings when you are approaching your limit of unhealthy meals.
  
- ## Programming architecture
  
+## Programming Architecture
+In the backend the app uses a simple Model View Controller (MVC) Design Pattern, where the user interacts with the View, which contains all the app activities. The View sends commands through to the Controller, which does all the calculations and transformations needed, and interacts with the database contained in the Model.
+
+## Technologies 
+
+### Firebase Firestore
+The app uses Firebase Firestore to store all the information from the app, as well as the Firebase Authorisation service to authorise users.. The main purposes of this is for the easy integration of this system with android, and for the flexibility of a NoSQL database. The integration that Firebase has with android allows it to be used offline, means it runs quickly, and allows for further expansions to the product to be easily implemented in the future.
+
+### Notification Manager
+The notifications within the app use the default Notification Management system within android, as I felt there was no need to use a library to achieve what we need. The Notifications used by the app are very simple, just notifying the user in the morning and evening, if they turn the feature on. This is achieved by using AlarmManager, which has a method to set a recurring alarm. The recurring alarm goes off at the set times each day, and are picked up by the BroadcastReciever, and trigger a notification to go off.
