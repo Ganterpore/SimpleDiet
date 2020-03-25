@@ -10,7 +10,7 @@ Features :
  - Gives warnings and recommendations on your diet as you go
  
  ## Screenshots
- <img src="https://raw.githubusercontent.com/Ganterpore/SimpleDiet/Documentation/main_activity_screenshot_graphic.png" width="250"/> <img src="https://raw.githubusercontent.com/Ganterpore/SimpleDiet/Documentation/add_meal_screenshot_graphic.png" width="250"/> <img src="https://raw.githubusercontent.com/Ganterpore/SimpleDiet/Documentation/add_drink_screenshot.jpg" width="250"/>
+ <img src="https://raw.githubusercontent.com/Ganterpore/SimpleDiet/master/main_activity_screenshot_graphic.png" width="250"/> <img src="https://raw.githubusercontent.com/Ganterpore/SimpleDiet/master/add_meal_screenshot_graphic.png" width="250"/> <img src="https://raw.githubusercontent.com/Ganterpore/SimpleDiet/master/add_drink_screenshot.jpg" width="250"/>
 
  ## Features in depth
  
