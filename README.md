@@ -1,3 +1,4 @@
+*NOTE: this is an unfinished work in progress,*
 # SimpleDiet
 Simpler than calorie counting, more useable than a strict diet plan.
 
