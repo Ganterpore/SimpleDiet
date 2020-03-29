@@ -44,7 +44,7 @@ public class WeeklyIntake {
     }
 
     public WeeklyIntake(List<DocumentSnapshot> data, DietPlan dietPlan, int weeksAgo) {
-        Date endDate = new Date(System.currentTimeMillis() - (weeksAgo * DateUtils.WEEK_IN_MILLIS));
+        Date endDate = new Date(System.currentTimeMillis() - (weeksAgo * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
         endDate = getStartOfDay(endDate);
         Date startDate = new Date(System.currentTimeMillis() - ((weeksAgo + 1) * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
         startDate = getStartOfDay(startDate);
@@ -63,7 +63,7 @@ public class WeeklyIntake {
         this.weeklyLimitCaffiene = dietPlan.getWeeklyCaffeine();
         this.weeklyLimitAlcohol = dietPlan.getWeeklyAlcohol();
         this.weeklyLimitHydration = dietPlan.getDailyHydration() * 7;
-        this.weeklyLimitCheats = dietPlan.getDailyCheats();
+        this.weeklyLimitCheats = dietPlan.getDailyCheats() * 7;//TODO get an actual weekly
     }
 
     /**
@@ -99,7 +99,7 @@ public class WeeklyIntake {
         hydrationScore = 0;
         excessServes = 0;
         totalCheats = 0;
-        //iterate through all todaysMeals and add the days data
+        //iterate through all thisWeeksMeals and add the days data
         for(Meal meal : thisWeeksMeals) {
             totalCheats += meal.calculateTotalCheats();
             vegCount += meal.getVegCount();

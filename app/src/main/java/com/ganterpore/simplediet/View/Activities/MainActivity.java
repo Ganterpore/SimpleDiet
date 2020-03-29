@@ -27,6 +27,7 @@ import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
+import com.ganterpore.simplediet.Controller.WeeklyIntake;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
@@ -335,6 +336,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
         DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
         DailyMeals today = dietController.getTodaysMeals();
+        WeeklyIntake thisWeek = dietController.getThisWeeksIntake();
+        View weeklyContainer = findViewById(R.id.weekly_intake);
 
         //get the text views from the main activity
         TextView vegTV = findViewById(R.id.veg_count);
@@ -346,6 +349,18 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView caffeineTV = findViewById(R.id.caffeine_count);
         TextView alcoholTV = findViewById(R.id.alcohol_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
+
+        TextView weeklyVegTV = weeklyContainer.findViewById(R.id.veg_count);
+        TextView weeklyProteinTV = weeklyContainer.findViewById(R.id.protein_count);
+        TextView weeklyDairyTV = weeklyContainer.findViewById(R.id.dairy_count);
+        TextView weeklyGrainTV = weeklyContainer.findViewById(R.id.grain_count);
+        TextView weeklyFruitTV = weeklyContainer.findViewById(R.id.fruit_count);
+        TextView weeklyWaterTV = weeklyContainer.findViewById(R.id.water_count);
+        TextView weeklyCaffeineTV = weeklyContainer.findViewById(R.id.weekly_caffeine_count);
+        TextView weeklyAlcoholTV = weeklyContainer.findViewById(R.id.weekly_alcohol_count);
+        TextView weeklyCheatTV = weeklyContainer.findViewById(R.id.cheat_count);
+
+
 
         TextView vegeLeftTV = findViewById(R.id.veg_left);
         TextView proteinLeftTV = findViewById(R.id.protein_left);
@@ -362,18 +377,29 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         ProgressBar grainPB = findViewById(R.id.progress_grain);
         ProgressBar fruitPB = findViewById(R.id.progress_fruit);
         ProgressBar waterPB = findViewById(R.id.progress_water);
-        ProgressBar cheatsPB = findViewById(R.id.progress_cheats);
+        ProgressBar cheatsPB = findViewById(R.id.toolbar_layout).findViewById(R.id.progress_cheats);
+        ProgressBar weeklyCheatsPB = weeklyContainer.findViewById(R.id.progress_cheats);
 
         //creating arrays of the text views to update
-        TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, caffeineTV, alcoholTV, waterTV};
-        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, null, null, waterLeftTV};
-        ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, null, null, waterPB};
+        TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV, caffeineTV, alcoholTV, cheatTV,
+                weeklyVegTV, weeklyProteinTV, weeklyDairyTV, weeklyGrainTV, weeklyFruitTV, weeklyWaterTV,
+                weeklyCaffeineTV, weeklyAlcoholTV, weeklyCheatTV};
+        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, null, null, waterLeftTV, null,
+                null, null, null, null, null, null, null, null, null};
+        ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB, null, null, null,
+                null, null, null, null, null, null, null, null, weeklyCheatsPB};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
-                            today.getGrainCount(), today.getFruitCount(), today.getCaffieneCount(),
-                            today.getAlcoholCount(), today.getHydrationScore()};
+                            today.getGrainCount(), today.getFruitCount(), today.getHydrationScore(),
+                            today.getCaffieneCount(), today.getAlcoholCount(), today.getTotalCheats(),
+                            thisWeek.getVegCount(), thisWeek.getProteinCount(), thisWeek.getDairyCount(),
+                            thisWeek.getGrainCount(), thisWeek.getFruitCount(), thisWeek.getHydrationScore(),
+                            thisWeek.getCaffieneCount(), thisWeek.getAlcoholCount(), thisWeek.getTotalCheats()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
-                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyCaffeine(),
-                            todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyHydration()};
+                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration(),
+                            todaysDietPlan.getDailyCaffeine(), todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyCheats(),
+                            thisWeek.getWeeklyLimitVeg(), thisWeek.getWeeklyLimitProtein(), thisWeek.getWeeklyLimitDairy(),
+                            thisWeek.getWeeklyLimitGrain(), thisWeek.getWeeklyLimitFruit(), thisWeek.getWeeklyLimitHydration(),
+                            thisWeek.getWeeklyLimitCaffiene(), thisWeek.getWeeklyLimitAlcohol(), thisWeek.getWeeklyLimitCheats()};
 
         //updating text for all the main food groups
         for(int i=0;i<textViewsCount.length;i++) {

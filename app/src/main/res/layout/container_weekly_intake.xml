@@ -28,7 +28,7 @@
 
             <ImageView
                 app:layout_constraintTop_toTopOf="parent"
-                android:id="@+id/caffeine_image"
+                android:id="@+id/weekly_caffeine_image"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:src="@drawable/caffiene"
@@ -37,6 +37,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
+            android:id="@+id/weekly_caffeine_count"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -50,7 +51,7 @@
 
             <ImageView
                 app:layout_constraintTop_toTopOf="parent"
-                android:id="@+id/alcohol_image"
+                android:id="@+id/weekly_alcohol_image"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:src="@drawable/alcohol"
@@ -60,6 +61,7 @@
 
 
         <TextView
+            android:id="@+id/weekly_alcohol_count"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -72,7 +74,7 @@
             android:layout_weight="1">
 
             <include
-                android:id="@+id/cheats_progress"
+                android:id="@+id/weekly_cheats_progress"
                 layout="@layout/progress_cheats"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
