@@ -44,15 +44,38 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/day_history_list"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/weekly_intake_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/weekly_intake"
+                layout="@layout/container_weekly_intake"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/day_history_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:nestedScrollingEnabled="false"
+                app:layout_anchor="@id/weekly_intake_container"
+                app:layout_anchorGravity="bottom"
+                android:layout_gravity="bottom"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
 
     <!--  Layout for the Floating Action Buttons  -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout

@@ -424,12 +424,12 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             }
         }
         //updating other texts
-        cheatTV.setText(String.format("%s/%s", df.format(today.getWeeklyCheats()), df.format(todaysDietPlan.getWeeklyCheats())));
+        cheatTV.setText(String.format("%s/%s", df.format(today.getTotalCheats()), df.format(todaysDietPlan.getDailyCheats())));
         cheatsTodayTV.setText(String.format("%s today!", df.format(today.getTotalCheats())));
         //animating any updates to the cheat progress bar
-        cheatsPB.setMax((int) (todaysDietPlan.getWeeklyCheats() * SCALE_FACTOR));
+        cheatsPB.setMax((int) (todaysDietPlan.getDailyCheats() * SCALE_FACTOR));
         ObjectAnimator objectAnimator = ObjectAnimator.ofInt(cheatsPB, "progress",
-                (int) today.getWeeklyCheats()*SCALE_FACTOR);
+                (int) today.getTotalCheats()*SCALE_FACTOR);
         objectAnimator.setDuration(500);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();

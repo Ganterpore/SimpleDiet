@@ -30,6 +30,7 @@ public class UpdateCheatsDialogBox {
      * then adds the meal to the database
      */
     public static void updateDiet(final Context context) {
+        //TODO properley create both daily and weekly cheats
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View updateDietLayout = layoutInflater.inflate(R.layout.dialog_box_cheat_plan, null);
@@ -50,17 +51,17 @@ public class UpdateCheatsDialogBox {
             public void afterTextChanged(Editable s) {
                 //after the text has changed, update the other fields to match
                 if(s.toString().isEmpty()) {
-                    dietPlan.setWeeklyCheats(0);
+                    dietPlan.setDailyCheats(0);
                 } else {
-                    dietPlan.setWeeklyCheats(7 * Double.parseDouble(s.toString()));
+                    dietPlan.setDailyCheats(7 * Double.parseDouble(s.toString()));
                 }
                 String newCheatDescription = context.getResources().getString(R.string.cheat_description_template);
                 newCheatDescription = newCheatDescription.replace(" X ", " "+df.format(dietPlan.totalServes())+" ");
-                newCheatDescription = newCheatDescription.replace(" Y ", " "+df.format(dietPlan.getWeeklyCheats()/(7*dietPlan.totalServes()))+" ");
+                newCheatDescription = newCheatDescription.replace(" Y ", " "+df.format(dietPlan.getDailyCheats()/(7*dietPlan.totalServes()))+" ");
                 cheatDescription.setText(newCheatDescription);
             }
         });
-        dailyCheats.setText(df.format(dietPlan.getWeeklyCheats()/7));
+        dailyCheats.setText(df.format(dietPlan.getDailyCheats()/7));
 
         //Build the dialog box
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(context);
@@ -72,7 +73,7 @@ public class UpdateCheatsDialogBox {
             public void onClick(DialogInterface dialog, int which) {
                 //create a dietController object from the dialog box data
                 DietPlan newPlan = BasicDietController.getInstance().getOverallDietPlan();
-                newPlan.setWeeklyCheats(7*Double.parseDouble(dailyCheats.getText().toString()));
+                newPlan.setDailyCheats(Double.parseDouble(dailyCheats.getText().toString()));
                 newPlan.pushToDB()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override

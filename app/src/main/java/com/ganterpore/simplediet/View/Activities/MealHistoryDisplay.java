@@ -289,8 +289,8 @@ class MealHistoryDisplay  {
             completedFoodTV.setCompleted(dietController.isFoodCompleted(nDaysAgo));
             completedWaterTV.setCompleted(dietController.isHydrationCompleted(nDaysAgo));
             didntCheatTV.setCompleted(!dietController.isOverCheatScore(nDaysAgo));
-            cheatsProgress.setMax((int) daysPlan.getWeeklyCheats() * SCALE_FACTOR);
-            cheatsProgress.setProgress((int) day.getWeeklyCheats() * SCALE_FACTOR);
+            cheatsProgress.setMax((int) daysPlan.getDailyCheats() * SCALE_FACTOR);
+            cheatsProgress.setProgress((int) day.getTotalCheats() * SCALE_FACTOR);
 
             //creating a list of the meals eaten that day
             RecyclerView mealsList = itemView.findViewById(R.id.meals_list);

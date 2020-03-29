@@ -19,6 +19,10 @@ public interface DietController {
     DietPlan getTodaysDietPlan();
     DietPlan getDaysDietPlan(int nDaysAgo);
 
+
+    WeeklyIntake getThisWeeksIntake();
+    WeeklyIntake getWeeksIntake(int weeksAgo);
+
     /**
      * Gets the generic diet plan the user has set up
      */

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+<!--  TODO add tracking of alcohol and caffeine, and larger tracking of cheats  -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Last 7 Days"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+    <include
+        layout="@layout/container_food_groups_counts_mini"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <ImageView
+                app:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/caffeine_image"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:src="@drawable/caffiene"
+                app:layout_constraintDimensionRatio="1:1"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="start|bottom"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <ImageView
+                app:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/alcohol_image"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:src="@drawable/alcohol"
+                app:layout_constraintDimensionRatio="1:1"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="start|bottom"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <include
+                android:id="@+id/cheats_progress"
+                layout="@layout/progress_cheats"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

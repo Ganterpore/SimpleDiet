@@ -2,6 +2,7 @@ package com.ganterpore.simplediet.Controller;
 
 import android.text.format.DateUtils;
 
+import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -10,13 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class DailyMeals {
-    private static final String TAG = "DailyMeals";
-    public static final String MEALS = "Meals";
-
-    private List<Meal> todaysMeals;
-    private List<Meal> thisWeeksMeals;
-
+public class WeeklyIntake {
     private double vegCount;
     private double proteinCount;
     private double dairyCount;
@@ -29,57 +24,59 @@ public class DailyMeals {
     private double alcoholCount;
     private double hydrationScore;
 
-    private double totalCheats; //accumulated cheats for this day
+    private double totalCheats; //accumulated cheats for this week
 
-    private Date date;
+    private double weeklyLimitVeg;
+    private double weeklyLimitProtein;
+    private double weeklyLimitDairy;
+    private double weeklyLimitGrain;
+    private double weeklyLimitFruit;
 
-    /**
-     * Constructor for getting todays meals
-     */
-    DailyMeals(List<DocumentSnapshot> data) {
-        //todays meals, aka zero days ago
-        this(0, data);
+    private double weeklyLimitCaffiene;
+    private double weeklyLimitAlcohol;
+    private double weeklyLimitHydration;
+
+    private double weeklyLimitCheats;
+    private ArrayList<Meal> thisWeeksMeals;
+
+    public WeeklyIntake(List<DocumentSnapshot> data, DietPlan dietPlan) {
+        this(data, dietPlan, 0);
     }
 
-    /**
-     * Constructor for getting meals from previous days
-     * @param daysAgo, the number of days ago to get meals from
-     */
-    DailyMeals(int daysAgo, List<DocumentSnapshot> data) {
-        this(new Date(System.currentTimeMillis() - (daysAgo * DateUtils.DAY_IN_MILLIS)), data);
-    }
+    public WeeklyIntake(List<DocumentSnapshot> data, DietPlan dietPlan, int weeksAgo) {
+        Date endDate = new Date(System.currentTimeMillis() - (weeksAgo * DateUtils.WEEK_IN_MILLIS));
+        endDate = getStartOfDay(endDate);
+        Date startDate = new Date(System.currentTimeMillis() - ((weeksAgo + 1) * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
+        startDate = getStartOfDay(startDate);
 
-    /**
-     * Get the daily update from meals on the given date
-     * @param day, date to look at meals from
-     */
-    DailyMeals(Date day, List<DocumentSnapshot> data) {
-        //update date to start of the day, and get other important dates
-        day = getStartOfDay(day);
-        final Date nextDay = new Date(day.getTime() + DateUtils.DAY_IN_MILLIS);
-        final Date weekAgo = new Date(day.getTime() - 7*DateUtils.DAY_IN_MILLIS);
-
-        this.date = day;
-
-        sortMeals(data, day, nextDay, weekAgo);
+        setLimits(dietPlan);
+        sortMeals(data, startDate, endDate);
         updateData();
+    }
+
+    private void setLimits(DietPlan dietPlan) {
+        this.weeklyLimitVeg = dietPlan.getDailyVeges() * 7;
+        this.weeklyLimitProtein = dietPlan.getDailyProtein() * 7;
+        this.weeklyLimitDairy = dietPlan.getDailyDairy() * 7;
+        this.weeklyLimitGrain = dietPlan.getDailyGrain() * 7;
+        this.weeklyLimitFruit = dietPlan.getDailyFruit() * 7;
+        this.weeklyLimitCaffiene = dietPlan.getWeeklyCaffeine();
+        this.weeklyLimitAlcohol = dietPlan.getWeeklyAlcohol();
+        this.weeklyLimitHydration = dietPlan.getDailyHydration() * 7;
+        this.weeklyLimitCheats = dietPlan.getDailyCheats();
     }
 
     /**
      * Takes a list of meals, and a list of days, and sorts the meals into the different days
      */
-    private void sortMeals(List<DocumentSnapshot> meals, Date today, Date nextDay, Date weekAgo) {
-        todaysMeals = new ArrayList<>();
+    private void sortMeals(List<DocumentSnapshot> meals, Date startDate, Date endDate) {
         thisWeeksMeals = new ArrayList<>();
         if(meals.isEmpty()) {
             return;
         }
         for(DocumentSnapshot mealDS : meals) {
             Meal meal = new Meal(mealDS);
-            if(meal.getDay() >= today.getTime() && meal.getDay() < nextDay.getTime()) {
-                todaysMeals.add(meal);
-            }
-            if(meal.getDay() >= weekAgo.getTime() && meal.getDay() < nextDay.getTime()) {
+            if(meal.getDay() >= startDate.getTime() && meal.getDay() < endDate.getTime()) {
                 thisWeeksMeals.add(meal);
             }
         }
@@ -103,7 +100,7 @@ public class DailyMeals {
         excessServes = 0;
         totalCheats = 0;
         //iterate through all todaysMeals and add the days data
-        for(Meal meal : todaysMeals) {
+        for(Meal meal : thisWeeksMeals) {
             totalCheats += meal.calculateTotalCheats();
             vegCount += meal.getVegCount();
             proteinCount += meal.getProteinCount();
@@ -133,15 +130,6 @@ public class DailyMeals {
         return calendar.getTime();
     }
 
-    public List<Meal> getMeals() {
-        return todaysMeals;
-    }
-
-    public double getTotalServes() {
-        return vegCount + proteinCount + dairyCount + grainCount
-                + fruitCount + excessServes;
-    }
-
     public double getVegCount() {
         return vegCount;
     }
@@ -162,6 +150,10 @@ public class DailyMeals {
         return fruitCount;
     }
 
+    public double getExcessServes() {
+        return excessServes;
+    }
+
     public double getWaterCount() {
         return waterCount;
     }
@@ -178,15 +170,47 @@ public class DailyMeals {
         return hydrationScore;
     }
 
-    public double getExcessServes() {
-        return excessServes;
-    }
-
     public double getTotalCheats() {
         return totalCheats;
     }
 
-    public Date getDate() {
-        return date;
+    public double getWeeklyLimitVeg() {
+        return weeklyLimitVeg;
+    }
+
+    public double getWeeklyLimitProtein() {
+        return weeklyLimitProtein;
+    }
+
+    public double getWeeklyLimitDairy() {
+        return weeklyLimitDairy;
+    }
+
+    public double getWeeklyLimitGrain() {
+        return weeklyLimitGrain;
+    }
+
+    public double getWeeklyLimitFruit() {
+        return weeklyLimitFruit;
+    }
+
+    public double getWeeklyLimitCaffiene() {
+        return weeklyLimitCaffiene;
+    }
+
+    public double getWeeklyLimitAlcohol() {
+        return weeklyLimitAlcohol;
+    }
+
+    public double getWeeklyLimitHydration() {
+        return weeklyLimitHydration;
+    }
+
+    public double getWeeklyLimitCheats() {
+        return weeklyLimitCheats;
+    }
+
+    public ArrayList<Meal> getThisWeeksMeals() {
+        return thisWeeksMeals;
     }
 }
