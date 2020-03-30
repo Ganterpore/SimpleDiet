@@ -64,4 +64,6 @@
     <string name="meal">Meal</string>
     <string name="tap_a_food_group_to_add_serves">Tap a food group to add serves</string>
     <string name="default_date">dd-MMM-yyyy</string>
+    <string name="weekly_cheat_points">Weekly Cheat Points</string>
+    <string name="weekly_cheat_automatic_value_explanation">Weekly cheats are automatically set to 7 times your daily cheats. You can customise them here to minimise your weeekly cheat count</string>
 </resources>

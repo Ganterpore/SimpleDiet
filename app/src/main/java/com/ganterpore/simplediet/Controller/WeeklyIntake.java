@@ -63,7 +63,7 @@ public class WeeklyIntake {
         this.weeklyLimitCaffiene = dietPlan.getWeeklyCaffeine();
         this.weeklyLimitAlcohol = dietPlan.getWeeklyAlcohol();
         this.weeklyLimitHydration = dietPlan.getDailyHydration() * 7;
-        this.weeklyLimitCheats = dietPlan.getDailyCheats() * 7;//TODO get an actual weekly
+        this.weeklyLimitCheats = dietPlan.getWeeklyCheats();
     }
 
     /**

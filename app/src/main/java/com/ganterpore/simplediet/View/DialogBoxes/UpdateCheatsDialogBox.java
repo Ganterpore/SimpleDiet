@@ -38,6 +38,7 @@ public class UpdateCheatsDialogBox {
 
         //getting the text boxes from the view
         final EditText dailyCheats = updateDietLayout.findViewById(R.id.daily_cheats);
+        final EditText weeklyCheats = updateDietLayout.findViewById(R.id.weekly_cheats);
         final TextView cheatDescription = updateDietLayout.findViewById(R.id.cheat_description);
         //Making sure the description updates when cheats change
         dailyCheats.addTextChangedListener(new TextWatcher() {
@@ -52,16 +53,36 @@ public class UpdateCheatsDialogBox {
                 //after the text has changed, update the other fields to match
                 if(s.toString().isEmpty()) {
                     dietPlan.setDailyCheats(0);
+                    dietPlan.setWeeklyCheats(0);
                 } else {
-                    dietPlan.setDailyCheats(7 * Double.parseDouble(s.toString()));
+                    dietPlan.setDailyCheats(Double.parseDouble(s.toString()));
+                    dietPlan.setWeeklyCheats(7 * dietPlan.getDailyCheats());
                 }
                 String newCheatDescription = context.getResources().getString(R.string.cheat_description_template);
                 newCheatDescription = newCheatDescription.replace(" X ", " "+df.format(dietPlan.totalServes())+" ");
-                newCheatDescription = newCheatDescription.replace(" Y ", " "+df.format(dietPlan.getDailyCheats()/(7*dietPlan.totalServes()))+" ");
+                newCheatDescription = newCheatDescription.replace(" Y ", " "+df.format(dietPlan.getDailyCheats()/(dietPlan.totalServes()))+" ");
                 cheatDescription.setText(newCheatDescription);
+                weeklyCheats.setText(df.format(dietPlan.getWeeklyCheats()));
             }
         });
-        dailyCheats.setText(df.format(dietPlan.getDailyCheats()/7));
+        weeklyCheats.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.toString().isEmpty()) {
+                    dietPlan.setWeeklyCheats(0);
+                } else {
+                    dietPlan.setWeeklyCheats(Double.parseDouble(s.toString()));
+                }
+            }
+        });
+        dailyCheats.setText(df.format(dietPlan.getDailyCheats()));
+        weeklyCheats.setText(df.format(dietPlan.getWeeklyCheats()));
 
         //Build the dialog box
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(context);
@@ -72,9 +93,7 @@ public class UpdateCheatsDialogBox {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //create a dietController object from the dialog box data
-                DietPlan newPlan = BasicDietController.getInstance().getOverallDietPlan();
-                newPlan.setDailyCheats(Double.parseDouble(dailyCheats.getText().toString()));
-                newPlan.pushToDB()
+                dietPlan.pushToDB()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void documentReference) {

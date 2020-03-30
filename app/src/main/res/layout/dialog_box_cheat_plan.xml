@@ -42,4 +42,34 @@
         android:text="@string/cheat_description_template"
         android:textStyle="italic"/>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/weekly_cheat_automatic_value_explanation"/>
+
+    <LinearLayout
+        android:layout_marginStart="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/weekly_cheat_points"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/weekly_cheats"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:text="@string/default_daily_cheats" />
+
+    </LinearLayout>
+
 </LinearLayout>
