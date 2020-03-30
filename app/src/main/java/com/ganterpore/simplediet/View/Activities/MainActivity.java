@@ -350,15 +350,15 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView alcoholTV = findViewById(R.id.alcohol_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
 
-        TextView weeklyVegTV = weeklyContainer.findViewById(R.id.veg_count);
-        TextView weeklyProteinTV = weeklyContainer.findViewById(R.id.protein_count);
-        TextView weeklyDairyTV = weeklyContainer.findViewById(R.id.dairy_count);
-        TextView weeklyGrainTV = weeklyContainer.findViewById(R.id.grain_count);
-        TextView weeklyFruitTV = weeklyContainer.findViewById(R.id.fruit_count);
-        TextView weeklyWaterTV = weeklyContainer.findViewById(R.id.water_count);
-        TextView weeklyCaffeineTV = weeklyContainer.findViewById(R.id.weekly_caffeine_count);
-        TextView weeklyAlcoholTV = weeklyContainer.findViewById(R.id.weekly_alcohol_count);
-        TextView weeklyCheatTV = weeklyContainer.findViewById(R.id.cheat_count);
+        TextView weeklyVegTV = findViewById(R.id.weekly_veges_intake);
+        TextView weeklyProteinTV = findViewById(R.id.weekly_protein_intake);
+        TextView weeklyDairyTV = findViewById(R.id.weekly_dairy_intake);
+        TextView weeklyGrainTV = findViewById(R.id.weekly_grain_intake);
+        TextView weeklyFruitTV = findViewById(R.id.weekly_fruit_intake);
+        TextView weeklyWaterTV = findViewById(R.id.weekly_water_intake);
+        TextView weeklyCaffeineTV = findViewById(R.id.weekly_caffeine_count);
+        TextView weeklyAlcoholTV = findViewById(R.id.weekly_alcohol_count);
+        TextView weeklyCheatTV = findViewById(R.id.weekly_cheat_count);
 
 
 
@@ -403,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
         //updating text for all the main food groups
         for(int i=0;i<textViewsCount.length;i++) {
-            //getting vaules from the arrays for this index
+            //getting values from the arrays for this index
             TextView countTV = textViewsCount[i];
             TextView leftTV = textViewsLeft[i];
             ProgressBar progressBar = progressBars[i];

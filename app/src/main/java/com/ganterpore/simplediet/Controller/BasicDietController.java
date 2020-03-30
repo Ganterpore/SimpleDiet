@@ -363,51 +363,49 @@ public class  BasicDietController implements DietController {
     }
 
     private Recommendation getCheatScoreRecommendation() {
-        //TODO fix chears based on daily and weekly cheats
-//        String id = "cheat";
-//        long expiry = DateUtils.DAY_IN_MILLIS;
-//        String title = "";
-//        String message = "";
-//
-//        DailyMeals todaysMeals = getTodaysMeals();
-//        //checks if we are over the cheat score for the week
-//        if(isOverCheatScoreToday()) {
-//            title += "You have had too many cheat meals!";
-//            //checks whether you will still be over the score tomorrow
-//            double cheatsTomorrow = todaysMeals.getWeeklyCheats() - getDaysMeals(6).getTotalCheats();
-//            if(cheatsTomorrow < overallDiet.getDailyCheats()) {
-//                //if not, then advise how few cheat points to have to get back on track
-//                message += "You will be back under your score tomorrow if you have less than ";
-//                message += (overallDiet.getDailyCheats() - cheatsTomorrow);
-//                message += " cheat points today";
-//            } else {
-//                //if not, how many days until you are under again
-//                double currentCheats = todaysMeals.getWeeklyCheats();
-//                for(int i=6;i>=0;i--) {
-//                    currentCheats -= getDaysMeals(i).getTotalCheats();
-//                    if(currentCheats < overallDiet.getDailyCheats()) {
-//                        message += "You can be back on track within ";
-//                        message += (7 - i);
-//                        message += " days if you minimise the bad food you eat";
-//                        break;
-//                    }
-//                }
-//            }
-//        } //if we are not over the cheat score, check if we are close
-//        else if((todaysMeals.getWeeklyCheats() + (overallDiet.getDailyCheats()/7))
-//                >= overallDiet.getDailyCheats()){
-//            title += "You are very close to going over your cheat score";
-//            message += "If you have more than ";
-//            message += overallDiet.getDailyCheats() - todaysMeals.getWeeklyCheats();
-//            message += " cheat points today you will go over your maximum cheat score.";
-//            message += "Try to eat healthily today";
-//
-//        } else {
-//            //if we are not over, or close to going over, send no recomendation.
-//            return null;
-//        }
-//        return new Recommendation(id, title, message, expiry);
-        return null;
+        String id = "cheat";
+        long expiry = DateUtils.DAY_IN_MILLIS;
+        String title = "";
+        String message = "";
+
+        WeeklyIntake thisWeeksMeals = getThisWeeksIntake();
+        //checks if we are over the cheat score for the week
+        if(thisWeeksMeals.getTotalCheats() > thisWeeksMeals.getWeeklyLimitCheats()) {
+            title += "You have had too many cheat meals this week!";
+            //checks whether you will still be over the score tomorrow
+            double cheatsTomorrow = thisWeeksMeals.getTotalCheats() - getDaysMeals(6).getTotalCheats();
+            if(cheatsTomorrow < thisWeeksMeals.getWeeklyLimitCheats()) {
+                //if not, then advise how few cheat points to have to get back on track
+                message += "You will be back under your score tomorrow if you have less than ";
+                message += (thisWeeksMeals.getWeeklyLimitCheats() - cheatsTomorrow);
+                message += " cheat points today";
+            } else {
+                //if not, how many days until you are under again
+                double currentCheats = thisWeeksMeals.getTotalCheats();
+                for(int i=6;i>=0;i--) {
+                    currentCheats -= getDaysMeals(i).getTotalCheats();
+                    if(currentCheats < thisWeeksMeals.getTotalCheats()) {
+                        message += "You can be back on track within ";
+                        message += (7 - i);
+                        message += " days if you minimise the bad food you eat";
+                        break;
+                    }
+                }
+            }
+        } //if we are not over the cheat score, check if we are close
+        else if((thisWeeksMeals.getTotalCheats() + (overallDiet.getDailyCheats()))
+                >= overallDiet.getWeeklyCheats()){
+            title += "You are very close to going over your cheat score";
+            message += "If you have more than ";
+            message += overallDiet.getWeeklyCheats() - thisWeeksMeals.getTotalCheats();
+            message += " cheat points today you will go over your maximum cheat score.";
+            message += "Try to eat healthily today";
+
+        } else {
+            //if we are not over, or close to going over, send no recomendation.
+            return null;
+        }
+        return new Recommendation(id, title, message, expiry);
     }
 
     @Override
