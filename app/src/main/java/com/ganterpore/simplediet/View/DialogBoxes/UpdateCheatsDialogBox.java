@@ -30,7 +30,6 @@ public class UpdateCheatsDialogBox {
      * then adds the meal to the database
      */
     public static void updateDiet(final Context context) {
-        //TODO properley create both daily and weekly cheats
         //inflate the dialog box view and get the text fields
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View updateDietLayout = layoutInflater.inflate(R.layout.dialog_box_cheat_plan, null);

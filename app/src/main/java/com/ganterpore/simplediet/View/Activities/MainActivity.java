@@ -360,8 +360,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView weeklyAlcoholTV = findViewById(R.id.weekly_alcohol_count);
         TextView weeklyCheatTV = findViewById(R.id.weekly_cheat_count);
 
-
-
         TextView vegeLeftTV = findViewById(R.id.veg_left);
         TextView proteinLeftTV = findViewById(R.id.protein_left);
         TextView dairyLeftTV = findViewById(R.id.dairy_left);

@@ -14,22 +14,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <!--  TODO add tracking of alcohol and caffeine, and larger tracking of cheats  -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Last 7 Days"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
-<!--        <include-->
-<!--            layout="@layout/container_food_groups_counts_mini"/>-->
 
     <LinearLayout
         android:id="@+id/header_information"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="center|bottom">
+        android:layout_gravity="center|bottom"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:layout_width="wrap_content"
