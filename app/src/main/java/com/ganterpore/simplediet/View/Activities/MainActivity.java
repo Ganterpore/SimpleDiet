@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
+import com.ganterpore.simplediet.Controller.WeeklyIntake;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
@@ -119,12 +121,12 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             return;
         }
         //if in one mode, and we are seeing the wrong image, update it
-        if ((mode.equals("vegan") || mode.equals("vegetarian"))
-                && meatProgress.getProgressDrawable().equals(getResources().getDrawable(R.drawable.progress_bar_meat))) {
+        if ((mode.equals("vegan") || mode.equals("vegetarian"))) {
             meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat_vegan));
-        } else if(mode.equals("normal")
-                && meatProgress.getProgressDrawable().equals(getResources().getDrawable(R.drawable.progress_bar_meat_vegan))) {
+            ((ImageView) findViewById(R.id.weekly_protein_image)).setImageResource(R.drawable.vegan_meat_full_thumbnail);
+        } else if(mode.equals("normal")) {
             meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat));
+            ((ImageView) findViewById(R.id.weekly_protein_image)).setImageResource(R.drawable.meat_full_thumbnail);
         }
     }
 
@@ -335,6 +337,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
         DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
         DailyMeals today = dietController.getTodaysMeals();
+        WeeklyIntake thisWeek = dietController.getThisWeeksIntake();
+        View weeklyContainer = findViewById(R.id.weekly_intake);
 
         //get the text views from the main activity
         TextView vegTV = findViewById(R.id.veg_count);
@@ -346,6 +350,16 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView caffeineTV = findViewById(R.id.caffeine_count);
         TextView alcoholTV = findViewById(R.id.alcohol_count);
         TextView cheatTV = findViewById(R.id.cheat_count);
+
+        TextView weeklyVegTV = findViewById(R.id.weekly_veges_intake);
+        TextView weeklyProteinTV = findViewById(R.id.weekly_protein_intake);
+        TextView weeklyDairyTV = findViewById(R.id.weekly_dairy_intake);
+        TextView weeklyGrainTV = findViewById(R.id.weekly_grain_intake);
+        TextView weeklyFruitTV = findViewById(R.id.weekly_fruit_intake);
+        TextView weeklyWaterTV = findViewById(R.id.weekly_water_intake);
+        TextView weeklyCaffeineTV = findViewById(R.id.weekly_caffeine_count);
+        TextView weeklyAlcoholTV = findViewById(R.id.weekly_alcohol_count);
+        TextView weeklyCheatTV = findViewById(R.id.weekly_cheat_count);
 
         TextView vegeLeftTV = findViewById(R.id.veg_left);
         TextView proteinLeftTV = findViewById(R.id.protein_left);
@@ -362,22 +376,33 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         ProgressBar grainPB = findViewById(R.id.progress_grain);
         ProgressBar fruitPB = findViewById(R.id.progress_fruit);
         ProgressBar waterPB = findViewById(R.id.progress_water);
-        ProgressBar cheatsPB = findViewById(R.id.progress_cheats);
+        ProgressBar cheatsPB = findViewById(R.id.toolbar_layout).findViewById(R.id.progress_cheats);
+        ProgressBar weeklyCheatsPB = weeklyContainer.findViewById(R.id.progress_cheats);
 
         //creating arrays of the text views to update
-        TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, caffeineTV, alcoholTV, waterTV};
-        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, null, null, waterLeftTV};
-        ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, null, null, waterPB};
+        TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV, caffeineTV, alcoholTV, cheatTV,
+                weeklyVegTV, weeklyProteinTV, weeklyDairyTV, weeklyGrainTV, weeklyFruitTV, weeklyWaterTV,
+                weeklyCaffeineTV, weeklyAlcoholTV, weeklyCheatTV};
+        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, waterLeftTV, null, null,  null,
+                null, null, null, null, null, null, null, null, null};
+        ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB, null, null, null,
+                null, null, null, null, null, null, null, null, weeklyCheatsPB};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
-                            today.getGrainCount(), today.getFruitCount(), today.getCaffieneCount(),
-                            today.getAlcoholCount(), today.getHydrationScore()};
+                            today.getGrainCount(), today.getFruitCount(), today.getHydrationScore(),
+                            today.getCaffieneCount(), today.getAlcoholCount(), today.getTotalCheats(),
+                            thisWeek.getVegCount(), thisWeek.getProteinCount(), thisWeek.getDairyCount(),
+                            thisWeek.getGrainCount(), thisWeek.getFruitCount(), thisWeek.getHydrationScore(),
+                            thisWeek.getCaffieneCount(), thisWeek.getAlcoholCount(), thisWeek.getTotalCheats()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
-                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyCaffeine(),
-                            todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyHydration()};
+                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration(),
+                            todaysDietPlan.getDailyCaffeine(), todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyCheats(),
+                            thisWeek.getWeeklyLimitVeg(), thisWeek.getWeeklyLimitProtein(), thisWeek.getWeeklyLimitDairy(),
+                            thisWeek.getWeeklyLimitGrain(), thisWeek.getWeeklyLimitFruit(), thisWeek.getWeeklyLimitHydration(),
+                            thisWeek.getWeeklyLimitCaffiene(), thisWeek.getWeeklyLimitAlcohol(), thisWeek.getWeeklyLimitCheats()};
 
         //updating text for all the main food groups
         for(int i=0;i<textViewsCount.length;i++) {
-            //getting vaules from the arrays for this index
+            //getting values from the arrays for this index
             TextView countTV = textViewsCount[i];
             TextView leftTV = textViewsLeft[i];
             ProgressBar progressBar = progressBars[i];
@@ -424,12 +449,12 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             }
         }
         //updating other texts
-        cheatTV.setText(String.format("%s/%s", df.format(today.getWeeklyCheats()), df.format(todaysDietPlan.getWeeklyCheats())));
+        cheatTV.setText(String.format("%s/%s", df.format(today.getTotalCheats()), df.format(todaysDietPlan.getDailyCheats())));
         cheatsTodayTV.setText(String.format("%s today!", df.format(today.getTotalCheats())));
         //animating any updates to the cheat progress bar
-        cheatsPB.setMax((int) (todaysDietPlan.getWeeklyCheats() * SCALE_FACTOR));
+        cheatsPB.setMax((int) (todaysDietPlan.getDailyCheats() * SCALE_FACTOR));
         ObjectAnimator objectAnimator = ObjectAnimator.ofInt(cheatsPB, "progress",
-                (int) today.getWeeklyCheats()*SCALE_FACTOR);
+                (int) today.getTotalCheats()*SCALE_FACTOR);
         objectAnimator.setDuration(500);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();
