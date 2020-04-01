@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -120,12 +121,12 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             return;
         }
         //if in one mode, and we are seeing the wrong image, update it
-        if ((mode.equals("vegan") || mode.equals("vegetarian"))
-                && meatProgress.getProgressDrawable().equals(getResources().getDrawable(R.drawable.progress_bar_meat))) {
+        if ((mode.equals("vegan") || mode.equals("vegetarian"))) {
             meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat_vegan));
-        } else if(mode.equals("normal")
-                && meatProgress.getProgressDrawable().equals(getResources().getDrawable(R.drawable.progress_bar_meat_vegan))) {
+            ((ImageView) findViewById(R.id.weekly_protein_image)).setImageResource(R.drawable.vegan_meat_full_thumbnail);
+        } else if(mode.equals("normal")) {
             meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat));
+            ((ImageView) findViewById(R.id.weekly_protein_image)).setImageResource(R.drawable.meat_full_thumbnail);
         }
     }
 
@@ -382,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV, caffeineTV, alcoholTV, cheatTV,
                 weeklyVegTV, weeklyProteinTV, weeklyDairyTV, weeklyGrainTV, weeklyFruitTV, weeklyWaterTV,
                 weeklyCaffeineTV, weeklyAlcoholTV, weeklyCheatTV};
-        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, null, null, waterLeftTV, null,
+        TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, waterLeftTV, null, null,  null,
                 null, null, null, null, null, null, null, null, null};
         ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB, null, null, null,
                 null, null, null, null, null, null, null, null, weeklyCheatsPB};

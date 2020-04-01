@@ -36,16 +36,16 @@
             android:layout_weight="1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center">
 
                 <ImageView
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/vege_image"
+                    android:id="@+id/weekly_vege_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:src="@drawable/vegetables_full"
+                    android:src="@drawable/vegetables_full_thumbnail"
                     android:rotation="270"
                     app:layout_constraintDimensionRatio="1:1"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -73,16 +73,17 @@
             android:layout_weight="1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center">
 
                 <ImageView
+                    android:scaleType="fitXY"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/protein_image"
+                    android:id="@+id/weekly_protein_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:src="@drawable/meat_full"
+                    android:src="@drawable/meat_full_thumbnail"
                     android:rotation="270"
                     app:layout_constraintDimensionRatio="1:1"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -110,16 +111,17 @@
             android:layout_weight="1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center">
 
                 <ImageView
+                    android:scaleType="fitXY"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/dairy_image"
+                    android:id="@+id/weekly_dairy_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:src="@drawable/dairy_full"
+                    android:src="@drawable/dairy_full_thumbnail"
                     android:rotation="270"
                     app:layout_constraintDimensionRatio="1:1"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -147,16 +149,16 @@
             android:layout_weight="1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center">
 
                 <ImageView
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/grain_image"
+                    android:id="@+id/weekly_grain_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:src="@drawable/grain_full"
+                    android:src="@drawable/grain_full_thumbnail"
                     android:rotation="270"
                     app:layout_constraintDimensionRatio="1:1"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -184,16 +186,16 @@
             android:layout_weight="1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center">
 
                 <ImageView
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/fruit_image"
+                    android:id="@+id/weekly_fruit_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:src="@drawable/fruit_full"
+                    android:src="@drawable/fruit_full_thumbnail"
                     android:rotation="270"
                     app:layout_constraintDimensionRatio="1:1"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -221,11 +223,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -234,13 +231,13 @@
                 android:layout_weight="1">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_gravity="center">
 
                     <ImageView
                         app:layout_constraintTop_toTopOf="parent"
-                        android:id="@+id/water_image"
+                        android:id="@+id/weekly_water_image"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:src="@drawable/symbol_water_completed"
@@ -263,11 +260,6 @@
 
             </LinearLayout>
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -276,8 +268,8 @@
                 android:layout_weight="1">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_gravity="center">
 
                     <ImageView
@@ -306,11 +298,6 @@
 
             </LinearLayout>
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -319,8 +306,8 @@
                 android:layout_weight="1">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_gravity="center">
 
                     <ImageView
@@ -349,11 +336,6 @@
 
             </LinearLayout>
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -362,8 +344,8 @@
                 android:layout_weight="1">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_gravity="center">
 
                     <include
@@ -390,11 +372,6 @@
                     android:textAlignment="center" />
 
             </LinearLayout>
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
 
         </LinearLayout>
 
