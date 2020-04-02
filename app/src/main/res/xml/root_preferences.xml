@@ -50,12 +50,22 @@
 <!--            app:title="Track Diet" />-->
 
 <!--        <SwitchPreferenceCompat-->
+<!--            app:key="track_cheats"-->
+<!--            app:title="Track cheat points" />-->
+
+<!--        <SwitchPreferenceCompat-->
 <!--            app:key="track_water"-->
 <!--            app:title="Track water intake" />-->
 
 <!--        <SwitchPreferenceCompat-->
-<!--            app:key="track_cheats"-->
-<!--            app:title="Track cheat points" />-->
+<!--            app:key="track_alcohol"-->
+<!--            app:title="Track water intake"-->
+<!--            app:dependency="track_water"/>-->
+
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="track_caffeine"-->
+<!--            app:title="Track caffeine intake"-->
+<!--            app:dependency="track_water"/>-->
 
     </PreferenceCategory>
 
