@@ -1,6 +1,7 @@
 package com.ganterpore.simplediet.Controller;
 
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
@@ -28,6 +29,35 @@ public class OverUnderEatingDietController extends BasicDietController{
         return daysAgoDiets.get(nDaysAgo);
     }
 
+    @Override
+    public boolean isFoodCompleted(int nDaysAgo) {
+        DietPlan daysDietPlan = getDaysDietPlan(nDaysAgo);
+        DietPlan nextDaysDietPlan = getDaysDietPlan(nDaysAgo - 1);
+        DailyMeals daysMeals = getDaysMeals(nDaysAgo);
+        DailyMeals nextDaysMeals = getDaysMeals(nDaysAgo - 1);
+
+        //getting the excess food eaten on the next day
+        double nextDaysExcessVeges = nextDaysMeals.getVegCount() - nextDaysDietPlan.getDailyVeges();
+        double nextDaysExcessProtein = nextDaysMeals.getProteinCount() - nextDaysDietPlan.getDailyProtein();
+        double nextDaysExcessDairy = nextDaysMeals.getDairyCount() - nextDaysDietPlan.getDailyDairy();
+        double nextDaysExcessGrain = nextDaysMeals.getGrainCount() - nextDaysDietPlan.getDailyGrain();
+        double nextDaysExcessFruit = nextDaysMeals.getFruitCount() - nextDaysDietPlan.getDailyFruit();
+
+        //only keeping data if the excess is positive
+        nextDaysExcessVeges = nextDaysExcessVeges>0 ? nextDaysExcessVeges : 0;
+        nextDaysExcessProtein = nextDaysExcessProtein>0 ? nextDaysExcessProtein : 0;
+        nextDaysExcessDairy = nextDaysExcessDairy>0 ? nextDaysExcessDairy : 0;
+        nextDaysExcessGrain = nextDaysExcessGrain>0 ? nextDaysExcessGrain : 0;
+        nextDaysExcessFruit = nextDaysExcessFruit>0 ? nextDaysExcessFruit : 0;
+
+        //checking if food is completed based on today's meals, and tomorrows excess.
+        return (daysMeals.getVegCount() + nextDaysExcessVeges)>= daysDietPlan.getDailyVeges()
+                & (daysMeals.getProteinCount() + nextDaysExcessProtein)>= daysDietPlan.getDailyProtein()
+                & (daysMeals.getDairyCount() + nextDaysExcessDairy)>= daysDietPlan.getDailyDairy()
+                & (daysMeals.getGrainCount() + nextDaysExcessGrain)>= daysDietPlan.getDailyGrain()
+                & (daysMeals.getFruitCount() + nextDaysExcessFruit)>= daysDietPlan.getDailyFruit();
+    }
+
     /**
      * updates all the DietPlans that have been looked at so far by the Controller, and updates their values.
      * should be called when an update to the overall DietPlan or any DailyMeals has occurred.
@@ -40,12 +70,6 @@ public class OverUnderEatingDietController extends BasicDietController{
             DailyMeals dayBeforesMeals = getDaysMeals(nDaysAgo + 1);
             DailyMeals twoDaysBeforeMeals = getDaysMeals(nDaysAgo + 2);
 
-            //if (essentially) no meals were eaten yesterday, assume that the user forgot to input
-            //data, rather than didn't eat, and therefore don't adjust diet to absurd numbers.
-            if(dayBeforesMeals.getTotalServes() < 0.5) {
-                daysAgoDiets.put(nDaysAgo, getOverallDietPlan());
-                continue;
-            }
             double vegCountAdjusted;
             double proteinCountAdjusted;
             double dairyCountAdjusted;
@@ -92,34 +116,52 @@ public class OverUnderEatingDietController extends BasicDietController{
         //normalised values is the difference between the count and the expected count
         double yesterdayNormalised = yesterdaysCount - expectedCount;
         double dayBeforeNormalised = dayBeforesCount - expectedCount;
-        //adjuster is how much the days food should be adjusted by
-        double adjuster;
-        //in general, this is just the negative of amount of food over or under eaten yesterday
-        //for example, you ate two too many yesterday, you can have two fewer today
-        //However, in the special case, where you ate too much/little in the day before,
-        //so yesterday you were making up for it, things are different
-        if((yesterdayNormalised > 0 && dayBeforeNormalised < 0)
-                || (yesterdayNormalised < 0 && dayBeforeNormalised > 0)) {
-            //if the amount you ate yesterday overcompensated for the error from the day before
-            //then take the difference of the two
-            if (Math.abs(yesterdayNormalised) > Math.abs(dayBeforeNormalised)) {
-                adjuster = -(yesterdayNormalised + dayBeforeNormalised);
+        double adjuster = 0;
+
+        if(yesterdayNormalised > 0 && dayBeforeNormalised >= 0) {
+            //if I ate too much yesterday, I can eat less today. However if I also ate too much the day before don't stack it
+            adjuster = -yesterdayNormalised;
+        } else if(yesterdayNormalised > 0 && dayBeforeNormalised < 0) {
+            //if I ate too much yesterday, but it was due to eating too little the day before get the difference
+            //if this is still positive, then adjust the diet to eat less
+            double difference = yesterdayNormalised + dayBeforeNormalised;
+            if(difference > 0) {
+                adjuster = -difference;
             } else {
-                //in the case where you didn't make up for it enough, cut your losses and reset
+                //otherwise don't adjust the diet
                 adjuster = 0;
             }
-        } else {
-            adjuster = -yesterdayNormalised;
+        }else if(yesterdayNormalised <= 0 && dayBeforeNormalised > 0) {
+            //if I ate too little yesterday, but too much the day before, get the difference
+            //if I overall ate too much over the two days, adjust the diet to eat less
+            double difference = yesterdayNormalised + dayBeforeNormalised;
+            if(difference > 0) {
+                adjuster = -difference;
+            } else {
+                //otherwise don't adjust the diet
+                adjuster = 0;
+            }
+        } else if(yesterdayNormalised < 0 && dayBeforeNormalised <= 0) {
+            //If I ate too little over both the days, don't adjust the diet
+            adjuster = 0;
+        } else if(yesterdayNormalised==0) {
+            //if I ate the right amount, don't adjust the diet
+            adjuster = 0;
         }
-        return adjuster + expectedCount;
+        return expectedCount + adjuster;
     }
 
     /**
      * Same function, but only looks at one previous days data
      */
     private double adjustTodaysDiet(double yesterdaysCount, double expectedCount) {
+        double yesterdayNormalised = yesterdaysCount - expectedCount; //eg. two too many yesterday, x = 2
+        if(yesterdayNormalised > 0) {
+            return expectedCount - yesterdayNormalised; //ate too much yesterday, eat less today
+        }
+        return expectedCount; //ate too little yesterday? just eat the normal amount today
         //if I overate yesterday, then expected count reduces and vice versa
-        return expectedCount + (expectedCount - yesterdaysCount);
+//        return expectedCount + (expectedCount - yesterdaysCount);
     }
 
     @Override
@@ -180,31 +222,32 @@ public class OverUnderEatingDietController extends BasicDietController{
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Under eating";
         String message = "Yesterday you ate too little ";
-        DietPlan todaysDietPlan = getTodaysDietPlan();
         int count = 0;
-        if(todaysDietPlan.getDailyVeges() > getOverallDietPlan().getDailyVeges()) {
-            message += "veges, ";
+        DietPlan yesterdaysDietPlan = getDaysDietPlan(1);
+        DailyMeals yesterdaysMeals = getDaysMeals(1);
+        if(yesterdaysDietPlan.getDailyVeges() > yesterdaysMeals.getVegCount()) {
+            message += "veges by " + (yesterdaysDietPlan.getDailyVeges() - yesterdaysMeals.getVegCount()) + " serves, ";
             count++;
         }
-        if(todaysDietPlan.getDailyProtein() > getOverallDietPlan().getDailyProtein()) {
-            message += "proteins, ";
+        if(yesterdaysDietPlan.getDailyProtein() > yesterdaysMeals.getProteinCount()) {
+            message += "proteins " + (yesterdaysDietPlan.getDailyProtein() - yesterdaysMeals.getProteinCount()) + " serves , ";
             count++;
         }
-        if(todaysDietPlan.getDailyDairy() > getOverallDietPlan().getDailyDairy()) {
-            message += "dairy, ";
+        if(yesterdaysDietPlan.getDailyDairy() > yesterdaysMeals.getDairyCount()) {
+            message += "dairy " + (yesterdaysDietPlan.getDailyDairy() - yesterdaysMeals.getDairyCount()) + " serves , ";
             count++;
         }
-        if(todaysDietPlan.getDailyGrain() > getOverallDietPlan().getDailyGrain()) {
-            message += "grain, ";
+        if(yesterdaysDietPlan.getDailyGrain() > yesterdaysMeals.getGrainCount()) {
+            message += "grain " + (yesterdaysDietPlan.getDailyGrain() - yesterdaysMeals.getGrainCount()) + " serves , ";
             count++;
         }
-        if(todaysDietPlan.getDailyFruit() > getOverallDietPlan().getDailyFruit()) {
-            message += "fruit, ";
+        if(yesterdaysDietPlan.getDailyFruit() > yesterdaysMeals.getFruitCount()) {
+            message += "fruit " + (yesterdaysDietPlan.getDailyFruit() - yesterdaysMeals.getFruitCount()) + " serves , ";
             count++;
         }
         if(count > 0) {
             message = message.substring(0, message.length() - 2);
-            message += ". Your recommended intake for today has been adjusted to compensate for this.";
+            message += ". If you eat extra today you can still hit your goals for yesterday!";
             return new Recommendation(id, title, message, expiry);
         }
         return null;

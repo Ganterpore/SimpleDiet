@@ -55,6 +55,7 @@ public class DailyMeals {
      */
     DailyMeals(Date day, List<DocumentSnapshot> data) {
         //update date to start of the day, and get other important dates
+        //TODO remove weeks meals data
         day = getStartOfDay(day);
         final Date nextDay = new Date(day.getTime() + DateUtils.DAY_IN_MILLIS);
         final Date weekAgo = new Date(day.getTime() - 7*DateUtils.DAY_IN_MILLIS);
