@@ -15,7 +15,6 @@ public class DailyMeals {
     public static final String MEALS = "Meals";
 
     private List<Meal> todaysMeals;
-    private List<Meal> thisWeeksMeals;
 
     private double vegCount;
     private double proteinCount;
@@ -57,20 +56,17 @@ public class DailyMeals {
         //update date to start of the day, and get other important dates
         day = getStartOfDay(day);
         final Date nextDay = new Date(day.getTime() + DateUtils.DAY_IN_MILLIS);
-        final Date weekAgo = new Date(day.getTime() - 7*DateUtils.DAY_IN_MILLIS);
-
         this.date = day;
 
-        sortMeals(data, day, nextDay, weekAgo);
+        sortMeals(data, day, nextDay);
         updateData();
     }
 
     /**
      * Takes a list of meals, and a list of days, and sorts the meals into the different days
      */
-    private void sortMeals(List<DocumentSnapshot> meals, Date today, Date nextDay, Date weekAgo) {
+    private void sortMeals(List<DocumentSnapshot> meals, Date today, Date nextDay) {
         todaysMeals = new ArrayList<>();
-        thisWeeksMeals = new ArrayList<>();
         if(meals.isEmpty()) {
             return;
         }
@@ -78,9 +74,6 @@ public class DailyMeals {
             Meal meal = new Meal(mealDS);
             if(meal.getDay() >= today.getTime() && meal.getDay() < nextDay.getTime()) {
                 todaysMeals.add(meal);
-            }
-            if(meal.getDay() >= weekAgo.getTime() && meal.getDay() < nextDay.getTime()) {
-                thisWeeksMeals.add(meal);
             }
         }
     }
