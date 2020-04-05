@@ -44,12 +44,7 @@
             app:key="mode"
             app:title="Select Mode"
             app:useSimpleSummaryProvider="true" />
-
-        <!--    TODO add ability to only track some items    -->
-<!--        <SwitchPreferenceCompat-->
-<!--            app:key="track_diet"-->
-<!--            app:title="Track Diet" />-->
-
+        
         <SwitchPreferenceCompat
             app:key="track_cheats"
             app:title="Track cheat points" />

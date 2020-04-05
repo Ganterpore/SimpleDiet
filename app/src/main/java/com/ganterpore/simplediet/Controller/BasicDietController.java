@@ -222,7 +222,6 @@ public class  BasicDietController implements DietController {
     }
     @Override
     public List<Recommendation> getRecommendations() {
-        //TODO remove water and cheats from recommendations if turned off in preferences
         ArrayList<Recommendation> recommendations = new ArrayList<>();
         Recommendation cheatChangeRecommendation = getCheatChangeRecommendation();
         Recommendation dietChangeRecommendation = getDietChangeRecommendation();

@@ -81,6 +81,10 @@ class MealHistoryDisplay  {
         //check if the recommendation should be hidden. If not, then add it to the viewable recommendations.
         SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
         for(DietController.Recommendation recommendation : allRecomendations) {
+            if(recommendation.getId().equals("cheat_change") && !preferences.getBoolean("track_cheats", true)) {
+                //if it is a cheat recommendation, and we are not traacking cheats, skip
+                continue;
+            }
             //getting the expiry date of the notification hide feature
             long hideNotificationExpiry = preferences.getLong(recommendation.getId() + EXPIRY_TAG, 0);
             if(hideNotificationExpiry <= System.currentTimeMillis()) {

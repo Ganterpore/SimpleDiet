@@ -139,11 +139,13 @@
     </LinearLayout>
 
         <TextView
+            android:id="@+id/additions_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/tap_to_add_additions_to_your_drink"/>
 
         <LinearLayout
+            android:id="@+id/drink_additions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -154,6 +156,7 @@
                 android:layout_weight="1"/>
 
             <LinearLayout
+                android:id="@+id/caffeine_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -171,17 +174,19 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/caffiene_count"
+                android:id="@+id/caffeine_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/num_0"
                 android:layout_gravity="bottom"/>
             <Space
+                android:id="@+id/middle_space"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
 
             <LinearLayout
+                android:id="@+id/alcohol_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -214,6 +219,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/hydration_factor_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
@@ -228,5 +234,6 @@
             android:text="@string/default_hydration_factor"/>
 
     <include
+        android:id="@+id/cheat_layout"
         layout="@layout/dialog_box_add_cheats"/>
 </LinearLayout>
