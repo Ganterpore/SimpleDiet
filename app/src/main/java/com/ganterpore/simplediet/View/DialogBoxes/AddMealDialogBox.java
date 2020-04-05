@@ -35,7 +35,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
-    //TODO remove cheats if turned off
     public static final String TAG = "AddMealDialogBox";
     public static final int MEAL = 1;
     public static final int NEW_RECIPE = 2;
@@ -96,6 +95,9 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         String mode = preferences.getString("mode", "normal");
         if (mode != null && (mode.equals("vegan") || mode.equals("vegetarian"))) {
             proteinButton.setImageResource(R.drawable.vegan_meat_full);
+        }
+        if(!preferences.getBoolean("track_cheats", true)) {
+            addMealLayout.findViewById(R.id.cheat_layout).setVisibility(View.GONE);
         }
 
         //getting all the text views from the view
