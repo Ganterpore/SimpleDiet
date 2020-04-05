@@ -230,19 +230,19 @@ public class OverUnderEatingDietController extends BasicDietController{
             count++;
         }
         if(yesterdaysDietPlan.getDailyProtein() > yesterdaysMeals.getProteinCount()) {
-            message += "proteins " + (yesterdaysDietPlan.getDailyProtein() - yesterdaysMeals.getProteinCount()) + " serves , ";
+            message += "proteins by " + (yesterdaysDietPlan.getDailyProtein() - yesterdaysMeals.getProteinCount()) + " serves, ";
             count++;
         }
         if(yesterdaysDietPlan.getDailyDairy() > yesterdaysMeals.getDairyCount()) {
-            message += "dairy " + (yesterdaysDietPlan.getDailyDairy() - yesterdaysMeals.getDairyCount()) + " serves , ";
+            message += "dairy by " + (yesterdaysDietPlan.getDailyDairy() - yesterdaysMeals.getDairyCount()) + " serves, ";
             count++;
         }
         if(yesterdaysDietPlan.getDailyGrain() > yesterdaysMeals.getGrainCount()) {
-            message += "grain " + (yesterdaysDietPlan.getDailyGrain() - yesterdaysMeals.getGrainCount()) + " serves , ";
+            message += "grains by " + (yesterdaysDietPlan.getDailyGrain() - yesterdaysMeals.getGrainCount()) + " serves, ";
             count++;
         }
         if(yesterdaysDietPlan.getDailyFruit() > yesterdaysMeals.getFruitCount()) {
-            message += "fruit " + (yesterdaysDietPlan.getDailyFruit() - yesterdaysMeals.getFruitCount()) + " serves , ";
+            message += "fruit by" + (yesterdaysDietPlan.getDailyFruit() - yesterdaysMeals.getFruitCount()) + " serves, ";
             count++;
         }
         if(count > 0) {

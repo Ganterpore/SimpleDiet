@@ -47,7 +47,7 @@ public class NotificationReciever extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, EVENING_NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.symbol_food_completed_thumbnail)
                 .setContentTitle("Good evening!")
                 .setContentText(content)
                 .setContentIntent(pendingIntent)
@@ -67,7 +67,7 @@ public class NotificationReciever extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MORNING_NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.symbol_food_completed_thumbnail)
                 .setContentTitle("Good morning!")
                 .setContentText(content)
                 .setContentIntent(pendingIntent)
