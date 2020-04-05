@@ -23,6 +23,7 @@ public class AddCheatsDialogBox {
     private static SharedPreferences preferences;
 
     public static void addCheats(final Activity activity, final Meal meal, boolean isDrink) {
+        //TODO remove if cheats turned off
         //getting preferences
         preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         String mode = preferences.getString("mode", "normal");

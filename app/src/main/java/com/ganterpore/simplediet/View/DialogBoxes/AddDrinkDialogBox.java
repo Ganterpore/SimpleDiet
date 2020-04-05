@@ -68,6 +68,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     }
 
     public AddDrinkDialogBox(final Activity activity, final Intent intent) {
+        //TODO remove add-ons if turned off
         this.activity = activity;
         final int type = intent.getIntExtra("type", DRINK);
         //inflate the dialog box view and get the text fields

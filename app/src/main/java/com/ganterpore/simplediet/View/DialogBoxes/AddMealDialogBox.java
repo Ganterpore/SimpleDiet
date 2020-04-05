@@ -35,6 +35,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
+    //TODO remove cheats if turned off
     public static final String TAG = "AddMealDialogBox";
     public static final int MEAL = 1;
     public static final int NEW_RECIPE = 2;

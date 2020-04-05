@@ -224,6 +224,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
+                android:id="@+id/weekly_water_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -261,6 +262,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/weekly_caffeine_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -299,6 +301,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/weekly_alcohol_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -337,6 +340,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/weekly_cheat_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

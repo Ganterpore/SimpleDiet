@@ -36,6 +36,7 @@ public class AddServeDialogBox  {
     private static NumberFormat df = new DecimalFormat("##.##");
 
     public static void addServe(final Activity activity, final Intent intent, final ServeListener listener) {
+        //TODO don't follow up with cheats if turned off
         preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         String mode = preferences.getString("mode", "normal");
         //getting values from intent

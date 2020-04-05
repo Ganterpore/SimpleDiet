@@ -115,6 +115,7 @@ public class Meal {
     }
 
     public Meal(DocumentSnapshot docMeal) {
+        //TODO don't show cheats if turned off?
         id = docMeal.getId();
         if(docMeal.contains("cheatScore")) {
             this.cheatScore = docMeal.getDouble("cheatScore");

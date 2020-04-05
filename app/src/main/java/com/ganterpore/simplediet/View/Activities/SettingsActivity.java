@@ -10,8 +10,11 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.R;
@@ -121,7 +124,27 @@ public class SettingsActivity extends AppCompatActivity {
             PreferenceManager preferenceManager = getPreferenceManager();
             preferenceManager.setSharedPreferencesName(MainActivity.SHARED_PREFS_LOC);
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            final SwitchPreferenceCompat track_alcohol = findPreference("track_alcohol");
+            final SwitchPreferenceCompat track_caffeine = findPreference("track_caffeine");
+            findPreference("track_water").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if(!((Boolean) newValue)) {
+                        track_alcohol.setChecked(false);
+//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_alcohol", false).apply();
+                        track_caffeine.setChecked(false);
+//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_caffeine", false).apply();
+                    } else {
+                        track_alcohol.setChecked(true);
+//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_alcohol", true).apply();
+                        track_caffeine.setChecked(true);
+//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_caffeine", true).apply();
+                    }
+                    return true;
+                }
+            });
         }
+
 
     }
 }
