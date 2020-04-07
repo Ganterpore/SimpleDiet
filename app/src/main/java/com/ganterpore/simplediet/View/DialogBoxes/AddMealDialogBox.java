@@ -96,6 +96,9 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         if (mode != null && (mode.equals("vegan") || mode.equals("vegetarian"))) {
             proteinButton.setImageResource(R.drawable.vegan_meat_full);
         }
+        if(!preferences.getBoolean("track_cheats", true)) {
+            addMealLayout.findViewById(R.id.cheat_layout).setVisibility(View.GONE);
+        }
 
         //getting all the text views from the view
         mealNameTV = addMealLayout.findViewById(R.id.meal_name);

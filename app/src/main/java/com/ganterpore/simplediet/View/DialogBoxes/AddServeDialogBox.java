@@ -104,7 +104,16 @@ public class AddServeDialogBox  {
                     snack.setUser(FirebaseAuth.getInstance().getUid());
                     snack.setDay(System.currentTimeMillis());
                     updateMealName(snack, isDrink);
-                    AddCheatsDialogBox.addCheats(activity, snack, isDrink);
+                    SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+                    //if we are tracking cheats, get them first
+                    if(preferences.getBoolean("track_cheats", true)) {
+                        AddCheatsDialogBox.addCheats(activity, snack, isDrink);
+                    } else {
+                        //otherwise, set to 0 and add
+                        snack.setCheatScore(0);
+                        snack.pushToDB();
+                    }
+
                 } else {
                     //otherwise inform listener of the serves added
                     listener.serveAdded(foodType, serve);

@@ -81,6 +81,10 @@ class MealHistoryDisplay  {
         //check if the recommendation should be hidden. If not, then add it to the viewable recommendations.
         SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
         for(DietController.Recommendation recommendation : allRecomendations) {
+            if(recommendation.getId().equals("cheat_change") && !preferences.getBoolean("track_cheats", true)) {
+                //if it is a cheat recommendation, and we are not tracking cheats, skip
+                continue;
+            }
             //getting the expiry date of the notification hide feature
             long hideNotificationExpiry = preferences.getLong(recommendation.getId() + EXPIRY_TAG, 0);
             if(hideNotificationExpiry <= System.currentTimeMillis()) {
@@ -280,15 +284,15 @@ class MealHistoryDisplay  {
             DietPlan daysPlan = dietController.getDaysDietPlan(nDaysAgo);
             //getting and updating values for the views
             TextView dateTV = itemView.findViewById(R.id.date);
-            CompletableItemView completedFoodTV = itemView.findViewById(R.id.completed_food);
-            CompletableItemView completedWaterTV = itemView.findViewById(R.id.completed_water);
-            CompletableItemView didntCheatTV = itemView.findViewById(R.id.didnt_cheat);
+            CompletableItemView completedFoodView = itemView.findViewById(R.id.completed_food);
+            CompletableItemView completedWaterView = itemView.findViewById(R.id.completed_water);
+            CompletableItemView didntCheatView = itemView.findViewById(R.id.didnt_cheat);
             ProgressBar cheatsProgress = itemView.findViewById(R.id.progress_cheats);
 
             dateTV.setText(dateFormat.format(day.getDate()));
-            completedFoodTV.setCompleted(dietController.isFoodCompleted(nDaysAgo));
-            completedWaterTV.setCompleted(dietController.isHydrationCompleted(nDaysAgo));
-            didntCheatTV.setCompleted(!dietController.isOverCheatScore(nDaysAgo));
+            completedFoodView.setCompleted(dietController.isFoodCompleted(nDaysAgo));
+            completedWaterView.setCompleted(dietController.isHydrationCompleted(nDaysAgo));
+            didntCheatView.setCompleted(!dietController.isOverCheatScore(nDaysAgo));
             cheatsProgress.setMax((int) daysPlan.getDailyCheats() * SCALE_FACTOR);
             cheatsProgress.setProgress((int) day.getTotalCheats() * SCALE_FACTOR);
 

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -88,7 +89,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         //getting all the views
         milkCountTV = addDrinkLayout.findViewById(R.id.milk_count);
         waterCountTV = addDrinkLayout.findViewById(R.id.water_count);
-        caffeineCountTV = addDrinkLayout.findViewById(R.id.caffiene_count);
+        caffeineCountTV = addDrinkLayout.findViewById(R.id.caffeine_count);
         alcoholCountTV = addDrinkLayout.findViewById(R.id.alcohol_count);
         volumeTV = addDrinkLayout.findViewById(R.id.volume);
         hydrationFactor = addDrinkLayout.findViewById(R.id.hydration_factor);
@@ -102,18 +103,43 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
             updateValuesToMatchRecipe(intent);
         }
         updateExampleDrink();
+
+        final SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        if(!preferences.getBoolean("track_caffeine", true)
+                && !preferences.getBoolean("track_alcohol", true)) {
+            addDrinkLayout.findViewById(R.id.drink_additions).setVisibility(View.GONE);
+            addDrinkLayout.findViewById(R.id.additions_text).setVisibility(View.GONE);
+            addDrinkLayout.findViewById(R.id.hydration_factor).setVisibility(View.GONE);
+            addDrinkLayout.findViewById(R.id.hydration_factor_text).setVisibility(View.GONE);
+        } else {
+            if (!preferences.getBoolean("track_caffeine", true)) {
+                addDrinkLayout.findViewById(R.id.caffeine_container).setVisibility(View.GONE);
+                addDrinkLayout.findViewById(R.id.caffeine_count).setVisibility(View.GONE);
+                addDrinkLayout.findViewById(R.id.middle_space).setVisibility(View.GONE);
+            }
+            if (!preferences.getBoolean("track_alcohol", true)) {
+                addDrinkLayout.findViewById(R.id.alcohol_container).setVisibility(View.GONE);
+                addDrinkLayout.findViewById(R.id.alcohol_count).setVisibility(View.GONE);
+                addDrinkLayout.findViewById(R.id.middle_space).setVisibility(View.GONE);
+            }
+        }
+        if(!preferences.getBoolean("track_cheats", true)) {
+            addDrinkLayout.findViewById(R.id.cheat_layout).setVisibility(View.GONE);
+        }
+
         //when the cheat selector is changed, update the example text to match
         cheatSelector.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 //if there is alcohol, and the cheats are 0, warn the user of this
-                if(alcoholServes > 0 && checkedId==R.id.cheat_0) {
+                if(alcoholServes > 0 && checkedId==R.id.cheat_0 && preferences.getBoolean("track_cheats", true)) {
                     Toast.makeText(activity, "Alcohol is inherently unhealthy. We don't recommend making it a zero cheat score.", Toast.LENGTH_LONG)
-                                .show();
+                            .show();
                 }
                 updateExampleDrink();
             }
         });
+
 
         //building the alert dialog
         final AlertDialog.Builder addDrinkDialog = new AlertDialog.Builder(activity);

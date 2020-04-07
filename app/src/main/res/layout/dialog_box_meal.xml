@@ -158,5 +158,6 @@
         </LinearLayout>
     </LinearLayout>
     <include
+        android:id="@+id/cheat_layout"
         layout="@layout/dialog_box_add_cheats"/>
 </LinearLayout>

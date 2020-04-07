@@ -128,6 +128,49 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat));
             ((ImageView) findViewById(R.id.weekly_protein_image)).setImageResource(R.drawable.meat_full_thumbnail);
         }
+        if(!preferences.getBoolean("track_cheats", true)) {
+            findViewById(R.id.cheat_layout).setVisibility(View.GONE);
+            findViewById(R.id.cheats_progress).setVisibility(View.GONE);
+            findViewById(R.id.weekly_cheat_container).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.cheat_layout).setVisibility(View.VISIBLE);
+            findViewById(R.id.cheats_progress).setVisibility(View.VISIBLE);
+            findViewById(R.id.weekly_cheat_container).setVisibility(View.VISIBLE);
+        }
+        if(preferences.getBoolean("track_water", true)) {
+            findViewById(R.id.drinks_progress).setVisibility(View.VISIBLE);
+            findViewById(R.id.weekly_water_container).setVisibility(View.VISIBLE);
+            findViewById(R.id.water_layout).setVisibility(View.VISIBLE);
+            if(!preferences.getBoolean("track_alcohol", true)) {
+                findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
+                findViewById(R.id.alcohol_image).setVisibility(View.GONE);
+                findViewById(R.id.alcohol_count).setVisibility(View.GONE);
+            } else {
+                findViewById(R.id.weekly_alcohol_container).setVisibility(View.VISIBLE);
+                findViewById(R.id.alcohol_image).setVisibility(View.VISIBLE);
+                findViewById(R.id.alcohol_count).setVisibility(View.VISIBLE);
+            }
+            if(!preferences.getBoolean("track_caffeine", true)) {
+                findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
+                findViewById(R.id.caffeine_image).setVisibility(View.GONE);
+                findViewById(R.id.caffeine_count).setVisibility(View.GONE);
+            } else {
+                findViewById(R.id.weekly_caffeine_container).setVisibility(View.VISIBLE);
+                findViewById(R.id.caffeine_image).setVisibility(View.VISIBLE);
+                findViewById(R.id.caffeine_count).setVisibility(View.VISIBLE);
+            }
+        } else {
+            findViewById(R.id.drinks_progress).setVisibility(View.GONE);
+            findViewById(R.id.weekly_water_container).setVisibility(View.GONE);
+            findViewById(R.id.water_layout).setVisibility(View.GONE);
+
+            findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
+            findViewById(R.id.alcohol_image).setVisibility(View.GONE);
+            findViewById(R.id.alcohol_count).setVisibility(View.GONE);
+            findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
+            findViewById(R.id.caffeine_image).setVisibility(View.GONE);
+            findViewById(R.id.caffeine_count).setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -283,10 +326,12 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             isFABOpen = true;
             addFoodFAB.animate().setDuration(400).rotation(180);
             mealFAB.show();
-            drinkFAB.show();
             recipeBookFAB.show();
             mealTV.setVisibility(View.VISIBLE);
-            addDrinkTV.setVisibility(View.VISIBLE);
+            if(preferences.getBoolean("track_water", true)) {
+                addDrinkTV.setVisibility(View.VISIBLE);
+                drinkFAB.show();
+            }
             recipeBookTV.setVisibility(View.VISIBLE);
             background.setVisibility(View.VISIBLE);
         }
