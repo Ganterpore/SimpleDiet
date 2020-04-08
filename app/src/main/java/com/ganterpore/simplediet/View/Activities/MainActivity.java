@@ -5,12 +5,17 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -32,6 +37,7 @@ import com.ganterpore.simplediet.Controller.WeeklyIntake;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
+import com.ganterpore.simplediet.View.Animation.MyBounceInterpolator;
 import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
@@ -84,6 +90,36 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         initialiseScrollEffect();
+
+        ImageView weeklyCaffeineImage = findViewById(R.id.weekly_caffeine_image);
+        final Activity activity = this;
+
+        //TODO remove this
+        weeklyCaffeineImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                achievementAnimation(activity);
+            }
+        });
+    }
+
+    private static void achievementAnimation(final Activity activity) {
+        final ImageView popup = activity.findViewById(R.id.food_popup);
+        Animation popupAnimation = AnimationUtils.loadAnimation(activity, R.anim.popup_anim);
+        //make popup appear and dissapear before/after animation
+        popupAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                popup.setVisibility(View.VISIBLE);
+            }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                popup.setVisibility(View.INVISIBLE);
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        popup.startAnimation(popupAnimation);
     }
 
     /**

@@ -186,4 +186,11 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <ImageView
+        android:id="@+id/food_popup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/symbol_food_completed_thumbnail"
+        android:visibility="invisible"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
