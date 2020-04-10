@@ -8,10 +8,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
@@ -109,7 +111,8 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
      * @param achievementText, the text to display to the user
      */
     private static void achievementAnimation(final Activity activity, String achievementText) {
-        final View popup = activity.findViewById(R.id.food_popup);
+        final View popup = LayoutInflater.from(activity).inflate(R.layout.popup_food_completion_achievement, null);
+        activity.addContentView(popup, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         ImageView popupImage = popup.findViewById(R.id.popup_image);
         TextView popupText = popup.findViewById(R.id.popup_text);
         if(popupText!=null) {
