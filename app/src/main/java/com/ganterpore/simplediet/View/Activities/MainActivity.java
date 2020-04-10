@@ -98,14 +98,27 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         weeklyCaffeineImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                achievementAnimation(activity);
+                achievementAnimation(activity, getString(R.string.achievement_food_complete_text));
             }
         });
     }
 
-    private static void achievementAnimation(final Activity activity) {
-        final ImageView popup = activity.findViewById(R.id.food_popup);
+    /**
+     * Shows an achievement animation popup to the user
+     * @param activity, the activity this is being called from
+     * @param achievementText, the text to display to the user
+     */
+    private static void achievementAnimation(final Activity activity, String achievementText) {
+        final View popup = activity.findViewById(R.id.food_popup);
+        ImageView popupImage = popup.findViewById(R.id.popup_image);
+        TextView popupText = popup.findViewById(R.id.popup_text);
+        if(popupText!=null) {
+            popupText.setText(achievementText);
+        }
+
         Animation popupAnimation = AnimationUtils.loadAnimation(activity, R.anim.popup_anim);
+        Animation popupAnimationDelayed = AnimationUtils.loadAnimation(activity, R.anim.popup_anim);
+        popupAnimationDelayed.setStartOffset(200);
         //make popup appear and dissapear before/after animation
         popupAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -120,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             public void onAnimationRepeat(Animation animation) {}
         });
         popup.startAnimation(popupAnimation);
+        popupImage.startAnimation(popupAnimationDelayed);
     }
 
     /**
