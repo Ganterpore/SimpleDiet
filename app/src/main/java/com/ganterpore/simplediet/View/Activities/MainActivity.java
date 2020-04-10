@@ -95,14 +95,6 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
         ImageView weeklyCaffeineImage = findViewById(R.id.weekly_caffeine_image);
         final Activity activity = this;
-
-        //TODO remove this
-        weeklyCaffeineImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                achievementAnimation(activity, getString(R.string.achievement_food_complete_text));
-            }
-        });
     }
 
     /**
@@ -559,6 +551,15 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
 
         //refreshing the other views
         mealView.refreshRecommendations();
+    }
+
+    @Override
+    public void todayCompleted() {
+        achievementAnimation(this, getString(R.string.achievement_food_complete_text));
+    }
+    @Override
+    public void yesterdayCompleted() {
+        achievementAnimation(this, getString(R.string.achievement_yesterday_food_complete_text));
     }
 
     /////////Functions for the SnackbarReady interface

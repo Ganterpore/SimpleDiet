@@ -66,5 +66,6 @@
     <string name="default_date">dd-MMM-yyyy</string>
     <string name="weekly_cheat_points">Weekly Cheat Points</string>
     <string name="weekly_cheat_automatic_value_explanation">Weekly cheats are automatically set to 7 times your daily cheats. You can customise them here to minimise your weeekly cheat count</string>
-    <string name="achievement_food_complete_text">Congratulations! Todays food completed!</string>
+    <string name="achievement_food_complete_text">Congratulations! Today\'s food completed!</string>
+    <string name="achievement_yesterday_food_complete_text">Congratulations! Yesterday\'s food completed!</string>
 </resources>

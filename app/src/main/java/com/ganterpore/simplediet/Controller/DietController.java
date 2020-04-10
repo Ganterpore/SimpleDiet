@@ -66,7 +66,20 @@ public interface DietController {
      * Interface for listeners to a diet controller
      */
     interface DietControllerListener {
+        /**
+         * lets listener know that the data has been updated and the information need to be refreshed
+         */
         void refresh();
+
+        /**
+         * Lets listener know that todays food was completed recently
+         */
+        void todayCompleted();
+
+        /**
+         * Lets listener know that yesterdays food was completed recently
+         */
+        void yesterdayCompleted();
     }
 
     /**
