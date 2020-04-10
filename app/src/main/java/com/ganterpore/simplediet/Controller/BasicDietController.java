@@ -68,6 +68,8 @@ public class  BasicDietController implements DietController {
                 //check if today is completed before the update
                 boolean todayCompleted = isFoodCompletedToday();
                 boolean yesterdayCompleted = isFoodCompleted(1);
+                boolean waterCompleted = isHydrationCompletedToday();
+                boolean cheatsOver = isOverCheatScoreToday();
                 boolean foodEnteredRecently = false;
                 if(queryDocumentSnapshots != null) {
                     //update data to the new changes
@@ -103,20 +105,27 @@ public class  BasicDietController implements DietController {
                         }
                     }
                 }
+                //checking if any achievable was not completed before, and it is completed now,
+                //and this change was recent
+                // then update the listener to know it was just completed
                 if(!todayCompleted) {
-                    //if food was not completed before, and it is completed now,
-                    //and this change was recent
-                    // then update the listener to know it was just completed
                     if(isFoodCompletedToday() && foodEnteredRecently) {
-                        listener.todayCompleted();
+                        listener.todaysFoodCompleted();
                     }
                 }
                 if(!yesterdayCompleted) {
-                    //if food was not completed before, and it is completed now,
-                    //and this change was recent
-                    // then update the listener to know it was just completed
                     if(isFoodCompleted(1) && foodEnteredRecently) {
-                        listener.yesterdayCompleted();
+                        listener.yesterdaysFoodCompleted();
+                    }
+                }
+                if(!waterCompleted) {
+                    if(isHydrationCompletedToday() && foodEnteredRecently) {
+                        listener.todaysHydrationCompleted();
+                    }
+                }
+                if(!cheatsOver) {
+                    if(isOverCheatScoreToday() && foodEnteredRecently) {
+                        listener.todaysCheatsOver();
                     }
                 }
                 //now that the data is updated, make sure it flows through to the listener

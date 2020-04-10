@@ -74,12 +74,20 @@ public interface DietController {
         /**
          * Lets listener know that todays food was completed recently
          */
-        void todayCompleted();
+        void todaysFoodCompleted();
+        /**
+         * Lets listener know that todays water was completed recently
+         */
+        void todaysHydrationCompleted();
+        /**
+         * Lets listener know that we went over todays cheats recently
+         */
+        void todaysCheatsOver();
 
         /**
          * Lets listener know that yesterdays food was completed recently
          */
-        void yesterdayCompleted();
+        void yesterdaysFoodCompleted();
     }
 
     /**
