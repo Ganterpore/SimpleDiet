@@ -65,6 +65,12 @@ public class  BasicDietController implements DietController {
         dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                //check if today is completed before the update
+                boolean todayCompleted = isFoodCompletedToday();
+                boolean yesterdayCompleted = isFoodCompleted(1);
+                boolean waterCompleted = isHydrationCompletedToday();
+                boolean cheatsOver = isOverCheatScoreToday();
+                boolean foodEnteredRecently = false;
                 if(queryDocumentSnapshots != null) {
                     //update data to the new changes
                     data = queryDocumentSnapshots.getDocuments();
@@ -87,13 +93,39 @@ public class  BasicDietController implements DietController {
                         //getting how many days ago
                         QueryDocumentSnapshot document = documentChange.getDocument();
                         long changedDay = document.toObject(Meal.class).getDay();
+                        if(changedDay > System.currentTimeMillis() - DateUtils.MINUTE_IN_MILLIS) {
+                            foodEnteredRecently = true;
+                        }
                         Date changedDayStart = getStartOfDay(new Date(changedDay));
                         long msDiff = System.currentTimeMillis() - changedDayStart.getTime();
                         int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
-                        //setting that day and next 7 (for cheats) to needing an update
+                        //setting that day to needing an update
                         for(int i=0;i<8;i++) {
                             mealNeedsUpdate.put(daysAgo+i, true);
                         }
+                    }
+                }
+                //checking if any achievable was not completed before, and it is completed now,
+                //and this change was recent
+                // then update the listener to know it was just completed
+                if(!todayCompleted) {
+                    if(isFoodCompletedToday() && foodEnteredRecently) {
+                        listener.todaysFoodCompleted();
+                    }
+                }
+                if(!yesterdayCompleted) {
+                    if(isFoodCompleted(1) && foodEnteredRecently) {
+                        listener.yesterdaysFoodCompleted();
+                    }
+                }
+                if(!waterCompleted) {
+                    if(isHydrationCompletedToday() && foodEnteredRecently) {
+                        listener.todaysHydrationCompleted();
+                    }
+                }
+                if(!cheatsOver) {
+                    if(isOverCheatScoreToday() && foodEnteredRecently) {
+                        listener.todaysCheatsOver();
                     }
                 }
                 //now that the data is updated, make sure it flows through to the listener

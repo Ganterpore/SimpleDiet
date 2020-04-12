@@ -5,12 +5,19 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -32,6 +39,7 @@ import com.ganterpore.simplediet.Controller.WeeklyIntake;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
+import com.ganterpore.simplediet.View.Animation.MyBounceInterpolator;
 import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
@@ -508,6 +516,61 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         mealView.refreshRecommendations();
     }
 
+    /**
+     * Shows an achievement animation popup to the user
+     * @param activity, the activity this is being called from
+     * @param achievementText, the text to display to the user
+     */
+    private static void achievementAnimation(final Activity activity, int imageID, String achievementText) {
+        final View popup = LayoutInflater.from(activity).inflate(R.layout.popup_food_completion_achievement, null);
+        activity.addContentView(popup, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        ImageView popupImage = popup.findViewById(R.id.popup_image);
+        popupImage.setImageResource(imageID);
+        TextView popupText = popup.findViewById(R.id.popup_text);
+        if(popupText!=null) {
+            popupText.setText(achievementText);
+        }
+
+        Animation popupAnimation = AnimationUtils.loadAnimation(activity, R.anim.popup_anim);
+        Animation popupAnimationDelayed = AnimationUtils.loadAnimation(activity, R.anim.popup_anim);
+        popupAnimationDelayed.setStartOffset(200);
+        //make popup appear and dissapear before/after animation
+        popupAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                popup.setVisibility(View.VISIBLE);
+            }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                popup.setVisibility(View.INVISIBLE);
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        popup.startAnimation(popupAnimation);
+        popupImage.startAnimation(popupAnimationDelayed);
+    }
+
+    /** Methods to create achievements when goals are met */
+
+    @Override
+    public void todaysFoodCompleted() {
+        achievementAnimation(this, R.drawable.symbol_food_completed_thumbnail, getString(R.string.achievement_food_complete_text));
+    }
+    @Override
+    public void yesterdaysFoodCompleted() {
+        achievementAnimation(this, R.drawable.symbol_food_completed_thumbnail, getString(R.string.achievement_yesterday_food_complete_text));
+    }
+
+    @Override
+    public void todaysHydrationCompleted() {
+        achievementAnimation(this, R.drawable.symbol_water_completed, getString(R.string.achievement_hydration_complete_text));
+    }
+
+    @Override
+    public void todaysCheatsOver() {
+        achievementAnimation(this, R.drawable.excess_upright, getString(R.string.achievement_over_cheats_text));
+    }
     /////////Functions for the SnackbarReady interface
 
     @Override
