@@ -113,9 +113,6 @@ public class HistoryActivity extends AppCompatActivity {
         objectAnimator.setDuration(500);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();
-
-        //refreshing the other views
-
     }
 
     /**

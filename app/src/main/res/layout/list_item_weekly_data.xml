@@ -343,6 +343,14 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Days Data"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/days_list"
                 android:layout_width="match_parent"
