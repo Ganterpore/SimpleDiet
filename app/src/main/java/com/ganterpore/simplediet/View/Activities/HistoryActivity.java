@@ -18,8 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ganterpore.simplediet.Controller.BasicDietController;
+import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.WeeklyIntake;
+import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
 
@@ -31,11 +33,6 @@ import java.text.SimpleDateFormat;
 public class HistoryActivity extends AppCompatActivity {
     public static final String TAG = "HistoryActivity";
     DietController dietController;
-    WeeklyIntake week1;
-    WeeklyIntake week2;
-    WeeklyIntake week3;
-    WeeklyIntake week4;
-
     RecyclerView weeksHistory;
 
 
@@ -45,15 +42,10 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         dietController = BasicDietController.getInstance();
-        week1 = dietController.getWeeksIntake(0);
-        week2 = dietController.getWeeksIntake(1);
-        week3 = dietController.getWeeksIntake(2);
-        week4 = dietController.getWeeksIntake(3);
         setMonthlyView();
 
         weeksHistory = findViewById(R.id.weeks_history);
-        weeksHistory.setAdapter(new WeekHistoryAdapter(this, 4));
-        weeksHistory.getAdapter().notifyDataSetChanged();
+        weeksHistory.setAdapter(new WeekHistoryAdapter(this, 8));
     }
 
     /**
@@ -63,6 +55,11 @@ public class HistoryActivity extends AppCompatActivity {
         final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
         View monthlyContainer = findViewById(R.id.monthly_container);
+
+        WeeklyIntake week1 = dietController.getWeeksIntake(0);
+        WeeklyIntake week2 = dietController.getWeeksIntake(1);
+        WeeklyIntake week3 = dietController.getWeeksIntake(2);
+        WeeklyIntake week4 = dietController.getWeeksIntake(3);
 
         //get the text views from the main activity
         TextView monthlyVegTV = findViewById(R.id.monthly_veges_intake);
@@ -150,7 +147,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return 4;
+            return nWeeks;
         }
     }
 
@@ -163,7 +160,7 @@ public class HistoryActivity extends AppCompatActivity {
         DateFormat dateFormat = new SimpleDateFormat("MMM dd");
         Activity activity;
         WeekHistoryAdapter adapter;
-        int position;
+        int nWeeksAgo;
 
         WeekHistoryViewHolder(Activity activity, @NonNull View itemView, WeekHistoryAdapter adapter) {
             super(itemView);
@@ -172,26 +169,10 @@ public class HistoryActivity extends AppCompatActivity {
             this.adapter = adapter;
         }
 
-        public void build(final int position) {
-            this.position = position;
+        public void build(final int nWeeksAgo) {
+            this.nWeeksAgo = nWeeksAgo;
             //get the correct week from position
-            WeeklyIntake week;
-            switch (position) {
-                case 0:
-                    week = week1;
-                    break;
-                case 1:
-                    week = week2;
-                    break;
-                case 2:
-                    week = week3;
-                    break;
-                case 3:
-                    week = week4;
-                    break;
-                default:
-                    return;
-            }
+            WeeklyIntake week = dietController.getWeeksIntake(nWeeksAgo);
 
             //updating date information
             TextView dateTV = itemView.findViewById(R.id.date);
@@ -214,18 +195,15 @@ public class HistoryActivity extends AppCompatActivity {
 //            RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
 //            mealsList.setAdapter(new MealHistoryDisplay.MealsAdapter(activity, day.getMeals()));
 
-            final View expandableView1 = itemView.findViewById(R.id.expanded_layout_1);
-            final View expandableView2 = itemView.findViewById(R.id.expanded_layout_2);
+            final View expandableView = itemView.findViewById(R.id.expanded_layout);
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
 
             //making sure view is shown as it should be, either expanded or not
-            if(adapter.nDaysAgoVisible.get(position, false)) {
-                expandableView1.setVisibility(View.VISIBLE);
-                expandableView2.setVisibility(View.VISIBLE);
+            if (adapter.nDaysAgoVisible.get(nWeeksAgo, false)) {
+                expandableView.setVisibility(View.VISIBLE);
                 dropdownButton.setRotation(180);
             } else {
-                expandableView1.setVisibility(View.GONE);
-                expandableView2.setVisibility(View.GONE);
+                expandableView.setVisibility(View.GONE);
                 dropdownButton.setRotation(0);
             }
 
@@ -233,18 +211,16 @@ public class HistoryActivity extends AppCompatActivity {
             dropdownButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(expandableView1.getVisibility() == View.GONE) {
-                        expandableView1.setVisibility(View.VISIBLE);
-                        expandableView2.setVisibility(View.VISIBLE);
+                    if (expandableView.getVisibility() == View.GONE) {
+                        expandableView.setVisibility(View.VISIBLE);
                         dropdownButton.animate().setDuration(200).rotation(180);
-                        adapter.nDaysAgoVisible.append(position, true);
-                        adapter.notifyItemChanged(position);
+                        adapter.nDaysAgoVisible.append(nWeeksAgo, true);
+                        adapter.notifyItemChanged(nWeeksAgo);
                     } else {
-                        expandableView1.setVisibility(View.GONE);
-                        expandableView2.setVisibility(View.GONE);
+                        expandableView.setVisibility(View.GONE);
                         dropdownButton.animate().setDuration(200).rotation(0);
-                        adapter.nDaysAgoVisible.append(position, false);
-                        adapter.notifyItemChanged(position);
+                        adapter.nDaysAgoVisible.append(nWeeksAgo, false);
+                        adapter.notifyItemChanged(nWeeksAgo);
                     }
                 }
             });
@@ -270,6 +246,89 @@ public class HistoryActivity extends AppCompatActivity {
             cheatCount.setText((df.format(week.getTotalCheats()) + "/" + df.format(week.getWeeklyLimitCheats())));
             caffeineCount.setText((df.format(week.getCaffieneCount()) + "/" + df.format(week.getWeeklyLimitCaffiene())));
             alcoholCount.setText((df.format(week.getAlcoholCount()) + "/" + df.format(week.getWeeklyLimitAlcohol())));
+
+            RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
+            daysHistory.setAdapter(new DaysHistoryAdapter(activity, 7, nWeeksAgo));
+        }
+    }
+
+    /**
+     * Adapter for the weeks information
+     */
+    public class DaysHistoryAdapter extends RecyclerView.Adapter<DaysHistoryViewHolder> {
+        int nDays;
+        Activity activity;
+        SparseBooleanArray nDaysAgoVisible;
+        int weeksAgo;
+
+        DaysHistoryAdapter(Activity activity, int nDays, int weeksAgo) {
+            this.activity = activity;
+            this.nDays = nDays;
+            this.nDaysAgoVisible = new SparseBooleanArray();
+            this.weeksAgo = weeksAgo;
+        }
+
+        @NonNull
+        @Override
+        public DaysHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+            View view;
+            view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_summary, viewGroup, false);
+            return new HistoryActivity.DaysHistoryViewHolder(activity, view, this);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DaysHistoryViewHolder daysHistoryViewHolder, int position) {
+            daysHistoryViewHolder.build(position, weeksAgo);
+        }
+
+        @Override
+        public int getItemCount() {
+            return nDays;
+        }
+    }
+
+
+    /**
+     * View Holder for the information about a week.
+     */
+    private class DaysHistoryViewHolder extends RecyclerView.ViewHolder {
+        View itemView;
+        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        Activity activity;
+        DaysHistoryAdapter adapter;
+
+        DaysHistoryViewHolder(Activity activity, @NonNull View itemView, DaysHistoryAdapter adapter) {
+            super(itemView);
+            this.itemView = itemView;
+            this.activity = activity;
+            this.adapter = adapter;
+        }
+
+        public void build(final int dayNo, int nWeeksAgo) {
+            DailyMeals day = dietController.getDaysMeals(dayNo + 7*nWeeksAgo);
+            DietPlan daysPlan = dietController.getDaysDietPlan(dayNo + 7*nWeeksAgo);
+
+            //updating date information
+            TextView dateTV = itemView.findViewById(R.id.date);
+            dateTV.setText(dateFormat.format(day.getDate()));
+
+            //updating text views
+            NumberFormat df = new DecimalFormat("##.##");
+            TextView vegCount = itemView.findViewById(R.id.veg_count);
+            TextView proteinCount = itemView.findViewById(R.id.protein_count);
+            TextView dairyCount = itemView.findViewById(R.id.dairy_count);
+            TextView grainCount = itemView.findViewById(R.id.grain_count);
+            TextView fruitCount = itemView.findViewById(R.id.fruit_count);
+            TextView waterCount = itemView.findViewById(R.id.water_count);
+            TextView cheatCount = itemView.findViewById(R.id.cheat_count);
+
+            vegCount.setText((df.format(day.getVegCount()) + "/" + df.format(daysPlan.getDailyVeges())));
+            proteinCount.setText((df.format(day.getProteinCount()) + "/" + df.format(daysPlan.getDailyProtein())));
+            dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
+            grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
+            fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
+            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration())));
+            cheatCount.setText((df.format(day.getTotalCheats()) + "/" + df.format(daysPlan.getDailyCheats())));
         }
 
     }
