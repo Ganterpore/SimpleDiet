@@ -38,15 +38,17 @@ public class WeeklyIntake {
 
     private double weeklyLimitCheats;
     private ArrayList<Meal> thisWeeksMeals;
+    private Date endDate;
+    private Date startDate;
 
     public WeeklyIntake(List<DocumentSnapshot> data, DietPlan dietPlan) {
         this(data, dietPlan, 0);
     }
 
     public WeeklyIntake(List<DocumentSnapshot> data, DietPlan dietPlan, int weeksAgo) {
-        Date endDate = new Date(System.currentTimeMillis() - (weeksAgo * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
+        endDate = new Date(System.currentTimeMillis() - (weeksAgo * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
         endDate = getStartOfDay(endDate);
-        Date startDate = new Date(System.currentTimeMillis() - ((weeksAgo + 1) * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
+        startDate = new Date(System.currentTimeMillis() - ((weeksAgo + 1) * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
         startDate = getStartOfDay(startDate);
 
         setLimits(dietPlan);
@@ -113,6 +115,22 @@ public class WeeklyIntake {
             hydrationScore += meal.getHydrationScore();
             excessServes += meal.getExcessServes();
         }
+    }
+
+    public boolean isFoodCompleted() {
+        return vegCount > weeklyLimitVeg
+                && proteinCount > weeklyLimitProtein
+                && dairyCount > weeklyLimitDairy
+                && grainCount > weeklyLimitGrain
+                && fruitCount > weeklyLimitFruit;
+    }
+
+    public boolean isHydrationCompleted() {
+        return hydrationScore > weeklyLimitHydration;
+    }
+
+    public boolean isOverCheatScore() {
+        return totalCheats > weeklyLimitCheats;
     }
 
     /**
@@ -212,5 +230,13 @@ public class WeeklyIntake {
 
     public ArrayList<Meal> getThisWeeksMeals() {
         return thisWeeksMeals;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public Date getStartDate() {
+        return startDate;
     }
 }
