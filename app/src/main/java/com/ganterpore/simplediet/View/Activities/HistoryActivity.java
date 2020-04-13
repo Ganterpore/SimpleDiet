@@ -2,6 +2,7 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.SparseBooleanArray;
@@ -30,10 +31,16 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+
 public class HistoryActivity extends AppCompatActivity {
     public static final String TAG = "HistoryActivity";
     DietController dietController;
     RecyclerView weeksHistory;
+    private boolean trackWater;
+    private boolean trackAlcohol;
+    private boolean trackCaffeine;
+    private boolean trackCheats;
 
 
     @Override
@@ -46,6 +53,21 @@ public class HistoryActivity extends AppCompatActivity {
 
         weeksHistory = findViewById(R.id.weeks_history);
         weeksHistory.setAdapter(new WeekHistoryAdapter(this, 8));
+
+        SharedPreferences preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        trackWater = preferences.getBoolean("track_water", true);
+        trackAlcohol = preferences.getBoolean("track_alcohol", true);
+        trackCaffeine = preferences.getBoolean("track_caffeine", true);
+        trackCheats = preferences.getBoolean("track_cheats", true);
+        if(!trackWater) {
+            findViewById(R.id.monthly_water_container).setVisibility(View.GONE);
+        } if(!trackCheats) {
+            findViewById(R.id.monthly_cheat_container).setVisibility(View.GONE);
+        } if(!trackCaffeine) {
+            findViewById(R.id.monthly_caffeine_container).setVisibility(View.GONE);
+        }if(!trackAlcohol) {
+            findViewById(R.id.monthly_alcohol_container).setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -187,6 +209,11 @@ public class HistoryActivity extends AppCompatActivity {
             didntCheatView.setCompleted(!week.isOverCheatScore());
             cheatsProgress.setMax((int) week.getWeeklyLimitCheats() * SCALE_FACTOR);
             cheatsProgress.setProgress((int) week.getTotalCheats() * SCALE_FACTOR);
+            if(!trackCheats) {
+                itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
+            } if(!trackWater) {
+                completedWaterView.setVisibility(View.GONE);
+            }
 
             final View expandableView = itemView.findViewById(R.id.expanded_layout);
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
@@ -239,6 +266,16 @@ public class HistoryActivity extends AppCompatActivity {
             cheatCount.setText((df.format(week.getTotalCheats()) + "/" + df.format(week.getWeeklyLimitCheats())));
             caffeineCount.setText((df.format(week.getCaffieneCount()) + "/" + df.format(week.getWeeklyLimitCaffiene())));
             alcoholCount.setText((df.format(week.getAlcoholCount()) + "/" + df.format(week.getWeeklyLimitAlcohol())));
+
+            if(!trackCheats) {
+                itemView.findViewById(R.id.weekly_cheat_container).setVisibility(View.GONE);
+            } if(!trackWater) {
+                itemView.findViewById(R.id.weekly_water_container).setVisibility(View.GONE);
+            } if(!trackAlcohol) {
+                itemView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
+            } if(!trackCaffeine) {
+                itemView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
+            }
 
             RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
             daysHistory.setAdapter(new DaysHistoryAdapter(activity, 7, nWeeksAgo));
@@ -322,6 +359,12 @@ public class HistoryActivity extends AppCompatActivity {
             fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
             waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration())));
             cheatCount.setText((df.format(day.getTotalCheats()) + "/" + df.format(daysPlan.getDailyCheats())));
+
+            if(!trackCheats) {
+                itemView.findViewById(R.id.cheat_container).setVisibility(View.GONE);
+            } if(!trackWater) {
+                itemView.findViewById(R.id.water_container).setVisibility(View.GONE);
+            }
         }
 
     }

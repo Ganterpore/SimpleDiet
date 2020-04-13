@@ -10,6 +10,7 @@
     app:layout_collapseMode="parallax">
 
     <LinearLayout
+        android:id="@+id/water_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -32,6 +33,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/veg_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -54,6 +56,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/protein_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -76,6 +79,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/dairy_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -98,6 +102,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/grain_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -120,6 +125,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/fruit_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
