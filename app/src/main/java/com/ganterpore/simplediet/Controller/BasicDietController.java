@@ -40,6 +40,7 @@ public class  BasicDietController implements DietController {
     private SparseArray<DailyMeals> daysAgoMeals;
     private SparseBooleanArray mealNeedsUpdate;
 
+    //TODO create factory for this method. Or remove interface.
     public static BasicDietController getInstance() {
         return instance;
     }

@@ -14,31 +14,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:text="@string/last_7_days"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
-
-            <TextView
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tap for more"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            android:text="@string/last_28_days"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
     <LinearLayout
         android:id="@+id/header_information"
@@ -61,7 +43,7 @@
 
                 <ImageView
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_vege_image"
+                    android:id="@+id/monthly_vege_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:src="@drawable/vegetables_full_thumbnail"
@@ -78,7 +60,7 @@
                 android:textAlignment="center"/>
 
             <TextView
-                android:id="@+id/weekly_veges_intake"
+                android:id="@+id/monthly_veges_intake"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"/>
@@ -99,7 +81,7 @@
                 <ImageView
                     android:scaleType="fitXY"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_protein_image"
+                    android:id="@+id/monthly_protein_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:src="@drawable/meat_full_thumbnail"
@@ -116,7 +98,7 @@
                 android:textAlignment="center"/>
 
             <TextView
-                android:id="@+id/weekly_protein_intake"
+                android:id="@+id/monthly_protein_intake"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"/>
@@ -137,7 +119,7 @@
                 <ImageView
                     android:scaleType="fitXY"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_dairy_image"
+                    android:id="@+id/monthly_dairy_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:src="@drawable/dairy_full_thumbnail"
@@ -154,7 +136,7 @@
                 android:textAlignment="center"/>
 
             <TextView
-                android:id="@+id/weekly_dairy_intake"
+                android:id="@+id/monthly_dairy_intake"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"/>
@@ -174,7 +156,7 @@
 
                 <ImageView
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_grain_image"
+                    android:id="@+id/monthly_grain_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:src="@drawable/grain_full_thumbnail"
@@ -191,7 +173,7 @@
                 android:textAlignment="center"/>
 
             <TextView
-                android:id="@+id/weekly_grain_intake"
+                android:id="@+id/monthly_grain_intake"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"/>
@@ -211,7 +193,7 @@
 
                 <ImageView
                     app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_fruit_image"
+                    android:id="@+id/monthly_fruit_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:src="@drawable/fruit_full_thumbnail"
@@ -228,7 +210,7 @@
                 android:textAlignment="center"/>
 
             <TextView
-                android:id="@+id/weekly_fruit_intake"
+                android:id="@+id/monthly_fruit_intake"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"/>
@@ -243,7 +225,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:id="@+id/weekly_water_container"
+                android:id="@+id/monthly_water_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -257,7 +239,7 @@
 
                     <ImageView
                         app:layout_constraintTop_toTopOf="parent"
-                        android:id="@+id/weekly_water_image"
+                        android:id="@+id/monthly_water_image"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:src="@drawable/symbol_water_completed"
@@ -273,7 +255,7 @@
                     android:textAlignment="center"/>
 
                 <TextView
-                    android:id="@+id/weekly_water_intake"
+                    android:id="@+id/monthly_water_intake"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"/>
@@ -281,7 +263,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/weekly_caffeine_container"
+                android:id="@+id/monthly_caffeine_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -295,7 +277,7 @@
 
                     <ImageView
                         app:layout_constraintTop_toTopOf="parent"
-                        android:id="@+id/weekly_caffeine_image"
+                        android:id="@+id/monthly_caffeine_image"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:src="@drawable/caffiene"
@@ -312,7 +294,7 @@
                     android:textStyle="bold"
                     android:textAlignment="center"/>
                 <TextView
-                    android:id="@+id/weekly_caffeine_count"
+                    android:id="@+id/monthly_caffeine_count"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"/>
@@ -320,7 +302,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/weekly_alcohol_container"
+                android:id="@+id/monthly_alcohol_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -334,7 +316,7 @@
 
                     <ImageView
                         app:layout_constraintTop_toTopOf="parent"
-                        android:id="@+id/weekly_alcohol_image"
+                        android:id="@+id/monthly_alcohol_image"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:src="@drawable/alcohol"
@@ -351,7 +333,7 @@
                     android:textAlignment="center"/>
 
                 <TextView
-                    android:id="@+id/weekly_alcohol_count"
+                    android:id="@+id/monthly_alcohol_count"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"/>
@@ -359,7 +341,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/weekly_cheat_container"
+                android:id="@+id/monthly_cheat_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -372,7 +354,7 @@
                     android:layout_gravity="center">
 
                     <include
-                        android:id="@+id/weekly_cheats_progress"
+                        android:id="@+id/monthly_cheats_progress"
                         layout="@layout/progress_cheats"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
@@ -389,7 +371,7 @@
                     android:textAlignment="center"/>
 
                 <TextView
-                    android:id="@+id/weekly_cheat_count"
+                    android:id="@+id/monthly_cheat_count"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="center" />
