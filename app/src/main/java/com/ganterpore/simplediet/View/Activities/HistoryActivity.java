@@ -191,10 +191,6 @@ public class HistoryActivity extends AppCompatActivity {
             cheatsProgress.setMax((int) week.getWeeklyLimitCheats() * SCALE_FACTOR);
             cheatsProgress.setProgress((int) week.getTotalCheats() * SCALE_FACTOR);
 
-            //creating a list of the meals eaten that day
-//            RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
-//            mealsList.setAdapter(new MealHistoryDisplay.MealsAdapter(activity, day.getMeals()));
-
             final View expandableView = itemView.findViewById(R.id.expanded_layout);
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
 
