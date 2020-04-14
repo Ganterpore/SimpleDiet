@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +48,12 @@ public class HistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+        Log.d(TAG, "onCreate: starting");
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         dietController = BasicDietController.getInstance();
         setMonthlyView();
 
@@ -59,13 +65,16 @@ public class HistoryActivity extends AppCompatActivity {
         trackAlcohol = preferences.getBoolean("track_alcohol", true);
         trackCaffeine = preferences.getBoolean("track_caffeine", true);
         trackCheats = preferences.getBoolean("track_cheats", true);
-        if(!trackWater) {
+        if (!trackWater) {
             findViewById(R.id.monthly_water_container).setVisibility(View.GONE);
-        } if(!trackCheats) {
+        }
+        if (!trackCheats) {
             findViewById(R.id.monthly_cheat_container).setVisibility(View.GONE);
-        } if(!trackCaffeine) {
+        }
+        if (!trackCaffeine) {
             findViewById(R.id.monthly_caffeine_container).setVisibility(View.GONE);
-        }if(!trackAlcohol) {
+        }
+        if (!trackAlcohol) {
             findViewById(R.id.monthly_alcohol_container).setVisibility(View.GONE);
         }
     }
@@ -228,7 +237,7 @@ public class HistoryActivity extends AppCompatActivity {
             }
 
             //creating functionality for the button that shows expands the card
-            dropdownButton.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (expandableView.getVisibility() == View.GONE) {

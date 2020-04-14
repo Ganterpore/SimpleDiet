@@ -313,7 +313,7 @@ class MealHistoryDisplay  {
             }
 
             //creating functionality for the button that shows meals eaten that day
-            dropdownButton.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(expandableView.getVisibility() == View.GONE) {
