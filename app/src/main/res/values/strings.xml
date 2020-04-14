@@ -2,7 +2,7 @@
     <string name="app_name">SimpleDiet</string>
     <string name="title_activity_settings">Settings</string>
 
- <string name="cheat_score_description">Select a cheat score that measures how much of a cheat meal this was. The higher the score, the worse it is for you.</string>
+    <string name="cheat_score_description">Select a cheat score that measures how much of a cheat meal this was. The higher the score, the worse it is for you.</string>
     <string name="cheat_description_template">Your current diet plan has you having X serves per day. At this current daily limit, you are having Y points per serve.</string>
     <string name="cheat_points_description">Cheat points determine how bad a meal is for you. The worse the meal, the more cheat points it costs. Choose an amount of cheat points you are allowed to use each day.</string>
     <string name="daily_cheat_points">Daily Cheat Points</string>
@@ -27,18 +27,18 @@
     <string name="recommended_caffeine_alcohol">For long term benefits, it is recommended to have less than 14 serves of caffeine, and 10 standards of alcohol per week.</string>
     <string name="weekly_caffeine">Weekly Caffeine</string>
     <string name="weekly_alcohol">Weekly Alcohol</string>
-   <string name="default_header">Header</string>
-   <string name="set_cheat_score">Set Cheat Score</string>
-   <string name="num_0">0</string>
-   <string name="num_1">1</string>
-   <string name="num_2">2</string>
-   <string name="num_3">3</string>
-   <string name="image_description_food_group">Image depicting food group</string>
-   <string name="plus_1">+1</string>
-   <string name="plus_one_quarter">+¼</string>
-   <string name="num_1_0">1.0</string>
-   <string name="minus_one_quarter">-¼</string>
-   <string name="minus_1">-1</string>
+    <string name="default_header">Header</string>
+    <string name="set_cheat_score">Set Cheat Score</string>
+    <string name="num_0">0</string>
+    <string name="num_1">1</string>
+    <string name="num_2">2</string>
+    <string name="num_3">3</string>
+    <string name="image_description_food_group">Image depicting food group</string>
+    <string name="plus_1">+1</string>
+    <string name="plus_one_quarter">+¼</string>
+    <string name="num_1_0">1.0</string>
+    <string name="minus_one_quarter">-¼</string>
+    <string name="minus_1">-1</string>
     <string name="plus_cup">+cup</string>
     <string name="plus_shot">+shot</string>
     <string name="num_250">250</string>
@@ -71,4 +71,6 @@
     <string name="achievement_yesterday_food_complete_text">Congratulations! Yesterday\'s food completed!</string>
     <string name="achievement_hydration_complete_text">Congratulations! Today\'s hydration completed!</string>
     <string name="achievement_over_cheats_text">Oh No! You have had too many cheats today!</string>
+    <string name="last_7_days">Last 7 Days</string>
+    <string name="last_28_days">Last 28 days</string>
 </resources>

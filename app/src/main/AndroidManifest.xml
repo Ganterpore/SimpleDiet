@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.ganterpore.simplediet">
 
-    <uses-permission android:name="android.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -12,9 +12,10 @@
         android:roundIcon="@mipmap/symbol_food_completed_thumbnail"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".View.Activities.HistoryActivity"></activity>
         <activity
             android:name=".View.Activities.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings" />
         <activity
             android:name=".View.Activities.MainActivity"
             android:screenOrientation="portrait"
@@ -26,11 +27,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".Controller.NotificationReciever">
-        </receiver>
-
+        <receiver android:name=".Controller.NotificationReciever"></receiver>
     </application>
-
-
 
 </manifest>

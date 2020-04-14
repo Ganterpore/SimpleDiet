@@ -313,7 +313,7 @@ class MealHistoryDisplay  {
             }
 
             //creating functionality for the button that shows meals eaten that day
-            dropdownButton.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(expandableView.getVisibility() == View.GONE) {
@@ -353,6 +353,15 @@ class MealHistoryDisplay  {
             String mode = preferences.getString("mode", "normal");
             if (mode != null && (mode.equals("vegan") || mode.equals("vegetarian"))) {
                 proteinCountHeader.setText("P");
+            }
+            boolean trackWater = preferences.getBoolean("track_water", true);
+            boolean trackCheats = preferences.getBoolean("track_cheats", true);
+            if(!trackWater) {
+                itemView.findViewById(R.id.water_container).setVisibility(View.GONE);
+                itemView.findViewById(R.id.completed_water).setVisibility(View.GONE);
+            } if(!trackCheats) {
+                itemView.findViewById(R.id.cheat_container).setVisibility(View.GONE);
+                itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
             }
 
             MealSwipeController swipeController = new MealSwipeController(activity, mealsList);

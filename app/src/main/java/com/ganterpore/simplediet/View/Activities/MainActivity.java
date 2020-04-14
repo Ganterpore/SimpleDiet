@@ -92,6 +92,16 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         initialiseScrollEffect();
+
+        View weeklyContainer = findViewById(R.id.weekly_intake);
+        final Activity activity = this;
+        weeklyContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, HistoryActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
