@@ -28,8 +28,9 @@ public class DietPlan {
     private String user;
 
     public DietPlan(double dailyVeges, double dailyProtein, double dailyDairy, double dailyGrain,
-                    double dailyFruit, double dailyHydration, double dailyCheats,
-                    double dailyCaffeine, double dailyAlcohol, String user) {
+                    double dailyFruit, double dailyHydration, double dailyCheats, double weeklyCheats,
+                    int order, String dietName, double dailyCaffeine, double dailyAlcohol,
+                    double weeklyCaffeine, double weeklyAlcohol, String user) {
         this.dailyVeges = dailyVeges;
         this.dailyProtein = dailyProtein;
         this.dailyDairy = dailyDairy;
@@ -37,8 +38,13 @@ public class DietPlan {
         this.dailyFruit = dailyFruit;
         this.dailyHydration = dailyHydration;
         this.dailyCheats = dailyCheats;
+        this.weeklyCheats = weeklyCheats;
+        this.order = order;
+        this.dietName = dietName;
         this.dailyCaffeine = dailyCaffeine;
         this.dailyAlcohol = dailyAlcohol;
+        this.weeklyCaffeine = weeklyCaffeine;
+        this.weeklyAlcohol = weeklyAlcohol;
         this.user = user;
     }
 
@@ -56,6 +62,12 @@ public class DietPlan {
         this.dailyCaffeine = 4;
         this.dailyAlcohol = 4;
         this.user = FirebaseAuth.getInstance().getUid();
+    }
+
+    public DietPlan copy() {
+        return new DietPlan(dailyVeges, dailyProtein, dailyDairy, dailyGrain, dailyFruit, dailyHydration,
+                dailyCheats, weeklyCheats, order, dietName, dailyCaffeine, dailyAlcohol, weeklyCaffeine,
+                weeklyAlcohol, user);
     }
 
     /**

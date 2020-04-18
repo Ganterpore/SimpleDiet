@@ -22,6 +22,8 @@ public class Meal {
     private double grainCount;
     private double fruitCount;
 
+    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
+
     //drink fields
     private double waterCount;
     private double caffeineCount;

@@ -34,6 +34,7 @@ import java.util.Calendar;
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 import static com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox.DRINK_STANDARD_SERVE;
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     public static final int DRINK = 1;
@@ -311,7 +312,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
      * @param serve, the size of the added serve
      */
     @Override
-    public void serveAdded(AddServeDialogBox.FoodType type, double serve) {
+    public void serveAdded(FoodType type, double serve) {
         //update the serve text
         switch (type) {
             case WATER:
@@ -360,25 +361,25 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
 
         @Override
         public void onClick(View view) {
-            AddServeDialogBox.FoodType type;
+            FoodType type;
             double serves;
             Intent intent = new Intent();
             //from the id of the button that called it, figure out what food to add serves to, and the current serves
             switch (view.getId()) {
                 case R.id.water_image:
-                    type = AddServeDialogBox.FoodType.WATER;
+                    type = FoodType.WATER;
                     serves = dialogBox.waterServes;
                     break;
                 case R.id.milk_image:
-                    type = AddServeDialogBox.FoodType.MILK;
+                    type = FoodType.MILK;
                     serves = dialogBox.milkServes;
                     break;
                 case R.id.caffeine_image:
-                    type = AddServeDialogBox.FoodType.CAFFEINE;
+                    type = FoodType.CAFFEINE;
                     serves = dialogBox.caffieneServes;
                     break;
                 case R.id.alcohol_image:
-                    type = AddServeDialogBox.FoodType.ALCOHOL;
+                    type = FoodType.ALCOHOL;
                     serves = dialogBox.alcoholServes;
                     //for alcohol, we also need to get the volume of liquid (in serves)
                     double waterServe = dialogBox.waterServes;
