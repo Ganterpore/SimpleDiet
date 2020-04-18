@@ -4,6 +4,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Model.DietPlan;
 
 import java.util.ArrayList;
@@ -29,33 +30,81 @@ public class OverUnderEatingDietController extends BasicDietController{
         return daysAgoDiets.get(nDaysAgo);
     }
 
+    private double getExcess(int nDaysAgo, FoodType foodType) {
+        double excess;
+        DietPlan plan = getDaysDietPlan(nDaysAgo);
+        DailyMeals meals = getDaysMeals(nDaysAgo);
+        switch (foodType) {
+            case VEGETABLE:
+                excess = meals.getVegCount() - plan.getDailyVeges();
+                break;
+            case MEAT:
+                excess = meals.getProteinCount() - plan.getDailyProtein();
+                break;
+            case DAIRY:
+                excess = meals.getDairyCount() - plan.getDailyDairy();
+                break;
+            case GRAIN:
+                excess = meals.getGrainCount() - plan.getDailyGrain();
+                break;
+            case FRUIT:
+                excess = meals.getFruitCount() - plan.getDailyFruit();
+                break;
+            default:
+                excess = 0.0;
+        }
+        //if excess is less than 0, return 0
+        return excess > 0 ? excess : 0;
+    }
+
+    public boolean isFoodCompleted(int nDaysAgo, FoodType foodType) {
+        DailyMeals daysMeals = getDaysMeals(nDaysAgo);
+        DietPlan daysDietPlan = getDaysDietPlan(nDaysAgo);
+
+        double plan=0;
+        double count=0;
+        double nextDaysExcess=0;
+
+        switch (foodType) {
+            case VEGETABLE:
+                count = daysMeals.getVegCount();
+                plan = daysDietPlan.getDailyVeges();
+                nextDaysExcess = getExcess(nDaysAgo-1, foodType);
+                break;
+            case MEAT:
+                count = daysMeals.getProteinCount();
+                plan = daysDietPlan.getDailyProtein();
+                nextDaysExcess = getExcess(nDaysAgo-1, foodType);
+                break;
+            case DAIRY:
+                count = daysMeals.getDairyCount();
+                plan = daysDietPlan.getDailyDairy();
+                nextDaysExcess = getExcess(nDaysAgo-1, foodType);
+                break;
+            case GRAIN:
+                count = daysMeals.getGrainCount();
+                plan = daysDietPlan.getDailyGrain();
+                nextDaysExcess = getExcess(nDaysAgo-1, foodType);
+                break;
+            case FRUIT:
+                count = daysMeals.getFruitCount();
+                plan = daysDietPlan.getDailyFruit();
+                nextDaysExcess = getExcess(nDaysAgo-1, foodType);
+                break;
+        }
+
+        //food completion under this controller is true if the sum of the food eaten today
+        //and tomorrow's is above the diet plan. This means you can make up for the undereating yesterday today
+        return (count + nextDaysExcess) >= plan;
+    }
+
     @Override
     public boolean isFoodCompleted(int nDaysAgo) {
-        DietPlan daysDietPlan = getDaysDietPlan(nDaysAgo);
-        DietPlan nextDaysDietPlan = getDaysDietPlan(nDaysAgo - 1);
-        DailyMeals daysMeals = getDaysMeals(nDaysAgo);
-        DailyMeals nextDaysMeals = getDaysMeals(nDaysAgo - 1);
-
-        //getting the excess food eaten on the next day
-        double nextDaysExcessVeges = nextDaysMeals.getVegCount() - nextDaysDietPlan.getDailyVeges();
-        double nextDaysExcessProtein = nextDaysMeals.getProteinCount() - nextDaysDietPlan.getDailyProtein();
-        double nextDaysExcessDairy = nextDaysMeals.getDairyCount() - nextDaysDietPlan.getDailyDairy();
-        double nextDaysExcessGrain = nextDaysMeals.getGrainCount() - nextDaysDietPlan.getDailyGrain();
-        double nextDaysExcessFruit = nextDaysMeals.getFruitCount() - nextDaysDietPlan.getDailyFruit();
-
-        //only keeping data if the excess is positive
-        nextDaysExcessVeges = nextDaysExcessVeges>0 ? nextDaysExcessVeges : 0;
-        nextDaysExcessProtein = nextDaysExcessProtein>0 ? nextDaysExcessProtein : 0;
-        nextDaysExcessDairy = nextDaysExcessDairy>0 ? nextDaysExcessDairy : 0;
-        nextDaysExcessGrain = nextDaysExcessGrain>0 ? nextDaysExcessGrain : 0;
-        nextDaysExcessFruit = nextDaysExcessFruit>0 ? nextDaysExcessFruit : 0;
-
-        //checking if food is completed based on today's meals, and tomorrows excess.
-        return (daysMeals.getVegCount() + nextDaysExcessVeges)>= daysDietPlan.getDailyVeges()
-                & (daysMeals.getProteinCount() + nextDaysExcessProtein)>= daysDietPlan.getDailyProtein()
-                & (daysMeals.getDairyCount() + nextDaysExcessDairy)>= daysDietPlan.getDailyDairy()
-                & (daysMeals.getGrainCount() + nextDaysExcessGrain)>= daysDietPlan.getDailyGrain()
-                & (daysMeals.getFruitCount() + nextDaysExcessFruit)>= daysDietPlan.getDailyFruit();
+        return isFoodCompleted(nDaysAgo, FoodType.VEGETABLE)
+                && isFoodCompleted(nDaysAgo, FoodType.MEAT)
+                && isFoodCompleted(nDaysAgo, FoodType.DAIRY)
+                && isFoodCompleted(nDaysAgo, FoodType.GRAIN)
+                && isFoodCompleted(nDaysAgo, FoodType.FRUIT);
     }
 
     /**

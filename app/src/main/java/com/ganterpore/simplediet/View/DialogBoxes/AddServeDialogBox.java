@@ -26,11 +26,11 @@ import java.util.Calendar;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+import static com.ganterpore.simplediet.Model.Meal.FoodType;
 
 
 public class AddServeDialogBox  {
     private static SharedPreferences preferences;
-    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
     static final double DRINK_STANDARD_SERVE = 250;
     public static final String TAG = "AddServeDialogBox";
     private static NumberFormat df = new DecimalFormat("##.##");

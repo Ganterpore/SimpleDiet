@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Recipe;
@@ -330,7 +331,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
      * @param serve, the size of the added serve
      */
     @Override
-    public void serveAdded(AddServeDialogBox.FoodType type, double serve) {
+    public void serveAdded(FoodType type, double serve) {
         //update the serve text
         NumberFormat df = new DecimalFormat("##.##");
         switch (type) {
@@ -370,7 +371,7 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
 
         @Override
         public void onClick(View view) {
-            AddServeDialogBox.FoodType type;
+            FoodType type;
             LinearLayout parent = (LinearLayout) view.getParent();
             TextView servesView;
             double serves;
@@ -378,27 +379,27 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
             //from the id of the button that called it, figure out what food to add serves to, and the current serves
             switch (view.getId()) {
                 case R.id.veg_button:
-                    type = AddServeDialogBox.FoodType.VEGETABLE;
+                    type = FoodType.VEGETABLE;
                     servesView = parent.findViewById(R.id.veg_count);
                     break;
                 case R.id.protein_button:
-                    type = AddServeDialogBox.FoodType.MEAT;
+                    type = FoodType.MEAT;
                     servesView = parent.findViewById(R.id.protein_count);
                     break;
                 case R.id.dairy_button:
-                    type = AddServeDialogBox.FoodType.DAIRY;
+                    type = FoodType.DAIRY;
                     servesView = parent.findViewById(R.id.dairy_count);
                     break;
                 case R.id.grain_button:
-                    type = AddServeDialogBox.FoodType.GRAIN;
+                    type = FoodType.GRAIN;
                     servesView = parent.findViewById(R.id.grain_count);
                     break;
                 case R.id.fruit_button:
-                    type = AddServeDialogBox.FoodType.FRUIT;
+                    type = FoodType.FRUIT;
                     servesView = parent.findViewById(R.id.fruit_count);
                     break;
                 case R.id.excess_button:
-                    type = AddServeDialogBox.FoodType.EXCESS;
+                    type = FoodType.EXCESS;
                     servesView = parent.findViewById(R.id.excess_count);
                     break;
                 default:
