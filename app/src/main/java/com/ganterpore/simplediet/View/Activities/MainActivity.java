@@ -30,6 +30,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.ganterpore.simplediet.Model.Meal.FoodType;
+import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
@@ -360,29 +362,29 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
      * window
      */
     public void addSnack(final View view) {
-        AddServeDialogBox.FoodType type;
+        FoodType type;
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.water_layout:
-                type = AddServeDialogBox.FoodType.WATER;
+                type = FoodType.WATER;
                 break;
             case R.id.veg_layout:
-                type = AddServeDialogBox.FoodType.VEGETABLE;
+                type = FoodType.VEGETABLE;
                 break;
             case R.id.protein_layout:
-                type = AddServeDialogBox.FoodType.MEAT;
+                type = FoodType.MEAT;
                 break;
             case R.id.dairy_layout:
-                type = AddServeDialogBox.FoodType.DAIRY;
+                type = FoodType.DAIRY;
                 break;
             case R.id.grain_layout:
-                type = AddServeDialogBox.FoodType.GRAIN;
+                type = FoodType.GRAIN;
                 break;
             case R.id.fruit_layout:
-                type = AddServeDialogBox.FoodType.FRUIT;
+                type = FoodType.FRUIT;
                 break;
             case R.id.cheat_layout:
-                type = AddServeDialogBox.FoodType.EXCESS;
+                type = FoodType.EXCESS;
                 break;
             default:
                 type = null;

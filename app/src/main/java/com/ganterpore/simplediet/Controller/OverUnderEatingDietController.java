@@ -270,33 +270,43 @@ public class OverUnderEatingDietController extends BasicDietController{
         String id = "under_eating";
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Under eating";
-        String message = "Yesterday you ate too little ";
+        String message = "Yesterday you didn't eat enough from each food category! You can still make up for it today if you eat ";
         int count = 0;
         DietPlan yesterdaysDietPlan = getDaysDietPlan(1);
         DailyMeals yesterdaysMeals = getDaysMeals(1);
-        if(yesterdaysDietPlan.getDailyVeges() > yesterdaysMeals.getVegCount()) {
-            message += "veges by " + (yesterdaysDietPlan.getDailyVeges() - yesterdaysMeals.getVegCount()) + " serves, ";
+        if(!isFoodCompleted(1, FoodType.VEGETABLE)) {
+            message += (yesterdaysDietPlan.getDailyVeges()
+                    - yesterdaysMeals.getVegCount() - getExcess(0, FoodType.VEGETABLE))
+                    + " extra serves of veges, ";
             count++;
         }
-        if(yesterdaysDietPlan.getDailyProtein() > yesterdaysMeals.getProteinCount()) {
-            message += "proteins by " + (yesterdaysDietPlan.getDailyProtein() - yesterdaysMeals.getProteinCount()) + " serves, ";
+        if(!isFoodCompleted(1, FoodType.MEAT)) {
+            message += (yesterdaysDietPlan.getDailyProtein()
+                    - yesterdaysMeals.getProteinCount() - getExcess(0, FoodType.MEAT))
+                    + " extra serves of protein, ";
             count++;
         }
-        if(yesterdaysDietPlan.getDailyDairy() > yesterdaysMeals.getDairyCount()) {
-            message += "dairy by " + (yesterdaysDietPlan.getDailyDairy() - yesterdaysMeals.getDairyCount()) + " serves, ";
+        if(!isFoodCompleted(1, FoodType.DAIRY)) {
+            message += (yesterdaysDietPlan.getDailyDairy()
+                    - yesterdaysMeals.getDairyCount() - getExcess(0, FoodType.DAIRY))
+                    + " extra serves of dairy, ";
             count++;
         }
-        if(yesterdaysDietPlan.getDailyGrain() > yesterdaysMeals.getGrainCount()) {
-            message += "grains by " + (yesterdaysDietPlan.getDailyGrain() - yesterdaysMeals.getGrainCount()) + " serves, ";
+        if(!isFoodCompleted(1, FoodType.GRAIN)) {
+            message += (yesterdaysDietPlan.getDailyGrain()
+                    - yesterdaysMeals.getGrainCount() - getExcess(0, FoodType.GRAIN))
+                    + " extra serves of grain, ";
             count++;
         }
-        if(yesterdaysDietPlan.getDailyFruit() > yesterdaysMeals.getFruitCount()) {
-            message += "fruit by" + (yesterdaysDietPlan.getDailyFruit() - yesterdaysMeals.getFruitCount()) + " serves, ";
+        if(!isFoodCompleted(1, FoodType.FRUIT)) {
+            message += (yesterdaysDietPlan.getDailyFruit()
+                    - yesterdaysMeals.getFruitCount() - getExcess(0, FoodType.FRUIT))
+                    + " extra serves of fruit, ";
             count++;
         }
         if(count > 0) {
             message = message.substring(0, message.length() - 2);
-            message += ". If you eat extra today you can still hit your goals for yesterday!";
+            message += " on top of your normal diet.";
             return new Recommendation(id, title, message, expiry);
         }
         return null;
