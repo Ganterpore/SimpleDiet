@@ -16,16 +16,20 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Model.DietPlan;
@@ -59,56 +63,65 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class DailyDisplayActivity extends AppCompatActivity implements DietController.DietControllerListener,
-                                                                SnackbarReady{
+import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+
+public class DailyDisplayActivity extends Fragment {
     private static final String TAG = "MainActivity";
-    public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
-    private FirebaseAuth mAuth;
+
     private SharedPreferences preferences;
 
-    private DietController dietController;
     private MealHistoryDisplay mealView;
 
     private boolean isFABOpen = false;
 
+    private View dailyDisplayView;
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_daily_display);
-        preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
-        //initialising services
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
-        NotificationReciever.buildChannels(this);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        dailyDisplayView = inflater.inflate(R.layout.activity_daily_display, container, false);
+
+        preferences = getActivity().getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
 
         //setting up toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = dailyDisplayView.findViewById(R.id.toolbar);
         toolbar.setTitle("");
-        setSupportActionBar(toolbar);
+
+//        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         initialiseScrollEffect();
 
-        View weeklyContainer = findViewById(R.id.weekly_intake);
-        final Activity activity = this;
-        weeklyContainer.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener addFoodOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(activity, HistoryActivity.class);
-                startActivity(intent);
+                addFood(v);
             }
-        });
+        };
+
+        dailyDisplayView.findViewById(R.id.FABBackground).setOnClickListener(addFoodOnClick);
+        dailyDisplayView.findViewById(R.id.recipeBookFAB).setOnClickListener(addFoodOnClick);
+        dailyDisplayView.findViewById(R.id.addDrinkFAB).setOnClickListener(addFoodOnClick);
+        dailyDisplayView.findViewById(R.id.addMealFAB).setOnClickListener(addFoodOnClick);
+        dailyDisplayView.findViewById(R.id.addFoodFAB).setOnClickListener(addFoodOnClick);
+
+        return dailyDisplayView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mealView = new MealHistoryDisplay(getActivity(),
+                (RecyclerView) dailyDisplayView.findViewById(R.id.day_history_list));
     }
 
     /**
      * Makes sure that items in the app bar scale appropriately when the main view is scrolled
      */
     private void initialiseScrollEffect() {
-        final ConstraintLayout progressCircle = findViewById(R.id.progress_sphere);
-        final ConstraintLayout progressCheats = findViewById(R.id.cheats_progress);
-        final ConstraintLayout progressDrinks = findViewById(R.id.drinks_progress);
-        AppBarLayout appBarLayout = findViewById(R.id.appBar);
+        final ConstraintLayout progressCircle = dailyDisplayView.findViewById(R.id.progress_sphere);
+        final ConstraintLayout progressCheats = dailyDisplayView.findViewById(R.id.cheats_progress);
+        final ConstraintLayout progressDrinks = dailyDisplayView.findViewById(R.id.drinks_progress);
+        AppBarLayout appBarLayout = dailyDisplayView.findViewById(R.id.appBar);
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -127,159 +140,70 @@ public class DailyDisplayActivity extends AppCompatActivity implements DietContr
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         String mode = preferences.getString("mode", "normal");
-        ProgressBar meatProgress = findViewById(R.id.progress_meat);
+        ProgressBar meatProgress = dailyDisplayView.findViewById(R.id.progress_meat);
         //if the mode has not been set, then just leave as is
         if(mode==null) {
             return;
         }
         //if in one mode, and we are seeing the wrong image, update it
         if ((mode.equals("vegan") || mode.equals("vegetarian"))) {
-            meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat_vegan));
-            ((ImageView) findViewById(R.id.weekly_protein_image)).setImageResource(R.drawable.vegan_meat_full_thumbnail);
+            meatProgress.setProgressDrawable(getActivity().getDrawable(R.drawable.progress_bar_meat_vegan));
         } else if(mode.equals("normal")) {
-            meatProgress.setProgressDrawable(getDrawable(R.drawable.progress_bar_meat));
-            ((ImageView) findViewById(R.id.weekly_protein_image)).setImageResource(R.drawable.meat_full_thumbnail);
+            meatProgress.setProgressDrawable(getActivity().getDrawable(R.drawable.progress_bar_meat));
         }
         if(!preferences.getBoolean("track_cheats", true)) {
-            findViewById(R.id.cheat_layout).setVisibility(View.GONE);
-            findViewById(R.id.cheats_progress).setVisibility(View.GONE);
-            findViewById(R.id.weekly_cheat_container).setVisibility(View.GONE);
+            dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(View.VISIBLE);
+            dailyDisplayView.findViewById(R.id.cheat_layout).setVisibility(View.GONE);
+            dailyDisplayView.findViewById(R.id.cheats_progress).setVisibility(View.GONE);
+            dailyDisplayView.findViewById(R.id.weekly_cheat_container).setVisibility(View.GONE);
         } else {
-            findViewById(R.id.cheat_layout).setVisibility(View.VISIBLE);
-            findViewById(R.id.cheats_progress).setVisibility(View.VISIBLE);
-            findViewById(R.id.weekly_cheat_container).setVisibility(View.VISIBLE);
+            dailyDisplayView.findViewById(R.id.cheat_layout).setVisibility(View.VISIBLE);
+            dailyDisplayView.findViewById(R.id.cheats_progress).setVisibility(View.VISIBLE);
+            dailyDisplayView.findViewById(R.id.weekly_cheat_container).setVisibility(View.VISIBLE);
         }
         if(preferences.getBoolean("track_water", true)) {
-            findViewById(R.id.drinks_progress).setVisibility(View.VISIBLE);
-            findViewById(R.id.weekly_water_container).setVisibility(View.VISIBLE);
-            findViewById(R.id.water_layout).setVisibility(View.VISIBLE);
+            dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(View.VISIBLE);
+            dailyDisplayView.findViewById(R.id.drinks_progress).setVisibility(View.VISIBLE);
+            dailyDisplayView.findViewById(R.id.water_layout).setVisibility(View.VISIBLE);
             if(!preferences.getBoolean("track_alcohol", true)) {
-                findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
-                findViewById(R.id.alcohol_image).setVisibility(View.GONE);
-                findViewById(R.id.alcohol_count).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.alcohol_image).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.alcohol_count).setVisibility(View.GONE);
             } else {
-                findViewById(R.id.weekly_alcohol_container).setVisibility(View.VISIBLE);
-                findViewById(R.id.alcohol_image).setVisibility(View.VISIBLE);
-                findViewById(R.id.alcohol_count).setVisibility(View.VISIBLE);
+                dailyDisplayView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.VISIBLE);
+                dailyDisplayView.findViewById(R.id.alcohol_image).setVisibility(View.VISIBLE);
+                dailyDisplayView.findViewById(R.id.alcohol_count).setVisibility(View.VISIBLE);
             }
             if(!preferences.getBoolean("track_caffeine", true)) {
-                findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
-                findViewById(R.id.caffeine_image).setVisibility(View.GONE);
-                findViewById(R.id.caffeine_count).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(View.GONE);
             } else {
-                findViewById(R.id.weekly_caffeine_container).setVisibility(View.VISIBLE);
-                findViewById(R.id.caffeine_image).setVisibility(View.VISIBLE);
-                findViewById(R.id.caffeine_count).setVisibility(View.VISIBLE);
+                dailyDisplayView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.VISIBLE);
+                dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(View.VISIBLE);
+                dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(View.VISIBLE);
             }
         } else {
-            findViewById(R.id.drinks_progress).setVisibility(View.GONE);
-            findViewById(R.id.weekly_water_container).setVisibility(View.GONE);
-            findViewById(R.id.water_layout).setVisibility(View.GONE);
-
-            findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
-            findViewById(R.id.alcohol_image).setVisibility(View.GONE);
-            findViewById(R.id.alcohol_count).setVisibility(View.GONE);
-            findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
-            findViewById(R.id.caffeine_image).setVisibility(View.GONE);
-            findViewById(R.id.caffeine_count).setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        //TODO improve new user sign in
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser==null) {
-            //if no user, then create an anonymous account
-            new AlertDialog.Builder(this)
-                    .setTitle(  "No account detected")
-                    .setMessage("Create new anonymous account?")
-                    .setPositiveButton("Create", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            signUpAnonymous();
-                        }
-                    }).show();
-        } else {
-            //if the dietController is not instantiated or is a member of the wrong class, update it.
-            boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
-            if (overUnderEatingFunctionality) {
-                if(dietController == null || !(dietController instanceof OverUnderEatingDietController)) {
-                    dietController = new OverUnderEatingDietController(this);
-                    mealView = new MealHistoryDisplay(this, dietController);
-                    refresh();
-                }
+            if(!preferences.getBoolean("track_cheats", true)) {
+                dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(View.GONE);
             } else {
-                if(dietController == null || (dietController instanceof OverUnderEatingDietController)) {
-                    dietController = new BasicDietController(this);
-                    mealView = new MealHistoryDisplay(this, dietController);
-                    refresh();
-                }
+                dailyDisplayView.findViewById(R.id.drinks_progress).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.water_layout).setVisibility(View.GONE);
+
+                dailyDisplayView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.alcohol_image).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.alcohol_count).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(View.GONE);
+                dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(View.GONE);
             }
         }
+        refresh();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.settings:
-                Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(settingsIntent);
-                return true;
-        }
-        return false;
-    }
-
-    public void signUpEmail(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(DailyDisplayActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    public void signUpAnonymous() {
-        final Activity activity = this;
-        mAuth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "onComplete: signed up");
-                        if (task.isSuccessful()) {
-                            onStart();
-                            // Sign in success, update UI with the signed-in user's information
-                            UpdateCheatsDialogBox.updateDiet(activity);
-                            UpdateDrinkDietPlanDialogBox.updateDiet(activity);
-                            UpdateDietDialogBox.updateDiet(activity);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            task.getException().printStackTrace();
-                            Toast.makeText(DailyDisplayActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 
     /**
      * called when a user taps the add food button
@@ -292,15 +216,15 @@ public class DailyDisplayActivity extends AppCompatActivity implements DietContr
                 openCloseFoodFAB();
                 break;
             case R.id.addMealFAB:
-                AddMealDialogBox.addMeal(this);
+                AddMealDialogBox.addMeal(getActivity());
                 openCloseFoodFAB();
                 break;
             case R.id.addDrinkFAB:
-                AddDrinkDialogBox.addDrink(this);
+                AddDrinkDialogBox.addDrink(getActivity());
                 openCloseFoodFAB();
                 break;
             case R.id.recipeBookFAB:
-                RecipeListDialogBox.openRecipeBook(this);
+                RecipeListDialogBox.openRecipeBook(getActivity());
                 openCloseFoodFAB();
                 break;
             case R.id.FABBackground:
@@ -316,14 +240,14 @@ public class DailyDisplayActivity extends AppCompatActivity implements DietContr
      */
     private void openCloseFoodFAB() {
         //getting all the views and buttons
-        View background = findViewById(R.id.FABBackground);
-        FloatingActionButton addFoodFAB = findViewById(R.id.addFoodFAB);
-        FloatingActionButton mealFAB = findViewById(R.id.addMealFAB);
-        FloatingActionButton drinkFAB = findViewById(R.id.addDrinkFAB);
-        FloatingActionButton recipeBookFAB = findViewById(R.id.recipeBookFAB);
-        TextView mealTV = findViewById(R.id.addMealTV);
-        TextView addDrinkTV = findViewById(R.id.addDrinkTV);
-        TextView recipeBookTV = findViewById(R.id.recipeBookTV);
+        View background = dailyDisplayView.findViewById(R.id.FABBackground);
+        FloatingActionButton addFoodFAB = dailyDisplayView.findViewById(R.id.addFoodFAB);
+        FloatingActionButton mealFAB = dailyDisplayView.findViewById(R.id.addMealFAB);
+        FloatingActionButton drinkFAB = dailyDisplayView.findViewById(R.id.addDrinkFAB);
+        FloatingActionButton recipeBookFAB = dailyDisplayView.findViewById(R.id.recipeBookFAB);
+        TextView mealTV = dailyDisplayView.findViewById(R.id.addMealTV);
+        TextView addDrinkTV = dailyDisplayView.findViewById(R.id.addDrinkTV);
+        TextView recipeBookTV = dailyDisplayView.findViewById(R.id.recipeBookTV);
 
         //if the floating action button is open, close everything
         if(isFABOpen) {
@@ -386,7 +310,7 @@ public class DailyDisplayActivity extends AppCompatActivity implements DietContr
                 break;
         }
         intent.putExtra("foodType", type);
-        AddServeDialogBox.addServe(this, intent, null);
+        AddServeDialogBox.addServe(getActivity(), intent, null);
     }
 
     /**
@@ -395,48 +319,48 @@ public class DailyDisplayActivity extends AppCompatActivity implements DietContr
     public void refresh() {
         final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
-        DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
-        DailyMeals today = dietController.getTodaysMeals();
-        WeeklyIntake thisWeek = dietController.getThisWeeksIntake();
-        View weeklyContainer = findViewById(R.id.weekly_intake);
+        DietPlan todaysDietPlan = BasicDietController.getInstance().getTodaysDietPlan();
+        DailyMeals today = BasicDietController.getInstance().getTodaysMeals();
+        WeeklyIntake thisWeek = BasicDietController.getInstance().getThisWeeksIntake();
+        View weeklyContainer = dailyDisplayView.findViewById(R.id.weekly_intake);
 
         //get the text views from the main activity
-        TextView vegTV = findViewById(R.id.veg_count);
-        TextView proteinTV = findViewById(R.id.protein_count);
-        TextView dairyTV = findViewById(R.id.dairy_count);
-        TextView grainTV = findViewById(R.id.grain_count);
-        TextView fruitTV = findViewById(R.id.fruit_count);
-        TextView waterTV = findViewById(R.id.water_count);
-        TextView caffeineTV = findViewById(R.id.caffeine_count);
-        TextView alcoholTV = findViewById(R.id.alcohol_count);
-        TextView cheatTV = findViewById(R.id.cheat_count);
+        TextView vegTV = dailyDisplayView.findViewById(R.id.veg_count);
+        TextView proteinTV = dailyDisplayView.findViewById(R.id.protein_count);
+        TextView dairyTV = dailyDisplayView.findViewById(R.id.dairy_count);
+        TextView grainTV = dailyDisplayView.findViewById(R.id.grain_count);
+        TextView fruitTV = dailyDisplayView.findViewById(R.id.fruit_count);
+        TextView waterTV = dailyDisplayView.findViewById(R.id.water_count);
+        TextView caffeineTV = dailyDisplayView.findViewById(R.id.caffeine_count);
+        TextView alcoholTV = dailyDisplayView.findViewById(R.id.alcohol_count);
+        TextView cheatTV = dailyDisplayView.findViewById(R.id.cheat_count);
 
-        TextView weeklyVegTV = findViewById(R.id.weekly_veges_intake);
-        TextView weeklyProteinTV = findViewById(R.id.weekly_protein_intake);
-        TextView weeklyDairyTV = findViewById(R.id.weekly_dairy_intake);
-        TextView weeklyGrainTV = findViewById(R.id.weekly_grain_intake);
-        TextView weeklyFruitTV = findViewById(R.id.weekly_fruit_intake);
-        TextView weeklyWaterTV = findViewById(R.id.weekly_water_intake);
-        TextView weeklyCaffeineTV = findViewById(R.id.weekly_caffeine_count);
-        TextView weeklyAlcoholTV = findViewById(R.id.weekly_alcohol_count);
-        TextView weeklyCheatTV = findViewById(R.id.weekly_cheat_count);
+        TextView weeklyVegTV = dailyDisplayView.findViewById(R.id.weekly_veges_intake);
+        TextView weeklyProteinTV = dailyDisplayView.findViewById(R.id.weekly_protein_intake);
+        TextView weeklyDairyTV = dailyDisplayView.findViewById(R.id.weekly_dairy_intake);
+        TextView weeklyGrainTV = dailyDisplayView.findViewById(R.id.weekly_grain_intake);
+        TextView weeklyFruitTV = dailyDisplayView.findViewById(R.id.weekly_fruit_intake);
+        TextView weeklyWaterTV = dailyDisplayView.findViewById(R.id.weekly_water_intake);
+        TextView weeklyCaffeineTV = dailyDisplayView.findViewById(R.id.weekly_caffeine_count);
+        TextView weeklyAlcoholTV = dailyDisplayView.findViewById(R.id.weekly_alcohol_count);
+        TextView weeklyCheatTV = dailyDisplayView.findViewById(R.id.weekly_cheat_count);
 
-        TextView vegeLeftTV = findViewById(R.id.veg_left);
-        TextView proteinLeftTV = findViewById(R.id.protein_left);
-        TextView dairyLeftTV = findViewById(R.id.dairy_left);
-        TextView grainLeftTV = findViewById(R.id.grain_left);
-        TextView fruitLeftTV = findViewById(R.id.fruit_left);
-        TextView waterLeftTV = findViewById(R.id.water_left);
-        TextView cheatsTodayTV = findViewById(R.id.cheats_today);
+        TextView vegeLeftTV = dailyDisplayView.findViewById(R.id.veg_left);
+        TextView proteinLeftTV = dailyDisplayView.findViewById(R.id.protein_left);
+        TextView dairyLeftTV = dailyDisplayView.findViewById(R.id.dairy_left);
+        TextView grainLeftTV = dailyDisplayView.findViewById(R.id.grain_left);
+        TextView fruitLeftTV = dailyDisplayView.findViewById(R.id.fruit_left);
+        TextView waterLeftTV = dailyDisplayView.findViewById(R.id.water_left);
+        TextView cheatsTodayTV = dailyDisplayView.findViewById(R.id.cheats_today);
 
         //get the progress bars from the main activity
-        ProgressBar vegPB = findViewById(R.id.progress_vege);
-        ProgressBar meatPB = findViewById(R.id.progress_meat);
-        ProgressBar dairyPB = findViewById(R.id.progress_dairy);
-        ProgressBar grainPB = findViewById(R.id.progress_grain);
-        ProgressBar fruitPB = findViewById(R.id.progress_fruit);
-        ProgressBar waterPB = findViewById(R.id.progress_water);
-        ProgressBar cheatsPB = findViewById(R.id.toolbar_layout).findViewById(R.id.progress_cheats);
+        ProgressBar vegPB = dailyDisplayView.findViewById(R.id.progress_vege);
+        ProgressBar meatPB = dailyDisplayView.findViewById(R.id.progress_meat);
+        ProgressBar dairyPB = dailyDisplayView.findViewById(R.id.progress_dairy);
+        ProgressBar grainPB = dailyDisplayView.findViewById(R.id.progress_grain);
+        ProgressBar fruitPB = dailyDisplayView.findViewById(R.id.progress_fruit);
+        ProgressBar waterPB = dailyDisplayView.findViewById(R.id.progress_water);
+        ProgressBar cheatsPB = dailyDisplayView.findViewById(R.id.toolbar_layout).findViewById(R.id.progress_cheats);
         ProgressBar weeklyCheatsPB = weeklyContainer.findViewById(R.id.progress_cheats);
 
         //creating arrays of the text views to update
@@ -523,89 +447,5 @@ public class DailyDisplayActivity extends AppCompatActivity implements DietContr
         mealView.refreshRecommendations();
     }
 
-    /**
-     * Shows an achievement animation popup to the user
-     * @param activity, the activity this is being called from
-     * @param achievementText, the text to display to the user
-     */
-    private static void achievementAnimation(final Activity activity, int imageID, String achievementText) {
-        final View popup = LayoutInflater.from(activity).inflate(R.layout.popup_food_completion_achievement, null);
-        activity.addContentView(popup, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        ImageView popupImage = popup.findViewById(R.id.popup_image);
-        popupImage.setImageResource(imageID);
-        TextView popupText = popup.findViewById(R.id.popup_text);
-        if(popupText!=null) {
-            popupText.setText(achievementText);
-        }
 
-        Animation popupAnimation = AnimationUtils.loadAnimation(activity, R.anim.popup_anim);
-        Animation popupAnimationDelayed = AnimationUtils.loadAnimation(activity, R.anim.popup_anim);
-        popupAnimationDelayed.setStartOffset(200);
-        //make popup appear and dissapear before/after animation
-        popupAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                popup.setVisibility(View.VISIBLE);
-            }
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                popup.setVisibility(View.INVISIBLE);
-            }
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-        popup.startAnimation(popupAnimation);
-        popupImage.startAnimation(popupAnimationDelayed);
-    }
-
-    /** Methods to create achievements when goals are met */
-
-    @Override
-    public void todaysFoodCompleted() {
-        achievementAnimation(this, R.drawable.symbol_food_completed_thumbnail, getString(R.string.achievement_food_complete_text));
-    }
-    @Override
-    public void yesterdaysFoodCompleted() {
-        achievementAnimation(this, R.drawable.symbol_food_completed_thumbnail, getString(R.string.achievement_yesterday_food_complete_text));
-    }
-
-    @Override
-    public void todaysHydrationCompleted() {
-        achievementAnimation(this, R.drawable.symbol_water_completed, getString(R.string.achievement_hydration_complete_text));
-    }
-
-    @Override
-    public void todaysCheatsOver() {
-        achievementAnimation(this, R.drawable.excess_upright, getString(R.string.achievement_over_cheats_text));
-    }
-    /////////Functions for the SnackbarReady interface
-
-    @Override
-    public void undoDelete(Object savedObject) {
-        if(savedObject instanceof Meal) {
-            final Meal savedMeal = (Meal) savedObject;
-            Snackbar.make(findViewById(R.id.coordinator_overlay),
-                    "Deleted Meal", Snackbar.LENGTH_LONG)
-                    .setAction("Undo", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            savedMeal.pushToDB();
-                        }
-                    })
-                    .show();
-        }
-    }
-
-    @Override
-    public void undoAdd(final DocumentReference documentReference) {
-        Snackbar.make(findViewById(R.id.coordinator_overlay),
-                "Added Meal", Snackbar.LENGTH_LONG)
-                .setAction("Undo", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        documentReference.delete();
-                    }
-                })
-                .show();
-    }
 }

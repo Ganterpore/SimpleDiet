@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Model.DietPlan;
@@ -41,24 +42,21 @@ import java.util.Date;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ganterpore.simplediet.View.Activities.DailyDisplayActivity.SHARED_PREFS_LOC;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 
 class MealHistoryDisplay  {
     public static final String EXPIRY_TAG = "_expiry";
     public static final String TAG = "MealHistoryDisplay";
     private Activity activity;
-    private DietController dietController;
     private List<DietController.Recommendation> recommendations;
     private RecyclerView history;
 
-    MealHistoryDisplay(Activity activity, DietController dietController) {
+    MealHistoryDisplay(Activity activity, RecyclerView history) {
         this.activity = activity;
-        this.dietController = dietController;
-        RecyclerView history = activity.findViewById(R.id.day_history_list);
+        this.history = history;
         recommendations = new ArrayList<>();
         history.setAdapter(new DayHistoryAdapter(activity, 7));
-        this.history = history;
 
         //setting up ability to swipe recommendations
         RecommendationSwipeController swipeController = new RecommendationSwipeController(activity, history);
@@ -71,7 +69,7 @@ class MealHistoryDisplay  {
      */
     void refreshRecommendations() {
         //getting all recommendations, and clearing the list of visible recommendations.
-        List<DietController.Recommendation> allRecomendations = dietController.getRecommendations();
+        List<DietController.Recommendation> allRecomendations = BasicDietController.getInstance().getRecommendations();
         if(recommendations != null) {
             recommendations.clear();
         } else {
@@ -280,6 +278,7 @@ class MealHistoryDisplay  {
         private void buildMeal(final int nDaysAgo) {
             final int SCALE_FACTOR = 100;
 
+            DietController dietController = BasicDietController.getInstance();
             DailyMeals day = dietController.getDaysMeals(nDaysAgo);
             DietPlan daysPlan = dietController.getDaysDietPlan(nDaysAgo);
             //getting and updating values for the views
