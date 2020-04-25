@@ -90,6 +90,31 @@ public class DietPlan {
         return dailyVeges + dailyProtein + dailyDairy + dailyGrain + dailyFruit;
     }
 
+    public double getServesOf(Meal.FoodType foodType) {
+        switch (foodType) {
+            case VEGETABLE:
+                return getDailyVeges();
+            case MEAT:
+                return getDailyProtein();
+            case MILK:
+            case DAIRY:
+                return getDailyDairy();
+            case GRAIN:
+                return getDailyGrain();
+            case FRUIT:
+                return getDailyFruit();
+            case EXCESS:
+                return getDailyCheats();
+            case WATER:
+                return getDailyHydration();
+            case CAFFEINE:
+                return getDailyCaffeine();
+            case ALCOHOL:
+                return getDailyAlcohol();
+        }
+        return 0;
+    }
+
     public double getDailyVeges() {
         return dailyVeges;
     }

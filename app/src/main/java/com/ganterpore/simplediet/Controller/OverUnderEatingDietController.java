@@ -46,7 +46,8 @@ public class OverUnderEatingDietController extends BasicDietController{
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                 if(queryDocumentSnapshots != null) {
-                    //check the day of the data changes, and delete any plans after that day
+                    //check the day of the data changes, and get the max days ago
+                    int maxDaysAgo = 0;
                     List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();
                     for(DocumentChange documentChange : changedData) {
                         //getting how many days ago
@@ -55,11 +56,16 @@ public class OverUnderEatingDietController extends BasicDietController{
                         Date changedDayStart = getStartOfDay(new Date(changedDay));
                         long msDiff = System.currentTimeMillis() - changedDayStart.getTime();
                         int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
-                        //removing all days after given day
-                        for(int i=daysAgo-1;i>=0;i--) {
-                            daysAgoDiets.remove(i);
+                        //updating the max
+                        if(daysAgo > maxDaysAgo) {
+                            maxDaysAgo = daysAgo;
                         }
                     }
+                    //removing all days after the maxDaysAgo, so they are updated
+                    for(int i=maxDaysAgo-1;i>=0;i--) {
+                        daysAgoDiets.remove(i);
+                    }
+                    updateListener();
                 }
             }
         });
@@ -72,51 +78,52 @@ public class OverUnderEatingDietController extends BasicDietController{
         if(daysDiet != null) {
             return daysDiet;
         } else {
-            //otherwise make it
-            DailyMeals dayBeforesMeals = getDaysMeals(nDaysAgo+1);
-            //base case
-            if(dayBeforesMeals.getTotalServes() < 0.1) {
-                //if (essentially) nothing was eaten the day before, make a default recommendation
-                daysAgoDiets.append(nDaysAgo, getOverallDietPlan().copy());
-            } else {
-                //make todays diet a default recommendation, then alter by the excess from yesterday
-                daysDiet = getOverallDietPlan().copy();
-                daysDiet.setDailyVeges(daysDiet.getDailyVeges() - getExcess(nDaysAgo+1, FoodType.VEGETABLE));
-                daysDiet.setDailyProtein(daysDiet.getDailyVeges() - getExcess(nDaysAgo+1, FoodType.MEAT));
-                daysDiet.setDailyDairy(daysDiet.getDailyVeges() - getExcess(nDaysAgo+1, FoodType.DAIRY));
-                daysDiet.setDailyGrain(daysDiet.getDailyVeges() - getExcess(nDaysAgo+1, FoodType.GRAIN));
-                daysDiet.setDailyFruit(daysDiet.getDailyVeges() - getExcess(nDaysAgo+1, FoodType.FRUIT));
-                daysAgoDiets.append(nDaysAgo, daysDiet);
-            }
-        return daysAgoDiets.get(nDaysAgo);
+            //if not already made, than make it
+            daysDiet = getOverallDietPlan().copy();
+            daysDiet.setDailyVeges(getDaysFoodTypePlan(nDaysAgo, FoodType.VEGETABLE));
+            daysDiet.setDailyProtein(getDaysFoodTypePlan(nDaysAgo, FoodType.MEAT));
+            daysDiet.setDailyDairy(getDaysFoodTypePlan(nDaysAgo, FoodType.DAIRY));
+            daysDiet.setDailyGrain(getDaysFoodTypePlan(nDaysAgo, FoodType.GRAIN));
+            daysDiet.setDailyFruit(getDaysFoodTypePlan(nDaysAgo, FoodType.FRUIT));
+            daysAgoDiets.put(nDaysAgo, daysDiet);
         }
+        return daysAgoDiets.get(nDaysAgo);
+
+    }
+
+    private double getDaysFoodTypePlan(int nDaysAgo, FoodType foodType) {
+        double yesterdaysServeOfFood = getDaysMeals(nDaysAgo+1).getServesOf(foodType);
+        double dayBeforesServesOfFood = getDaysMeals(nDaysAgo+2).getServesOf(foodType);
+        double standardRecommendation = getOverallDietPlan().getServesOf(foodType);
+        //if the amount the user ate over the past two days was more than the standard recommendation
+        if((yesterdaysServeOfFood + dayBeforesServesOfFood) > (standardRecommendation*2)) {
+            double yesterdaysExcess = getExcess(nDaysAgo+1, foodType);
+            double dayBeforesUnderEating = getDearth(nDaysAgo+2, foodType);
+            //then double check the user went over the actual recommendation for yesterday, and it wasn't just to do with the day befores undereating
+            double normalisedExcess = dayBeforesUnderEating < 0 ? yesterdaysExcess + dayBeforesUnderEating : yesterdaysExcess;
+            if(normalisedExcess > 0) {
+                return standardRecommendation - normalisedExcess;
+            }
+        }
+        //otherwise, recommend the standard recommendation
+        return standardRecommendation;
     }
 
     private double getExcess(int nDaysAgo, FoodType foodType) {
         double excess;
         DietPlan plan = getDaysDietPlan(nDaysAgo);
         DailyMeals meals = getDaysMeals(nDaysAgo);
-        switch (foodType) {
-            case VEGETABLE:
-                excess = meals.getVegCount() - plan.getDailyVeges();
-                break;
-            case MEAT:
-                excess = meals.getProteinCount() - plan.getDailyProtein();
-                break;
-            case DAIRY:
-                excess = meals.getDairyCount() - plan.getDailyDairy();
-                break;
-            case GRAIN:
-                excess = meals.getGrainCount() - plan.getDailyGrain();
-                break;
-            case FRUIT:
-                excess = meals.getFruitCount() - plan.getDailyFruit();
-                break;
-            default:
-                excess = 0.0;
-        }
+        excess = meals.getServesOf(foodType) - plan.getServesOf(foodType);
         //if excess is less than 0, return 0
         return excess > 0 ? excess : 0;
+    }
+
+    private double getDearth(int nDaysAgo, FoodType foodType) {
+        double dearth;
+        DietPlan plan = getDaysDietPlan(nDaysAgo);
+        DailyMeals meals = getDaysMeals(nDaysAgo);
+        dearth = meals.getServesOf(foodType) - plan.getServesOf(foodType);
+        return dearth < 0 ? dearth : 0;
     }
 
     public boolean isFoodCompleted(int nDaysAgo, FoodType foodType) {
@@ -169,112 +176,6 @@ public class OverUnderEatingDietController extends BasicDietController{
                 && isFoodCompleted(nDaysAgo, FoodType.FRUIT);
     }
 
-//    /**
-//     * updates all the DietPlans that have been looked at so far by the Controller, and updates their values.
-//     * should be called when an update to the overall DietPlan or any DailyMeals has occurred.
-//     */
-//    private void refreshDietPlans() {
-//        //for each days diet in the list, refresh the diet
-//        for(int i=0;i<daysAgoDiets.size();i++) {
-//            int nDaysAgo = daysAgoDiets.keyAt(i);
-//            //get the meals from the previous two days
-//            DailyMeals dayBeforesMeals = getDaysMeals(nDaysAgo + 1);
-//            DailyMeals twoDaysBeforeMeals = getDaysMeals(nDaysAgo + 2);
-//
-//            double vegCountAdjusted;
-//            double proteinCountAdjusted;
-//            double dairyCountAdjusted;
-//            double grainCountAdjusted;
-//            double fruitCountAdjusted;
-//            if(twoDaysBeforeMeals.getTotalServes() < 0.5) {
-//                //if two days before is an invalid entry, then just look at yesterday
-//                vegCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getVegCount(), getOverallDietPlan().getDailyVeges());
-//                proteinCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getProteinCount(), getOverallDietPlan().getDailyProtein());
-//                dairyCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getDairyCount(), getOverallDietPlan().getDailyDairy());
-//                grainCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getGrainCount(), getOverallDietPlan().getDailyGrain());
-//                fruitCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getFruitCount(), getOverallDietPlan().getDailyFruit());
-//            } else {
-//                //adjust the diet counts based on the last few days meals
-//                vegCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getVegCount(), twoDaysBeforeMeals.getVegCount(), getOverallDietPlan().getDailyVeges());
-//                proteinCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getProteinCount(), twoDaysBeforeMeals.getProteinCount(), getOverallDietPlan().getDailyProtein());
-//                dairyCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getDairyCount(), twoDaysBeforeMeals.getDairyCount(), getOverallDietPlan().getDailyDairy());
-//                grainCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getGrainCount(), twoDaysBeforeMeals.getGrainCount(), getOverallDietPlan().getDailyGrain());
-//                fruitCountAdjusted = adjustTodaysDiet(dayBeforesMeals.getFruitCount(), twoDaysBeforeMeals.getFruitCount(), getOverallDietPlan().getDailyFruit());
-//            }
-//
-//            //create new dietPlan
-//            DietPlan newDiet = new DietPlan(vegCountAdjusted, proteinCountAdjusted,
-//                    dairyCountAdjusted, grainCountAdjusted, fruitCountAdjusted,
-//                    getOverallDietPlan().getDailyHydration(), getOverallDietPlan().getDailyCheats(),
-//                    getOverallDietPlan().getDailyCaffeine(), getOverallDietPlan().getDailyAlcohol(),
-//                    getOverallDietPlan().getUser());
-//
-//            //replace the diet plan with the new one
-//            daysAgoDiets.put(nDaysAgo, newDiet);
-//        }
-//
-//    }
-
-//    /**
-//     * looks at the amount of food eaten in the past two days of the particular food group, versus
-//     * the expected amount and comes up with a recommended amount to eat on this day
-//     * @param yesterdaysCount the count of the food group yesterday
-//     * @param dayBeforesCount te count of the food group the day before yesterday
-//     * @param expectedCount the expected food count
-//     * @return the adjusted amount of the food group
-//     */
-//    private double adjustTodaysDiet(double yesterdaysCount, Double dayBeforesCount, double expectedCount) {
-//        //normalised values is the difference between the count and the expected count
-//        double yesterdayNormalised = yesterdaysCount - expectedCount;
-//        double dayBeforeNormalised = dayBeforesCount - expectedCount;
-//        double adjuster = 0;
-//
-//        if(yesterdayNormalised > 0 && dayBeforeNormalised >= 0) {
-//            //if I ate too much yesterday, I can eat less today. However if I also ate too much the day before don't stack it
-//            adjuster = -yesterdayNormalised;
-//        } else if(yesterdayNormalised > 0 && dayBeforeNormalised < 0) {
-//            //if I ate too much yesterday, but it was due to eating too little the day before get the difference
-//            //if this is still positive, then adjust the diet to eat less
-//            double difference = yesterdayNormalised + dayBeforeNormalised;
-//            if(difference > 0) {
-//                adjuster = -difference;
-//            } else {
-//                //otherwise don't adjust the diet
-//                adjuster = 0;
-//            }
-//        }else if(yesterdayNormalised <= 0 && dayBeforeNormalised > 0) {
-//            //if I ate too little yesterday, but too much the day before, get the difference
-//            //if I overall ate too much over the two days, adjust the diet to eat less
-//            double difference = yesterdayNormalised + dayBeforeNormalised;
-//            if(difference > 0) {
-//                adjuster = -difference;
-//            } else {
-//                //otherwise don't adjust the diet
-//                adjuster = 0;
-//            }
-//        } else if(yesterdayNormalised < 0 && dayBeforeNormalised <= 0) {
-//            //If I ate too little over both the days, don't adjust the diet
-//            adjuster = 0;
-//        } else if(yesterdayNormalised==0) {
-//            //if I ate the right amount, don't adjust the diet
-//            adjuster = 0;
-//        }
-//        return expectedCount + adjuster;
-//    }
-
-//    /**
-//     * Same function, but only looks at one previous days data
-//     */
-//    private double adjustTodaysDiet(double yesterdaysCount, double expectedCount) {
-//        double yesterdayNormalised = yesterdaysCount - expectedCount; //eg. two too many yesterday, x = 2
-//        if(yesterdayNormalised > 0) {
-//            return expectedCount - yesterdayNormalised; //ate too much yesterday, eat less today
-//        }
-//        return expectedCount; //ate too little yesterday? just eat the normal amount today
-//        //if I overate yesterday, then expected count reduces and vice versa
-////        return expectedCount + (expectedCount - yesterdaysCount);
-//    }
-
     @Override
     public List<Recommendation> getRecommendations() {
         //get the recommendations from the superior DietController
@@ -294,28 +195,30 @@ public class OverUnderEatingDietController extends BasicDietController{
     }
 
     private Recommendation getOverEatingRecommendation() {
+        DietPlan todaysPlan = getTodaysDietPlan();
+        DietPlan overallDiet = getOverallDietPlan();
         String id = "over_eating";
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Over eating";
         String message = "Yesterday you ate too much ";
         int count = 0;
-        if(getExcess(1, FoodType.VEGETABLE) > 0) {
+        if(todaysPlan.getDailyVeges() < overallDiet.getDailyVeges()) {
             message += "veges, ";
             count++;
         }
-        if(getExcess(1, FoodType.MEAT)>0) {
+        if(todaysPlan.getDailyProtein() < overallDiet.getDailyProtein()) {
             message += "proteins, ";
             count++;
         }
-        if(getExcess(1, FoodType.DAIRY)>0) {
+        if(todaysPlan.getDailyDairy() < overallDiet.getDailyDairy()) {
             message += "dairy, ";
             count++;
         }
-        if(getExcess(1, FoodType.GRAIN)>0) {
+        if(todaysPlan.getDailyGrain() < overallDiet.getDailyGrain()) {
             message += "grain, ";
             count++;
         }
-        if(getExcess(1, FoodType.FRUIT)>0) {
+        if(todaysPlan.getDailyFruit() < overallDiet.getDailyFruit()) {
             message += "fruit, ";
             count++;
         }
@@ -370,13 +273,6 @@ public class OverUnderEatingDietController extends BasicDietController{
             return new Recommendation(id, title, message, expiry);
         }
         return null;
-    }
-
-    @Override
-    public void updateListener() {
-        //before informing the listener, make sure own data is accurate
-//        refreshDietPlans();
-        super.updateListener();
     }
 
     /**

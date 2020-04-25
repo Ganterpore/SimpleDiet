@@ -304,6 +304,11 @@ public class Meal {
         return caffeineCount;
     }
 
+    //legacy of old bad spelling
+    public void setCaffieneCount(double caffeineCount) {
+        this.caffeineCount = caffeineCount;
+    }
+
     public void setCaffeineCount(double caffeineCount) {
         this.caffeineCount = caffeineCount;
     }
