@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-import androidx.preference.SwitchPreference;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.ganterpore.simplediet.Controller.NotificationReciever;
@@ -50,7 +49,7 @@ public class SettingsActivity extends AppCompatActivity {
      * This will cancel any notifications that have been turned off, and set any turned on.
      */
     private void updateNotifications() {
-        SharedPreferences preferences = getSharedPreferences(MainActivity.SHARED_PREFS_LOC, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(DailyDisplayActivity.SHARED_PREFS_LOC, MODE_PRIVATE);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         if(preferences.getBoolean(NotificationReciever.MORNING_NOTIFICATION_CHANNEL, false)) {
             //if we are doing morning notifications, then set it up
@@ -122,7 +121,7 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             PreferenceManager preferenceManager = getPreferenceManager();
-            preferenceManager.setSharedPreferencesName(MainActivity.SHARED_PREFS_LOC);
+            preferenceManager.setSharedPreferencesName(DailyDisplayActivity.SHARED_PREFS_LOC);
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
             final SwitchPreferenceCompat track_alcohol = findPreference("track_alcohol");
             final SwitchPreferenceCompat track_caffeine = findPreference("track_caffeine");

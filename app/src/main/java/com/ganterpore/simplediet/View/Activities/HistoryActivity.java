@@ -32,7 +32,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
-import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+import static com.ganterpore.simplediet.View.Activities.DailyDisplayActivity.SHARED_PREFS_LOC;
 
 public class HistoryActivity extends AppCompatActivity {
     public static final String TAG = "HistoryActivity";

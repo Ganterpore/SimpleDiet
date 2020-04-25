@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -33,7 +32,7 @@ import java.text.NumberFormat;
 import java.util.Calendar;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+import static com.ganterpore.simplediet.View.Activities.DailyDisplayActivity.SHARED_PREFS_LOC;
 import static com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox.DRINK_STANDARD_SERVE;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {

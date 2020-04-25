@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,9 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -38,10 +35,8 @@ import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Controller.WeeklyIntake;
-import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
-import com.ganterpore.simplediet.View.Animation.MyBounceInterpolator;
 import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
@@ -64,7 +59,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class MainActivity extends AppCompatActivity implements DietController.DietControllerListener,
+public class DailyDisplayActivity extends AppCompatActivity implements DietController.DietControllerListener,
                                                                 SnackbarReady{
     private static final String TAG = "MainActivity";
     public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
@@ -79,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_daily_display);
         preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         //initialising services
         mAuth = FirebaseAuth.getInstance();
@@ -256,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                             // Sign in success, update UI with the signed-in user's information
                         } else {
                             // If sign in fails, display a message to the user.
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                            Toast.makeText(DailyDisplayActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -279,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
                         } else {
                             // If sign in fails, display a message to the user.
                             task.getException().printStackTrace();
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                            Toast.makeText(DailyDisplayActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }

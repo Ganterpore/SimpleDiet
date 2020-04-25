@@ -16,7 +16,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+import static com.ganterpore.simplediet.View.Activities.DailyDisplayActivity.SHARED_PREFS_LOC;
 
 public class AddCheatsDialogBox {
     public static final String TAG = "AddCheatsDialogBox";
