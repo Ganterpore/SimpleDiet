@@ -70,7 +70,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             //setting up the notifications
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR*8, pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
         } else {
             //if we are not doing morning alarms, confirm they are cancelled
             Intent intent = new Intent(this, NotificationReciever.class);
@@ -131,14 +131,10 @@ public class SettingsActivity extends AppCompatActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if(!((Boolean) newValue)) {
                         track_alcohol.setChecked(false);
-//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_alcohol", false).apply();
                         track_caffeine.setChecked(false);
-//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_caffeine", false).apply();
                     } else {
                         track_alcohol.setChecked(true);
-//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_alcohol", true).apply();
                         track_caffeine.setChecked(true);
-//                        getPreferenceManager().getSharedPreferences().edit().putBoolean("track_caffeine", true).apply();
                     }
                     return true;
                 }
