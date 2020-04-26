@@ -16,7 +16,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ganterpore.simplediet.Controller.BasicDietController;
@@ -32,9 +34,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
-public class HistoryActivity extends AppCompatActivity {
+public class HistoryActivity extends Fragment {
     public static final String TAG = "HistoryActivity";
     DietController dietController;
     RecyclerView weeksHistory;
@@ -43,39 +46,40 @@ public class HistoryActivity extends AppCompatActivity {
     private boolean trackCaffeine;
     private boolean trackCheats;
 
+    private View historyView;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history);
-        Log.d(TAG, "onCreate: starting");
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        historyView = inflater.inflate(R.layout.activity_history, container, false);
+        return historyView;
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         dietController = BasicDietController.getInstance();
         setMonthlyView();
 
-        weeksHistory = findViewById(R.id.weeks_history);
-        weeksHistory.setAdapter(new WeekHistoryAdapter(this, 8));
+        weeksHistory = historyView.findViewById(R.id.weeks_history);
+        weeksHistory.setAdapter(new WeekHistoryAdapter(getActivity(), 8));
 
-        SharedPreferences preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         trackWater = preferences.getBoolean("track_water", true);
         trackAlcohol = preferences.getBoolean("track_alcohol", true);
         trackCaffeine = preferences.getBoolean("track_caffeine", true);
         trackCheats = preferences.getBoolean("track_cheats", true);
         if (!trackWater) {
-            findViewById(R.id.monthly_water_container).setVisibility(View.GONE);
+            historyView.findViewById(R.id.monthly_water_container).setVisibility(View.GONE);
         }
         if (!trackCheats) {
-            findViewById(R.id.monthly_cheat_container).setVisibility(View.GONE);
+            historyView.findViewById(R.id.monthly_cheat_container).setVisibility(View.GONE);
         }
         if (!trackCaffeine) {
-            findViewById(R.id.monthly_caffeine_container).setVisibility(View.GONE);
+            historyView.findViewById(R.id.monthly_caffeine_container).setVisibility(View.GONE);
         }
         if (!trackAlcohol) {
-            findViewById(R.id.monthly_alcohol_container).setVisibility(View.GONE);
+            historyView.findViewById(R.id.monthly_alcohol_container).setVisibility(View.GONE);
         }
     }
 
@@ -85,7 +89,7 @@ public class HistoryActivity extends AppCompatActivity {
     private void setMonthlyView() {
         final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
-        View monthlyContainer = findViewById(R.id.monthly_container);
+        View monthlyContainer = historyView.findViewById(R.id.monthly_container);
 
         WeeklyIntake week1 = dietController.getWeeksIntake(0);
         WeeklyIntake week2 = dietController.getWeeksIntake(1);
@@ -93,15 +97,15 @@ public class HistoryActivity extends AppCompatActivity {
         WeeklyIntake week4 = dietController.getWeeksIntake(3);
 
         //get the text views from the main activity
-        TextView monthlyVegTV = findViewById(R.id.monthly_veges_intake);
-        TextView monthlyProteinTV = findViewById(R.id.monthly_protein_intake);
-        TextView monthlyDairyTV = findViewById(R.id.monthly_dairy_intake);
-        TextView monthlyGrainTV = findViewById(R.id.monthly_grain_intake);
-        TextView monthlyFruitTV = findViewById(R.id.monthly_fruit_intake);
-        TextView monthlyWaterTV = findViewById(R.id.monthly_water_intake);
-        TextView monthlyCaffeineTV = findViewById(R.id.monthly_caffeine_count);
-        TextView monthlyAlcoholTV = findViewById(R.id.monthly_alcohol_count);
-        TextView monthlyCheatTV = findViewById(R.id.monthly_cheat_count);
+        TextView monthlyVegTV = historyView.findViewById(R.id.monthly_veges_intake);
+        TextView monthlyProteinTV = historyView.findViewById(R.id.monthly_protein_intake);
+        TextView monthlyDairyTV = historyView.findViewById(R.id.monthly_dairy_intake);
+        TextView monthlyGrainTV = historyView.findViewById(R.id.monthly_grain_intake);
+        TextView monthlyFruitTV = historyView.findViewById(R.id.monthly_fruit_intake);
+        TextView monthlyWaterTV = historyView.findViewById(R.id.monthly_water_intake);
+        TextView monthlyCaffeineTV = historyView.findViewById(R.id.monthly_caffeine_count);
+        TextView monthlyAlcoholTV = historyView.findViewById(R.id.monthly_alcohol_count);
+        TextView monthlyCheatTV = historyView.findViewById(R.id.monthly_cheat_count);
 
         //get the progress bars from the main activity
         ProgressBar monthlyCheatsPB = monthlyContainer.findViewById(R.id.progress_cheats);

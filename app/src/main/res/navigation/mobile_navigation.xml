@@ -13,9 +13,9 @@
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.ganterpore.simplediet.View.Activities.ui.dashboard.DashboardFragment"
+        android:name="com.ganterpore.simplediet.View.Activities.HistoryActivity"
         android:label="History"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/activity_history" />
 
     <fragment
         android:id="@+id/navigation_options"
