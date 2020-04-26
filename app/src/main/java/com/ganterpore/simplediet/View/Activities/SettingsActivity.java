@@ -1,15 +1,23 @@
 package com.ganterpore.simplediet.View.Activities;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -20,43 +28,38 @@ import com.ganterpore.simplediet.R;
 
 import java.util.Calendar;
 
-public class SettingsActivity extends AppCompatActivity {
+import static android.content.Context.ALARM_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
+
+public class SettingsActivity extends Fragment {
     public static final String TAG = "SettingsActivity";
 
+    private View settingsView;
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-        getSupportFragmentManager()
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        settingsView = inflater.inflate(R.layout.activity_settings, container, false);
+        getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.settings, new SettingsFragment())
                 .commit();
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        //before leaving the settings, make sure the notifications are set
-        updateNotifications();
+        return settingsView;
     }
 
     /**
      * function is used to update the notifications when a user exits the settings page.
      * This will cancel any notifications that have been turned off, and set any turned on.
      */
-    private void updateNotifications() {
-        SharedPreferences preferences = getSharedPreferences(MainActivity.SHARED_PREFS_LOC, MODE_PRIVATE);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+    private static void updateNotifications(Activity activity) {
+        SharedPreferences preferences = activity.getSharedPreferences(MainActivity.SHARED_PREFS_LOC, MODE_PRIVATE);
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
         if(preferences.getBoolean(NotificationReciever.MORNING_NOTIFICATION_CHANNEL, false)) {
             //if we are doing morning notifications, then set it up
             //creating notification intent
-            Intent intent = new Intent(this, NotificationReciever.class);
+            Intent intent = new Intent(activity, NotificationReciever.class);
             intent.putExtra("id", NotificationReciever.MORNING_NOTIFICATION_CHANNEL);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, NotificationReciever.MORNING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, NotificationReciever.MORNING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             //getting the time set for morning notifications
             Calendar calendar = Calendar.getInstance();
@@ -72,18 +75,18 @@ public class SettingsActivity extends AppCompatActivity {
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
         } else {
             //if we are not doing morning alarms, confirm they are cancelled
-            Intent intent = new Intent(this, NotificationReciever.class);
+            Intent intent = new Intent(activity, NotificationReciever.class);
             intent.putExtra("id", NotificationReciever.MORNING_NOTIFICATION_CHANNEL);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, NotificationReciever.MORNING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, NotificationReciever.MORNING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.cancel(pendingIntent);
         }
 
         if(preferences.getBoolean(NotificationReciever.EVENING_NOTIFICATION_CHANNEL, false)) {
             //if we are doing morning notifications, then set it up
             //creating notification intent
-            Intent intent = new Intent(this, NotificationReciever.class);
+            Intent intent = new Intent(activity, NotificationReciever.class);
             intent.putExtra("id", NotificationReciever.EVENING_NOTIFICATION_CHANNEL);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, NotificationReciever.EVENING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, NotificationReciever.EVENING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             //getting the time set for morning notifications
             Calendar calendar = Calendar.getInstance();
@@ -99,21 +102,10 @@ public class SettingsActivity extends AppCompatActivity {
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
         } else {
             //if we are not doing evening alarms, confirm they are cancelled
-            Intent intent = new Intent(this, NotificationReciever.class);
+            Intent intent = new Intent(activity, NotificationReciever.class);
             intent.putExtra("id", NotificationReciever.EVENING_NOTIFICATION_CHANNEL);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, NotificationReciever.EVENING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, NotificationReciever.EVENING_NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.cancel(pendingIntent);
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -138,6 +130,19 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 }
             });
+
+            //making notification services update when preferences are changed
+            Preference.OnPreferenceChangeListener updateNotificationsOnChange = new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    updateNotifications(getActivity());
+                    return true;
+                }
+            };
+            findPreference("morning_notifications").setOnPreferenceChangeListener(updateNotificationsOnChange);
+            findPreference("morning_notification_time").setOnPreferenceChangeListener(updateNotificationsOnChange);
+            findPreference("evening_notifications").setOnPreferenceChangeListener(updateNotificationsOnChange);
+            findPreference("evening_notification_time").setOnPreferenceChangeListener(updateNotificationsOnChange);
         }
 
 

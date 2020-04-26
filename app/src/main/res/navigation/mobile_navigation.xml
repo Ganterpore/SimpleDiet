@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_options"
-        android:name="com.ganterpore.simplediet.View.Activities.ui.notifications.NotificationsFragment"
+        android:name="com.ganterpore.simplediet.View.Activities.SettingsActivity"
         android:label="Options"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/activity_settings" />
 </navigation>
