@@ -1,8 +1,13 @@
 package com.ganterpore.simplediet.View.Activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -47,6 +52,7 @@ public class HistoryActivity extends Fragment {
     private boolean trackCheats;
 
     private View historyView;
+    private AsyncTask<Void, Void, Void> ViewBuilder;
 
     @Nullable
     @Override
@@ -59,10 +65,7 @@ public class HistoryActivity extends Fragment {
     public void onStart() {
         super.onStart();
         dietController = BasicDietController.getInstance();
-        setMonthlyView();
-
-        weeksHistory = historyView.findViewById(R.id.weeks_history);
-        weeksHistory.setAdapter(new WeekHistoryAdapter(getActivity(), 8));
+        new ViewBuilder(this, dietController).execute();
 
         SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         trackWater = preferences.getBoolean("track_water", true);
@@ -83,10 +86,43 @@ public class HistoryActivity extends Fragment {
         }
     }
 
+    private void buildWeeksHistory() {
+        RecyclerView weeksHistory = historyView.findViewById(R.id.weeks_history);
+        weeksHistory.setAdapter(new WeekHistoryAdapter(getActivity(), 8));
+    }
+
+    private static class ViewBuilder extends AsyncTask<Void, Void, Void>  {
+        DietController dietController;
+        HistoryActivity activity;
+
+        public ViewBuilder(HistoryActivity activity, DietController dietController) {
+            this.activity = activity;
+            this.dietController = dietController;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            activity.showProgress(true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            setMonthlyView(activity.historyView, dietController);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            activity.buildWeeksHistory();
+            activity.showProgress(false);
+        }
+
+    }
+
     /**
      * Sets up all the values of the monthly view
      */
-    private void setMonthlyView() {
+    private static void setMonthlyView(View historyView, DietController dietController) {
         final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
         View monthlyContainer = historyView.findViewById(R.id.monthly_container);
@@ -143,11 +179,7 @@ public class HistoryActivity extends Fragment {
         }
 
         monthlyCheatsPB.setMax((int) (week1.getWeeklyLimitCheats() * 4 * SCALE_FACTOR));
-        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(monthlyCheatsPB, "progress",
-                (int) (week1.getTotalCheats()+week2.getTotalCheats()+week3.getTotalCheats()+week4.getTotalCheats())*SCALE_FACTOR);
-        objectAnimator.setDuration(500);
-        objectAnimator.setInterpolator(new DecelerateInterpolator());
-        objectAnimator.start();
+        monthlyCheatsPB.setProgress((int) (week1.getTotalCheats()+week2.getTotalCheats()+week3.getTotalCheats()+week4.getTotalCheats())*SCALE_FACTOR);
     }
 
     /**
@@ -380,5 +412,82 @@ public class HistoryActivity extends Fragment {
             }
         }
 
+    }
+
+    /**
+     * Shows the progress UI and hides the Chat Information
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        final View progressView = historyView.findViewById(R.id.progress);
+
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+//            allMessagesView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            allMessagesView.animate().setDuration(shortAnimTime).alpha(
+//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    allMessagesView.setVisibility(show ? View.GONE : View.VISIBLE);
+//                }
+//            });
+//
+//            typeMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            typeMessageView.animate().setDuration(shortAnimTime).alpha(
+//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    typeMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//                }
+//            });
+//
+//            sendMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            sendMessageView.animate().setDuration(shortAnimTime).alpha(
+//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    sendMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//                }
+//            });
+//
+//            sendImageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            sendImageView.animate().setDuration(shortAnimTime).alpha(
+//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    sendImageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//                }
+//            });
+//
+//            messageContainerview.setVisibility(show ? View.GONE : View.VISIBLE);
+//            messageContainerview.animate().setDuration(shortAnimTime).alpha(
+//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    messageContainerview.setVisibility(show ? View.GONE : View.VISIBLE);
+//                }
+//            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+//            allMessagesView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            sendMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            typeMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            messageContainerview.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
     }
 }

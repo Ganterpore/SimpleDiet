@@ -94,13 +94,11 @@ public class MainActivity extends AppCompatActivity implements DietController.Di
             if (overUnderEatingFunctionality) {
                 if(dietController == null || !(dietController instanceof OverUnderEatingDietController)) {
                     dietController = new OverUnderEatingDietController(this);
-//                    mealView = new MealHistoryDisplay(this, dietController);
                     refresh();
                 }
             } else {
                 if(dietController == null || (dietController instanceof OverUnderEatingDietController)) {
                     dietController = new BasicDietController(this);
-//                    mealView = new MealHistoryDisplay(this, dietController);
                     refresh();
                 }
             }

@@ -144,7 +144,5 @@ public class SettingsActivity extends Fragment {
             findPreference("evening_notifications").setOnPreferenceChangeListener(updateNotificationsOnChange);
             findPreference("evening_notification_time").setOnPreferenceChangeListener(updateNotificationsOnChange);
         }
-
-
     }
 }
