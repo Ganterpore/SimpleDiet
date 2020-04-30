@@ -39,6 +39,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -251,12 +252,8 @@ public class HistoryActivity extends Fragment {
          * builds the images for the view, and sends them off to the viewholder to build once ready
          */
         private static class WeekImageBuilder extends AsyncTask<Void, Void, Void> {
-            private HashMap<String, Drawable> imageMap = new HashMap<>();
-            private HashMap<String, Boolean> completedMap = new HashMap<>();
+            static HashMap<String, Drawable> imageMap;
             WeekHistoryViewHolder parent;
-            DietController dietController;
-            private double cheatMax;
-            private double cheatProgress;
 
             WeekImageBuilder(WeekHistoryViewHolder parent) {
                 this.parent = parent;
@@ -264,8 +261,12 @@ public class HistoryActivity extends Fragment {
 
             @Override
             protected Void doInBackground(Void... voids) {
-                dietController = BasicDietController.getInstance();
-                WeeklyIntake week = dietController.getWeeksIntake(parent.nWeeksAgo);
+                //checking if drawables already found
+                if(imageMap != null) {
+                    return null;
+                } else {
+                    imageMap = new HashMap<>();
+                }
 
                 //getting drawables from the device
                 Drawable completableWater = parent.activity.getDrawable(R.drawable.symbol_water_completion_selctor);
@@ -275,29 +276,26 @@ public class HistoryActivity extends Fragment {
 
                 //putting the drawables and completion information into hashmaps
                 imageMap.put("water", completableWater);
-                completedMap.put("water", week.isHydrationCompleted());
                 imageMap.put("food", completableFood);
-                completedMap.put("food", week.isFoodCompleted());
                 imageMap.put("cheat", checked);
-                completedMap.put("cheat", week.isOverCheatScore());
                 imageMap.put("arrow_down", arrowDown);
-
-                //getting cheat information
-                cheatMax = week.getWeeklyLimitCheats();
-                cheatProgress = week.getTotalCheats();
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                parent.buildDrawables(imageMap, completedMap, cheatMax, cheatProgress);
+                parent.buildDrawables(imageMap);
             }
         }
 
         private static class WeekStringBuilder extends AsyncTask<Void, Void, HashMap<Meal.FoodType, String>> {
-            private WeeklyIntake week;
             WeekHistoryViewHolder parent;
             DietController dietController;
+            private HashMap<String, Boolean> completedMap = new HashMap<>();
+            private double cheatMax;
+            private double cheatProgress;
+            private Date startDate;
+            private Date endDate;
 
             WeekStringBuilder(WeekHistoryViewHolder parent) {
                 this.parent = parent;
@@ -307,7 +305,7 @@ public class HistoryActivity extends Fragment {
             protected HashMap<Meal.FoodType, String> doInBackground(Void... voids) {
                 NumberFormat df = new DecimalFormat("##.##");
                 dietController = BasicDietController.getInstance();
-                week = dietController.getWeeksIntake(parent.nWeeksAgo);
+                WeeklyIntake week = dietController.getWeeksIntake(parent.nWeeksAgo);
 
                 //creating text for different views from dietcontroller information
                 String vegCountText = df.format(week.getVegCount()) + "/" + df.format(week.getWeeklyLimitVeg());
@@ -331,12 +329,24 @@ public class HistoryActivity extends Fragment {
                 stringMap.put(Meal.FoodType.EXCESS, cheatCountText);
                 stringMap.put(Meal.FoodType.CAFFEINE, caffeineCountText);
                 stringMap.put(Meal.FoodType.ALCOHOL, alcoholCountText);
+
+                //getting completion information
+                completedMap.put("water", week.isHydrationCompleted());
+                completedMap.put("food", week.isFoodCompleted());
+                completedMap.put("cheat", week.isOverCheatScore());
+
+                //getting cheat information
+                cheatMax = week.getWeeklyLimitCheats();
+                cheatProgress = week.getTotalCheats();
+
+                startDate = week.getStartDate();
+                endDate = week.getEndDate();
                 return stringMap;
             }
 
             @Override
             protected void onPostExecute(HashMap<Meal.FoodType, String> stringMap) {
-                parent.buildText(week, stringMap);
+                parent.buildText(stringMap, completedMap, cheatMax, cheatProgress, startDate, endDate);
             }
         }
     }
@@ -362,13 +372,8 @@ public class HistoryActivity extends Fragment {
         /**
          * Builds the drawables for the viewHolder
          * @param imageMap, map of strings to the drawables that need to be updated
-         * @param completedMap, whether each item is completed or not
-         * @param cheatMax, the max value that the cheat score can reach
-         * @param cheatProgress, the current cheat score
          */
-        void buildDrawables(HashMap<String, Drawable> imageMap, HashMap<String, Boolean> completedMap,
-                            double cheatMax, double cheatProgress) {
-            final int SCALE_FACTOR = 100;
+        void buildDrawables(HashMap<String, Drawable> imageMap) {
             final View expandableView = itemView.findViewById(R.id.expanded_layout);
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
 
@@ -380,23 +385,17 @@ public class HistoryActivity extends Fragment {
 
             //setting images and completion status
             completedFoodView.setBackground(imageMap.get("food"));
-            completedFoodView.setCompleted(completedMap.get("food"));
+
             if(trackWater) {
                 completedWaterView.setBackground(imageMap.get("water"));
-                completedWaterView.setCompleted(completedMap.get("water"));
             } else {
                 completedWaterView.setVisibility(View.GONE);
             } if (trackCheats) {
                 didntCheatView.setBackground(imageMap.get("cheat"));
-                didntCheatView.setCompleted(!completedMap.get("cheat"));
             } else {
                 itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
             }
             dropdownButton.setBackground(imageMap.get("arrow_down"));
-
-            //setting up the cheat progress bar
-            cheatsProgressBar.setMax((int) cheatMax*SCALE_FACTOR);
-            cheatsProgressBar.setProgress((int) cheatProgress*SCALE_FACTOR);
 
             //making sure view is shown as it should be, either expanded or not
             if (adapter.nDaysAgoVisible.get(nWeeksAgo, false)) {
@@ -431,7 +430,8 @@ public class HistoryActivity extends Fragment {
             daysHistory.setAdapter(dayHistoryAdapter);
         }
 
-        void buildText(WeeklyIntake week, HashMap<Meal.FoodType, String> stringMap) {
+        void buildText(HashMap<Meal.FoodType, String> stringMap, HashMap<String, Boolean> completedMap, double cheatMax, double cheatProgress, Date startDate, Date endDate) {
+            final int SCALE_FACTOR = 100;
             //getting view objects
             TextView dateTV = itemView.findViewById(R.id.date);
 
@@ -454,7 +454,7 @@ public class HistoryActivity extends Fragment {
             TextView alcoholCount = itemView.findViewById(R.id.weekly_alcohol_count);
 
             //setting text view objects
-            dateTV.setText(String.format("%s - %s", dateFormat.format(week.getStartDate()), dateFormat.format(week.getEndDate().getTime() - DateUtils.DAY_IN_MILLIS)));
+            dateTV.setText(String.format("%s - %s", dateFormat.format(startDate), dateFormat.format(endDate.getTime() - DateUtils.DAY_IN_MILLIS)));
             vegCount.setText(stringMap.get(Meal.FoodType.VEGETABLE));
             proteinCount.setText(stringMap.get(Meal.FoodType.MEAT));
             dairyCount.setText(stringMap.get(Meal.FoodType.DAIRY));
@@ -464,6 +464,19 @@ public class HistoryActivity extends Fragment {
             cheatCount.setText(stringMap.get(Meal.FoodType.EXCESS));
             caffeineCount.setText(stringMap.get(Meal.FoodType.CAFFEINE));
             alcoholCount.setText(stringMap.get(Meal.FoodType.ALCOHOL));
+
+            //getting completeable views
+            CompletableItemView completedFoodView = itemView.findViewById(R.id.completed_food);
+            CompletableItemView completedWaterView = itemView.findViewById(R.id.completed_water);
+            CompletableItemView didntCheatView = itemView.findViewById(R.id.didnt_cheat);
+            ProgressBar cheatsProgressBar = itemView.findViewById(R.id.progress_cheats);
+
+            completedFoodView.setCompleted(completedMap.get("food"));
+            completedWaterView.setCompleted(completedMap.get("water"));
+            didntCheatView.setCompleted(!completedMap.get("cheat"));
+            //setting up the cheat progress bar
+            cheatsProgressBar.setMax((int) cheatMax*SCALE_FACTOR);
+            cheatsProgressBar.setProgress((int) cheatProgress*SCALE_FACTOR);
 
             //removing unnecessary views
             if(!trackCheats) {
@@ -501,19 +514,68 @@ public class HistoryActivity extends Fragment {
         @NonNull
         @Override
         public DaysHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-            View view;
-            view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_summary, viewGroup, false);
+            View view = LayoutInflater.from(activity).inflate(R.layout.list_item_day_summary, viewGroup, false);
             return new HistoryActivity.DaysHistoryViewHolder(activity, view, this);
         }
 
         @Override
         public void onBindViewHolder(@NonNull DaysHistoryViewHolder daysHistoryViewHolder, int position) {
-            daysHistoryViewHolder.build(position, weeksAgo);
+            new DayBuilder(daysHistoryViewHolder, position, weeksAgo).execute();
         }
 
         @Override
         public int getItemCount() {
             return nDays;
+        }
+    }
+
+    private static class DayBuilder extends AsyncTask<Void, Void, Void> {
+
+        HashMap<Meal.FoodType, String> stringMap = new HashMap<>();
+        String day;
+
+        DaysHistoryViewHolder parent;
+        int dayNo;
+        int nWeeksAgo;
+
+        public DayBuilder(DaysHistoryViewHolder parent, int dayNo, int nWeeksAgo) {
+            this.parent = parent;
+            this.dayNo = dayNo;
+            this.nWeeksAgo = nWeeksAgo;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DateFormat dateF = new SimpleDateFormat("dd-MMM-yyyy");
+            NumberFormat decimalF = new DecimalFormat("##.##");
+            DietController dietController = BasicDietController.getInstance();
+            DailyMeals daysMeals = dietController.getDaysMeals(dayNo + 7*nWeeksAgo);
+            DietPlan daysPlan = dietController.getDaysDietPlan(dayNo + 7*nWeeksAgo);
+            day = dateF.format(daysMeals.getDate());
+
+            //creating text for different views from dietcontroller information
+            String vegCountText = decimalF.format(daysMeals.getVegCount()) + "/" + decimalF.format(daysPlan.getDailyVeges());
+            String proteinCountText = decimalF.format(daysMeals.getProteinCount()) + "/" + decimalF.format(daysPlan.getDailyProtein());
+            String dairyCountText = decimalF.format(daysMeals.getDairyCount()) + "/" + decimalF.format(daysPlan.getDailyDairy());
+            String grainCountText = decimalF.format(daysMeals.getGrainCount()) + "/" + decimalF.format(daysPlan.getDailyGrain());
+            String fruitCountText = decimalF.format(daysMeals.getFruitCount()) + "/" + decimalF.format(daysPlan.getDailyFruit());
+            String waterCountText = decimalF.format(daysMeals.getHydrationScore()) + "/" + decimalF.format(daysPlan.getDailyHydration());
+            String cheatCountText = decimalF.format(daysMeals.getTotalCheats()) + "/" + decimalF.format(daysPlan.getDailyCheats());
+
+            //putting text into a map
+            stringMap.put(Meal.FoodType.VEGETABLE, vegCountText);
+            stringMap.put(Meal.FoodType.MEAT, proteinCountText);
+            stringMap.put(Meal.FoodType.DAIRY, dairyCountText);
+            stringMap.put(Meal.FoodType.GRAIN, grainCountText);
+            stringMap.put(Meal.FoodType.FRUIT, fruitCountText);
+            stringMap.put(Meal.FoodType.WATER, waterCountText);
+            stringMap.put(Meal.FoodType.EXCESS, cheatCountText);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            parent.build(stringMap, day);
         }
     }
 
@@ -523,7 +585,7 @@ public class HistoryActivity extends Fragment {
      */
     private class DaysHistoryViewHolder extends RecyclerView.ViewHolder {
         View itemView;
-        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+
         Activity activity;
         DaysHistoryAdapter adapter;
 
@@ -534,17 +596,12 @@ public class HistoryActivity extends Fragment {
             this.adapter = adapter;
         }
 
-        public void build(final int dayNo, int nWeeksAgo) {
-            DietController dietController = BasicDietController.getInstance();
-            DailyMeals day = dietController.getDaysMeals(dayNo + 7*nWeeksAgo);
-            DietPlan daysPlan = dietController.getDaysDietPlan(dayNo + 7*nWeeksAgo);
-
+        public void build(HashMap<Meal.FoodType, String> stringMap, String day) {
             //updating date information
             TextView dateTV = itemView.findViewById(R.id.date);
-            dateTV.setText(dateFormat.format(day.getDate()));
+            dateTV.setText(day);
 
             //updating text views
-            NumberFormat df = new DecimalFormat("##.##");
             TextView vegCount = itemView.findViewById(R.id.veg_count);
             TextView proteinCount = itemView.findViewById(R.id.protein_count);
             TextView dairyCount = itemView.findViewById(R.id.dairy_count);
@@ -553,13 +610,13 @@ public class HistoryActivity extends Fragment {
             TextView waterCount = itemView.findViewById(R.id.water_count);
             TextView cheatCount = itemView.findViewById(R.id.cheat_count);
 
-            vegCount.setText((df.format(day.getVegCount()) + "/" + df.format(daysPlan.getDailyVeges())));
-            proteinCount.setText((df.format(day.getProteinCount()) + "/" + df.format(daysPlan.getDailyProtein())));
-            dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
-            grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
-            fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
-            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration())));
-            cheatCount.setText((df.format(day.getTotalCheats()) + "/" + df.format(daysPlan.getDailyCheats())));
+            vegCount.setText(stringMap.get(Meal.FoodType.VEGETABLE));
+            proteinCount.setText(stringMap.get(Meal.FoodType.MEAT));
+            dairyCount.setText(stringMap.get(Meal.FoodType.DAIRY));
+            grainCount.setText(stringMap.get(Meal.FoodType.GRAIN));
+            fruitCount.setText(stringMap.get(Meal.FoodType.FRUIT));
+            waterCount.setText(stringMap.get(Meal.FoodType.WATER));
+            cheatCount.setText(stringMap.get(Meal.FoodType.EXCESS));
 
             if(!trackCheats) {
                 itemView.findViewById(R.id.cheat_container).setVisibility(View.GONE);
