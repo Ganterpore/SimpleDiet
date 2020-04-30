@@ -97,12 +97,25 @@ public class DailyDisplayActivity extends Fragment {
                 addFood(v);
             }
         };
+        View.OnClickListener addSnackOnClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addSnack(v);
+            }
+        };
 
         dailyDisplayView.findViewById(R.id.FABBackground).setOnClickListener(addFoodOnClick);
         dailyDisplayView.findViewById(R.id.recipeBookFAB).setOnClickListener(addFoodOnClick);
         dailyDisplayView.findViewById(R.id.addDrinkFAB).setOnClickListener(addFoodOnClick);
         dailyDisplayView.findViewById(R.id.addMealFAB).setOnClickListener(addFoodOnClick);
         dailyDisplayView.findViewById(R.id.addFoodFAB).setOnClickListener(addFoodOnClick);
+        dailyDisplayView.findViewById(R.id.water_layout).setOnClickListener(addSnackOnClick);
+        dailyDisplayView.findViewById(R.id.veg_layout).setOnClickListener(addSnackOnClick);
+        dailyDisplayView.findViewById(R.id.protein_layout).setOnClickListener(addSnackOnClick);
+        dailyDisplayView.findViewById(R.id.dairy_layout).setOnClickListener(addSnackOnClick);
+        dailyDisplayView.findViewById(R.id.grain_layout).setOnClickListener(addSnackOnClick);
+        dailyDisplayView.findViewById(R.id.fruit_layout).setOnClickListener(addSnackOnClick);
+        dailyDisplayView.findViewById(R.id.cheat_layout).setOnClickListener(addSnackOnClick);
 
         return dailyDisplayView;
     }

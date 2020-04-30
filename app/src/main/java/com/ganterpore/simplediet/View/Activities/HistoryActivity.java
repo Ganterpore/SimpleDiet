@@ -134,7 +134,7 @@ public class HistoryActivity extends Fragment {
      */
     private void buildWeeksHistory(DietController dietController) {
         RecyclerView weeksHistory = historyView.findViewById(R.id.weeks_history);
-        WeekHistoryAdapter adapter = new WeekHistoryAdapter(getActivity(), dietController,8);
+        WeekHistoryAdapter adapter = new WeekHistoryAdapter(getActivity(), 8);
         weeksHistory.setAdapter(adapter);
     }
 
@@ -209,13 +209,11 @@ public class HistoryActivity extends Fragment {
         int nWeeks;
         Activity activity;
         SparseBooleanArray nDaysAgoVisible;
-        DietController dietController;
 
-        WeekHistoryAdapter(Activity activity, DietController dietController, int nWeeks) {
+        WeekHistoryAdapter(Activity activity, int nWeeks) {
             this.activity = activity;
             this.nWeeks = nWeeks;
             this.nDaysAgoVisible = new SparseBooleanArray();
-            this.dietController = dietController;
         }
 
         @NonNull
@@ -227,7 +225,7 @@ public class HistoryActivity extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull WeekHistoryViewHolder weekHistoryViewHolder, int position) {
-            new WeekBuilder(weekHistoryViewHolder, dietController, position);
+            new WeekBuilder(weekHistoryViewHolder, position);
         }
 
         @Override
@@ -241,15 +239,12 @@ public class HistoryActivity extends Fragment {
      */
     public static class WeekBuilder {
 
-        DietController dietController;
-
-        WeekBuilder(WeekHistoryViewHolder parent, DietController dietController, int nWeeksAgo) {
-            this.dietController = dietController;
+        WeekBuilder(WeekHistoryViewHolder parent, int nWeeksAgo) {
             parent.nWeeksAgo = nWeeksAgo;
 
             //delegate heavy methods to two background tasks
-            new WeekImageBuilder(parent, dietController).execute();
-            new WeekStringBuilder(parent, dietController).execute();
+            new WeekImageBuilder(parent).execute();
+            new WeekStringBuilder(parent).execute();
         }
 
         /**
@@ -263,13 +258,13 @@ public class HistoryActivity extends Fragment {
             private double cheatMax;
             private double cheatProgress;
 
-            WeekImageBuilder(WeekHistoryViewHolder parent, DietController dietController) {
+            WeekImageBuilder(WeekHistoryViewHolder parent) {
                 this.parent = parent;
-                this.dietController = dietController;
             }
 
             @Override
             protected Void doInBackground(Void... voids) {
+                dietController = BasicDietController.getInstance();
                 WeeklyIntake week = dietController.getWeeksIntake(parent.nWeeksAgo);
 
                 //getting drawables from the device
@@ -304,14 +299,14 @@ public class HistoryActivity extends Fragment {
             WeekHistoryViewHolder parent;
             DietController dietController;
 
-            WeekStringBuilder(WeekHistoryViewHolder parent, DietController dietController) {
+            WeekStringBuilder(WeekHistoryViewHolder parent) {
                 this.parent = parent;
-                this.dietController = dietController;
             }
 
             @Override
             protected HashMap<Meal.FoodType, String> doInBackground(Void... voids) {
                 NumberFormat df = new DecimalFormat("##.##");
+                dietController = BasicDietController.getInstance();
                 week = dietController.getWeeksIntake(parent.nWeeksAgo);
 
                 //creating text for different views from dietcontroller information

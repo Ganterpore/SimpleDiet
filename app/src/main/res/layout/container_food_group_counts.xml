@@ -15,8 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:onClick="addSnack">
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/water_count_header"
@@ -51,8 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:onClick="addSnack">
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/veg_count_header"
@@ -87,8 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:onClick="addSnack">
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/protein_count_header"
@@ -122,8 +119,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:onClick="addSnack">
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/dairy_count_header"
@@ -158,8 +154,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:onClick="addSnack">
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/grain_count_header"
@@ -194,8 +189,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:onClick="addSnack">
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/fruit_count_header"
@@ -230,8 +224,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:onClick="addSnack">
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/cheat_count_header"
