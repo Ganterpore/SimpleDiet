@@ -2,10 +2,10 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,14 +15,14 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,6 +31,7 @@ import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.WeeklyIntake;
 import com.ganterpore.simplediet.Model.DietPlan;
+import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.ItemViews.CompletableItemView;
 
@@ -38,21 +39,21 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Objects;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 public class HistoryActivity extends Fragment {
     public static final String TAG = "HistoryActivity";
-    DietController dietController;
-    RecyclerView weeksHistory;
+//    private DietController dietController;
     private boolean trackWater;
     private boolean trackAlcohol;
     private boolean trackCaffeine;
     private boolean trackCheats;
 
     private View historyView;
-    private AsyncTask<Void, Void, Void> ViewBuilder;
 
     @Nullable
     @Override
@@ -64,14 +65,22 @@ public class HistoryActivity extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        dietController = BasicDietController.getInstance();
-        new ViewBuilder(this, dietController).execute();
-
-        SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        //getting elements required for the view
+        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         trackWater = preferences.getBoolean("track_water", true);
         trackAlcohol = preferences.getBoolean("track_alcohol", true);
         trackCaffeine = preferences.getBoolean("track_caffeine", true);
         trackCheats = preferences.getBoolean("track_cheats", true);
+
+        //setting up the fragment
+        hideIrrelevantViews();
+        new ViewBuilder(this).execute();
+    }
+
+    /**
+     * Hides views from the fragment if the user has turned off that view
+     */
+    private void hideIrrelevantViews() {
         if (!trackWater) {
             historyView.findViewById(R.id.monthly_water_container).setVisibility(View.GONE);
         }
@@ -86,18 +95,15 @@ public class HistoryActivity extends Fragment {
         }
     }
 
-    private void buildWeeksHistory() {
-        RecyclerView weeksHistory = historyView.findViewById(R.id.weeks_history);
-        weeksHistory.setAdapter(new WeekHistoryAdapter(getActivity(), 8));
-    }
-
+    /**
+     * This class is in charge of building the view of a HistoryActivity fragment it is given.
+     */
     private static class ViewBuilder extends AsyncTask<Void, Void, Void>  {
         DietController dietController;
         HistoryActivity activity;
 
-        public ViewBuilder(HistoryActivity activity, DietController dietController) {
+        ViewBuilder(HistoryActivity activity) {
             this.activity = activity;
-            this.dietController = dietController;
         }
 
         @Override
@@ -107,17 +113,31 @@ public class HistoryActivity extends Fragment {
 
         @Override
         protected Void doInBackground(Void... voids) {
+            //running heavier methods in the background
+            DietController dietController = BasicDietController.getInstance();
             setMonthlyView(activity.historyView, dietController);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            activity.buildWeeksHistory();
+            //calling UI methods in the foreground
+            activity.buildWeeksHistory(dietController);
             activity.showProgress(false);
         }
 
     }
+
+    /**
+     * Builds the weeks history recyclerview
+     * @param dietController, the controller with which to get information from
+     */
+    private void buildWeeksHistory(DietController dietController) {
+        RecyclerView weeksHistory = historyView.findViewById(R.id.weeks_history);
+        WeekHistoryAdapter adapter = new WeekHistoryAdapter(getActivity(), dietController,8);
+        weeksHistory.setAdapter(adapter);
+    }
+
 
     /**
      * Sets up all the values of the monthly view
@@ -189,29 +209,140 @@ public class HistoryActivity extends Fragment {
         int nWeeks;
         Activity activity;
         SparseBooleanArray nDaysAgoVisible;
+        DietController dietController;
 
-        WeekHistoryAdapter(Activity activity, int nWeeks) {
+        WeekHistoryAdapter(Activity activity, DietController dietController, int nWeeks) {
             this.activity = activity;
             this.nWeeks = nWeeks;
             this.nDaysAgoVisible = new SparseBooleanArray();
+            this.dietController = dietController;
         }
 
         @NonNull
         @Override
         public WeekHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-            View view;
-            view = LayoutInflater.from(activity).inflate(R.layout.list_item_weekly_data, viewGroup, false);
+            View view = LayoutInflater.from(activity).inflate(R.layout.list_item_weekly_data, viewGroup, false);
             return new WeekHistoryViewHolder(activity, view, this);
         }
 
         @Override
         public void onBindViewHolder(@NonNull WeekHistoryViewHolder weekHistoryViewHolder, int position) {
-            weekHistoryViewHolder.build(position);
+            new WeekBuilder(weekHistoryViewHolder, dietController, position);
         }
 
         @Override
         public int getItemCount() {
             return nWeeks;
+        }
+    }
+
+    /**
+     * Class in charge of building the weekshistory view for a given WeekHistoryViewHolder
+     */
+    public static class WeekBuilder {
+
+        DietController dietController;
+
+        WeekBuilder(WeekHistoryViewHolder parent, DietController dietController, int nWeeksAgo) {
+            this.dietController = dietController;
+            parent.nWeeksAgo = nWeeksAgo;
+
+            //delegate heavy methods to two background tasks
+            new WeekImageBuilder(parent, dietController).execute();
+            new WeekStringBuilder(parent, dietController).execute();
+        }
+
+        /**
+         * builds the images for the view, and sends them off to the viewholder to build once ready
+         */
+        private static class WeekImageBuilder extends AsyncTask<Void, Void, Void> {
+            private HashMap<String, Drawable> imageMap = new HashMap<>();
+            private HashMap<String, Boolean> completedMap = new HashMap<>();
+            WeekHistoryViewHolder parent;
+            DietController dietController;
+            private double cheatMax;
+            private double cheatProgress;
+
+            WeekImageBuilder(WeekHistoryViewHolder parent, DietController dietController) {
+                this.parent = parent;
+                this.dietController = dietController;
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                WeeklyIntake week = dietController.getWeeksIntake(parent.nWeeksAgo);
+
+                //getting drawables from the device
+                Drawable completableWater = parent.activity.getDrawable(R.drawable.symbol_water_completion_selctor);
+                Drawable completableFood = parent.activity.getDrawable(R.drawable.symbol_food_completion_selector);
+                Drawable checked = parent.activity.getDrawable(R.drawable.symbol_check_selector);
+                Drawable arrowDown = parent.activity.getDrawable(android.R.drawable.arrow_down_float);
+
+                //putting the drawables and completion information into hashmaps
+                imageMap.put("water", completableWater);
+                completedMap.put("water", week.isHydrationCompleted());
+                imageMap.put("food", completableFood);
+                completedMap.put("food", week.isFoodCompleted());
+                imageMap.put("cheat", checked);
+                completedMap.put("cheat", week.isOverCheatScore());
+                imageMap.put("arrow_down", arrowDown);
+
+                //getting cheat information
+                cheatMax = week.getWeeklyLimitCheats();
+                cheatProgress = week.getTotalCheats();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                parent.buildDrawables(imageMap, completedMap, cheatMax, cheatProgress);
+            }
+        }
+
+        private static class WeekStringBuilder extends AsyncTask<Void, Void, HashMap<Meal.FoodType, String>> {
+            private WeeklyIntake week;
+            WeekHistoryViewHolder parent;
+            DietController dietController;
+
+            WeekStringBuilder(WeekHistoryViewHolder parent, DietController dietController) {
+                this.parent = parent;
+                this.dietController = dietController;
+            }
+
+            @Override
+            protected HashMap<Meal.FoodType, String> doInBackground(Void... voids) {
+                NumberFormat df = new DecimalFormat("##.##");
+                week = dietController.getWeeksIntake(parent.nWeeksAgo);
+
+                //creating text for different views from dietcontroller information
+                String vegCountText = df.format(week.getVegCount()) + "/" + df.format(week.getWeeklyLimitVeg());
+                String proteinCountText = df.format(week.getProteinCount()) + "/" + df.format(week.getWeeklyLimitProtein());
+                String dairyCountText = df.format(week.getDairyCount()) + "/" + df.format(week.getWeeklyLimitDairy());
+                String grainCountText = df.format(week.getGrainCount()) + "/" + df.format(week.getWeeklyLimitGrain());
+                String fruitCountText = df.format(week.getFruitCount()) + "/" + df.format(week.getWeeklyLimitFruit());
+                String waterCountText = df.format(week.getHydrationScore()) + "/" + df.format(week.getWeeklyLimitHydration());
+                String cheatCountText = df.format(week.getTotalCheats()) + "/" + df.format(week.getWeeklyLimitCheats());
+                String caffeineCountText = df.format(week.getCaffieneCount()) + "/" + df.format(week.getWeeklyLimitCaffiene());
+                String alcoholCountText = df.format(week.getAlcoholCount()) + "/" + df.format(week.getWeeklyLimitAlcohol());
+
+                //putting text into a map
+                HashMap<Meal.FoodType, String> stringMap = new HashMap<>();
+                stringMap.put(Meal.FoodType.VEGETABLE, vegCountText);
+                stringMap.put(Meal.FoodType.MEAT, proteinCountText);
+                stringMap.put(Meal.FoodType.DAIRY, dairyCountText);
+                stringMap.put(Meal.FoodType.GRAIN, grainCountText);
+                stringMap.put(Meal.FoodType.FRUIT, fruitCountText);
+                stringMap.put(Meal.FoodType.WATER, waterCountText);
+                stringMap.put(Meal.FoodType.EXCESS, cheatCountText);
+                stringMap.put(Meal.FoodType.CAFFEINE, caffeineCountText);
+                stringMap.put(Meal.FoodType.ALCOHOL, alcoholCountText);
+                return stringMap;
+            }
+
+            @Override
+            protected void onPostExecute(HashMap<Meal.FoodType, String> stringMap) {
+                parent.buildText(week, stringMap);
+            }
         }
     }
 
@@ -233,35 +364,44 @@ public class HistoryActivity extends Fragment {
             this.adapter = adapter;
         }
 
-        public void build(final int nWeeksAgo) {
-            this.nWeeksAgo = nWeeksAgo;
-            //get the correct week from position
-            WeeklyIntake week = dietController.getWeeksIntake(nWeeksAgo);
-
-            //updating date information
-            TextView dateTV = itemView.findViewById(R.id.date);
-            dateTV.setText(String.format("%s - %s", dateFormat.format(week.getStartDate()), dateFormat.format(week.getEndDate().getTime() - DateUtils.DAY_IN_MILLIS)));
+        /**
+         * Builds the drawables for the viewHolder
+         * @param imageMap, map of strings to the drawables that need to be updated
+         * @param completedMap, whether each item is completed or not
+         * @param cheatMax, the max value that the cheat score can reach
+         * @param cheatProgress, the current cheat score
+         */
+        void buildDrawables(HashMap<String, Drawable> imageMap, HashMap<String, Boolean> completedMap,
+                            double cheatMax, double cheatProgress) {
             final int SCALE_FACTOR = 100;
+            final View expandableView = itemView.findViewById(R.id.expanded_layout);
+            final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
 
-            //getting and updating values for the views
+            //getting views
             CompletableItemView completedFoodView = itemView.findViewById(R.id.completed_food);
             CompletableItemView completedWaterView = itemView.findViewById(R.id.completed_water);
             CompletableItemView didntCheatView = itemView.findViewById(R.id.didnt_cheat);
-            ProgressBar cheatsProgress = itemView.findViewById(R.id.progress_cheats);
+            ProgressBar cheatsProgressBar = itemView.findViewById(R.id.progress_cheats);
 
-            completedFoodView.setCompleted(week.isFoodCompleted());
-            completedWaterView.setCompleted(week.isHydrationCompleted());
-            didntCheatView.setCompleted(!week.isOverCheatScore());
-            cheatsProgress.setMax((int) week.getWeeklyLimitCheats() * SCALE_FACTOR);
-            cheatsProgress.setProgress((int) week.getTotalCheats() * SCALE_FACTOR);
-            if(!trackCheats) {
-                itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
-            } if(!trackWater) {
+            //setting images and completion status
+            completedFoodView.setBackground(imageMap.get("food"));
+            completedFoodView.setCompleted(completedMap.get("food"));
+            if(trackWater) {
+                completedWaterView.setBackground(imageMap.get("water"));
+                completedWaterView.setCompleted(completedMap.get("water"));
+            } else {
                 completedWaterView.setVisibility(View.GONE);
+            } if (trackCheats) {
+                didntCheatView.setBackground(imageMap.get("cheat"));
+                didntCheatView.setCompleted(!completedMap.get("cheat"));
+            } else {
+                itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
             }
+            dropdownButton.setBackground(imageMap.get("arrow_down"));
 
-            final View expandableView = itemView.findViewById(R.id.expanded_layout);
-            final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
+            //setting up the cheat progress bar
+            cheatsProgressBar.setMax((int) cheatMax*SCALE_FACTOR);
+            cheatsProgressBar.setProgress((int) cheatProgress*SCALE_FACTOR);
 
             //making sure view is shown as it should be, either expanded or not
             if (adapter.nDaysAgoVisible.get(nWeeksAgo, false)) {
@@ -272,26 +412,42 @@ public class HistoryActivity extends Fragment {
                 dropdownButton.setRotation(0);
             }
 
-            //creating functionality for the button that shows expands the card
+            //creating functionality for the button that expands the card
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (expandableView.getVisibility() == View.GONE) {
                         expandableView.setVisibility(View.VISIBLE);
                         dropdownButton.animate().setDuration(200).rotation(180);
-                        adapter.nDaysAgoVisible.append(nWeeksAgo, true);
-                        adapter.notifyItemChanged(nWeeksAgo);
+                        adapter.nDaysAgoVisible.put(nWeeksAgo, true);
+//                        adapter.notifyItemChanged(nWeeksAgo);
                     } else {
                         expandableView.setVisibility(View.GONE);
                         dropdownButton.animate().setDuration(200).rotation(0);
-                        adapter.nDaysAgoVisible.append(nWeeksAgo, false);
-                        adapter.notifyItemChanged(nWeeksAgo);
+                        adapter.nDaysAgoVisible.put(nWeeksAgo, false);
+//                        adapter.notifyItemChanged(nWeeksAgo);
                     }
                 }
             });
 
-            //updating text views
-            NumberFormat df = new DecimalFormat("##.##");
+            //setting up the dayHistory RecyclerView
+            DaysHistoryAdapter dayHistoryAdapter = new DaysHistoryAdapter(activity, 7, nWeeksAgo);
+            RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
+            daysHistory.setAdapter(dayHistoryAdapter);
+        }
+
+        void buildText(WeeklyIntake week, HashMap<Meal.FoodType, String> stringMap) {
+            //getting view objects
+            TextView dateTV = itemView.findViewById(R.id.date);
+
+            //building the expanding view and adding it to the layout
+            LayoutInflater inflater = LayoutInflater.from(activity);
+            ConstraintLayout foodGroupContainer = (ConstraintLayout) inflater.inflate(R.layout.container_food_group_counts_expanded, null);
+            foodGroupContainer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            LinearLayout expandableView = itemView.findViewById(R.id.expanded_layout);
+            expandableView.addView(foodGroupContainer, 0);
+
+            //getting the text views
             TextView vegCount = itemView.findViewById(R.id.weekly_veges_intake);
             TextView proteinCount = itemView.findViewById(R.id.weekly_protein_intake);
             TextView dairyCount = itemView.findViewById(R.id.weekly_dairy_intake);
@@ -302,33 +458,37 @@ public class HistoryActivity extends Fragment {
             TextView caffeineCount = itemView.findViewById(R.id.weekly_caffeine_count);
             TextView alcoholCount = itemView.findViewById(R.id.weekly_alcohol_count);
 
-            vegCount.setText((df.format(week.getVegCount()) + "/" + df.format(week.getWeeklyLimitVeg())));
-            proteinCount.setText((df.format(week.getProteinCount()) + "/" + df.format(week.getWeeklyLimitProtein())));
-            dairyCount.setText((df.format(week.getDairyCount()) + "/" + df.format(week.getWeeklyLimitDairy())));
-            grainCount.setText((df.format(week.getGrainCount()) + "/" + df.format(week.getWeeklyLimitGrain())));
-            fruitCount.setText((df.format(week.getFruitCount()) + "/" + df.format(week.getWeeklyLimitFruit())));
-            waterCount.setText((df.format(week.getHydrationScore()) + "/" + df.format(week.getWeeklyLimitHydration())));
-            cheatCount.setText((df.format(week.getTotalCheats()) + "/" + df.format(week.getWeeklyLimitCheats())));
-            caffeineCount.setText((df.format(week.getCaffieneCount()) + "/" + df.format(week.getWeeklyLimitCaffiene())));
-            alcoholCount.setText((df.format(week.getAlcoholCount()) + "/" + df.format(week.getWeeklyLimitAlcohol())));
+            //setting text view objects
+            dateTV.setText(String.format("%s - %s", dateFormat.format(week.getStartDate()), dateFormat.format(week.getEndDate().getTime() - DateUtils.DAY_IN_MILLIS)));
+            vegCount.setText(stringMap.get(Meal.FoodType.VEGETABLE));
+            proteinCount.setText(stringMap.get(Meal.FoodType.MEAT));
+            dairyCount.setText(stringMap.get(Meal.FoodType.DAIRY));
+            grainCount.setText(stringMap.get(Meal.FoodType.GRAIN));
+            fruitCount.setText(stringMap.get(Meal.FoodType.FRUIT));
+            waterCount.setText(stringMap.get(Meal.FoodType.WATER));
+            cheatCount.setText(stringMap.get(Meal.FoodType.EXCESS));
+            caffeineCount.setText(stringMap.get(Meal.FoodType.CAFFEINE));
+            alcoholCount.setText(stringMap.get(Meal.FoodType.ALCOHOL));
 
+            //removing unnecessary views
             if(!trackCheats) {
-                itemView.findViewById(R.id.weekly_cheat_container).setVisibility(View.GONE);
+                itemView.findViewById(R.id.cheat_count_header).setVisibility(View.GONE);
+                itemView.findViewById(R.id.weekly_cheat_count).setVisibility(View.GONE);
             } if(!trackWater) {
-                itemView.findViewById(R.id.weekly_water_container).setVisibility(View.GONE);
+                itemView.findViewById(R.id.water_count_header).setVisibility(View.GONE);
+                itemView.findViewById(R.id.weekly_water_intake).setVisibility(View.GONE);
             } if(!trackAlcohol) {
-                itemView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
+                itemView.findViewById(R.id.alcohol_count_header).setVisibility(View.GONE);
+                itemView.findViewById(R.id.weekly_alcohol_count).setVisibility(View.GONE);
             } if(!trackCaffeine) {
-                itemView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
+                itemView.findViewById(R.id.caffeine_count_header).setVisibility(View.GONE);
+                itemView.findViewById(R.id.weekly_caffeine_count).setVisibility(View.GONE);
             }
-
-            RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
-            daysHistory.setAdapter(new DaysHistoryAdapter(activity, 7, nWeeksAgo));
         }
     }
 
     /**
-     * Adapter for the weeks information
+     * Adapter for the days information
      */
     public class DaysHistoryAdapter extends RecyclerView.Adapter<DaysHistoryViewHolder> {
         int nDays;
@@ -364,7 +524,7 @@ public class HistoryActivity extends Fragment {
 
 
     /**
-     * View Holder for the information about a week.
+     * View Holder for the information about a day.
      */
     private class DaysHistoryViewHolder extends RecyclerView.ViewHolder {
         View itemView;
@@ -380,6 +540,7 @@ public class HistoryActivity extends Fragment {
         }
 
         public void build(final int dayNo, int nWeeksAgo) {
+            DietController dietController = BasicDietController.getInstance();
             DailyMeals day = dietController.getDaysMeals(dayNo + 7*nWeeksAgo);
             DietPlan daysPlan = dietController.getDaysDietPlan(dayNo + 7*nWeeksAgo);
 
@@ -419,75 +580,18 @@ public class HistoryActivity extends Fragment {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
+        //getting progressbar and animation
         final View progressView = historyView.findViewById(R.id.progress);
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-//            allMessagesView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            allMessagesView.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    allMessagesView.setVisibility(show ? View.GONE : View.VISIBLE);
-//                }
-//            });
-//
-//            typeMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            typeMessageView.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    typeMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//                }
-//            });
-//
-//            sendMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            sendMessageView.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    sendMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//                }
-//            });
-//
-//            sendImageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            sendImageView.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    sendImageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//                }
-//            });
-//
-//            messageContainerview.setVisibility(show ? View.GONE : View.VISIBLE);
-//            messageContainerview.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    messageContainerview.setVisibility(show ? View.GONE : View.VISIBLE);
-//                }
-//            });
-
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-//            allMessagesView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            sendMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            typeMessageView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            messageContainerview.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        //making visibility match the show variable
+        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        progressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 }

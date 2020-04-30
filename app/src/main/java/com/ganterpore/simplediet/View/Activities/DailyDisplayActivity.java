@@ -335,12 +335,6 @@ public class DailyDisplayActivity extends Fragment {
         TextView alcoholTV = dailyDisplayView.findViewById(R.id.alcohol_count);
         TextView cheatTV = dailyDisplayView.findViewById(R.id.cheat_count);
 
-        TextView weeklyVegTV = dailyDisplayView.findViewById(R.id.weekly_veges_intake);
-        TextView weeklyProteinTV = dailyDisplayView.findViewById(R.id.weekly_protein_intake);
-        TextView weeklyDairyTV = dailyDisplayView.findViewById(R.id.weekly_dairy_intake);
-        TextView weeklyGrainTV = dailyDisplayView.findViewById(R.id.weekly_grain_intake);
-        TextView weeklyFruitTV = dailyDisplayView.findViewById(R.id.weekly_fruit_intake);
-        TextView weeklyWaterTV = dailyDisplayView.findViewById(R.id.weekly_water_intake);
         TextView weeklyCaffeineTV = dailyDisplayView.findViewById(R.id.weekly_caffeine_count);
         TextView weeklyAlcoholTV = dailyDisplayView.findViewById(R.id.weekly_alcohol_count);
         TextView weeklyCheatTV = dailyDisplayView.findViewById(R.id.weekly_cheat_count);
@@ -365,23 +359,18 @@ public class DailyDisplayActivity extends Fragment {
 
         //creating arrays of the text views to update
         TextView[] textViewsCount = {vegTV, proteinTV, dairyTV, grainTV, fruitTV, waterTV, caffeineTV, alcoholTV, cheatTV,
-                weeklyVegTV, weeklyProteinTV, weeklyDairyTV, weeklyGrainTV, weeklyFruitTV, weeklyWaterTV,
                 weeklyCaffeineTV, weeklyAlcoholTV, weeklyCheatTV};
         TextView[] textViewsLeft = {vegeLeftTV, proteinLeftTV, dairyLeftTV, grainLeftTV, fruitLeftTV, waterLeftTV, null, null,  null,
-                null, null, null, null, null, null, null, null, null};
+                null, null, null};
         ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB, null, null, null,
-                null, null, null, null, null, null, null, null, weeklyCheatsPB};
+                null, null, weeklyCheatsPB};
         double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
                             today.getGrainCount(), today.getFruitCount(), today.getHydrationScore(),
                             today.getCaffieneCount(), today.getAlcoholCount(), today.getTotalCheats(),
-                            thisWeek.getVegCount(), thisWeek.getProteinCount(), thisWeek.getDairyCount(),
-                            thisWeek.getGrainCount(), thisWeek.getFruitCount(), thisWeek.getHydrationScore(),
                             thisWeek.getCaffieneCount(), thisWeek.getAlcoholCount(), thisWeek.getTotalCheats()};
         double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
                             todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration(),
                             todaysDietPlan.getDailyCaffeine(), todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyCheats(),
-                            thisWeek.getWeeklyLimitVeg(), thisWeek.getWeeklyLimitProtein(), thisWeek.getWeeklyLimitDairy(),
-                            thisWeek.getWeeklyLimitGrain(), thisWeek.getWeeklyLimitFruit(), thisWeek.getWeeklyLimitHydration(),
                             thisWeek.getWeeklyLimitCaffiene(), thisWeek.getWeeklyLimitAlcohol(), thisWeek.getWeeklyLimitCheats()};
 
         //updating text for all the main food groups
