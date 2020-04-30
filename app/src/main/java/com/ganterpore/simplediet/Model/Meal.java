@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 public class Meal {
     private static final String TAG = "Meal";
     public static final String COLLECTION_PATH = "Meals";
+    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
 
     private String id;
     //food fields

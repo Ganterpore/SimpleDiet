@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Controller.RecipeBookController;
 import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Model.Meal;

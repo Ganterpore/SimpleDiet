@@ -5,6 +5,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Model.DietPlan;
 
 import java.util.ArrayList;
@@ -88,7 +89,6 @@ public class OverUnderEatingDietController extends BasicDietController{
             daysAgoDiets.put(nDaysAgo, daysDiet);
         }
         return daysAgoDiets.get(nDaysAgo);
-
     }
 
     private double getDaysFoodTypePlan(int nDaysAgo, FoodType foodType) {
