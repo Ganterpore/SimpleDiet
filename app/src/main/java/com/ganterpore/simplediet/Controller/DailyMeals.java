@@ -135,6 +135,31 @@ public class DailyMeals {
                 + fruitCount + excessServes;
     }
 
+    public double getServesOf(Meal.FoodType foodType) {
+        switch (foodType) {
+            case VEGETABLE:
+                return getVegCount();
+            case MEAT:
+                return getProteinCount();
+            case MILK:
+            case DAIRY:
+                return getDairyCount();
+            case GRAIN:
+                return getGrainCount();
+            case FRUIT:
+                return getFruitCount();
+            case EXCESS:
+                return getExcessServes();
+            case WATER:
+                return getWaterCount();
+            case CAFFEINE:
+                return getCaffieneCount();
+            case ALCOHOL:
+                return getAlcoholCount();
+        }
+        return 0;
+    }
+
     public double getVegCount() {
         return vegCount;
     }

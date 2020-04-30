@@ -35,6 +35,7 @@ import java.util.Calendar;
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 import static com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox.DRINK_STANDARD_SERVE;
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
     public static final int DRINK = 1;
