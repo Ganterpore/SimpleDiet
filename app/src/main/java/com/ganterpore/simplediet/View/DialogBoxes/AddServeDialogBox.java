@@ -24,6 +24,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
 
+import com.ganterpore.simplediet.Model.Meal.FoodType;
+
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 import static com.ganterpore.simplediet.Model.Meal.FoodType;
@@ -31,6 +33,7 @@ import static com.ganterpore.simplediet.Model.Meal.FoodType;
 
 public class AddServeDialogBox  {
     private static SharedPreferences preferences;
+
     static final double DRINK_STANDARD_SERVE = 250;
     public static final String TAG = "AddServeDialogBox";
     private static NumberFormat df = new DecimalFormat("##.##");

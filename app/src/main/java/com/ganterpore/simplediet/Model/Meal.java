@@ -23,6 +23,8 @@ public class Meal {
     private double grainCount;
     private double fruitCount;
 
+    public enum FoodType {VEGETABLE, MEAT, DAIRY, GRAIN, FRUIT, EXCESS, MILK, WATER, CAFFEINE, ALCOHOL}
+
     //drink fields
     private double waterCount;
     private double caffeineCount;
@@ -301,6 +303,11 @@ public class Meal {
 
     public double getCaffeineCount() {
         return caffeineCount;
+    }
+
+    //legacy of old bad spelling
+    public void setCaffieneCount(double caffeineCount) {
+        this.caffeineCount = caffeineCount;
     }
 
     public void setCaffeineCount(double caffeineCount) {
