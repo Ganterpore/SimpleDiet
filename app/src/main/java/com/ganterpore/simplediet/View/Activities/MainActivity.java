@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -14,10 +16,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
@@ -50,13 +57,70 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences preferences;
     private DietController dietController;
 
+    private Fragment currentFragment;
+    private DailyDisplayActivity dailyFragment;
+    private HistoryActivity historyFragment;
+    private SettingsActivity settingsFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupWithNavController(navView, navController);
+        final BottomNavigationView navView = findViewById(R.id.nav_view);
+//        FragmentContainerView navContainer = findViewById(R.id.nav_host_fragment);
+//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//        NavigationUI.setupWithNavController(navView, navController);
+
+        final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                if(currentFragment == null) {
+                    currentFragment = fm.getPrimaryNavigationFragment();
+//                    if(currentFragment instanceof DailyDisplayActivity) {
+//                        dailyFragment = (DailyDisplayActivity) currentFragment;
+//                    }
+                }
+                Fragment newFragment = null;
+                switch (menuItem.getItemId()) {
+                    case R.id.navigation_daily:
+                        if(dailyFragment == null) {
+                            dailyFragment = new DailyDisplayActivity();
+                            fm.beginTransaction().add(R.id.nav_host_fragment, dailyFragment, "navigation_daily").commit();
+                        }
+                        newFragment = dailyFragment;
+                        break;
+                    case R.id.navigation_history:
+                        if(historyFragment == null) {
+                            historyFragment = new HistoryActivity();
+                            fm.beginTransaction().add(R.id.nav_host_fragment, historyFragment, "navigation_history").commit();
+                        }
+                        newFragment = historyFragment;
+                        break;
+                    case R.id.navigation_options:
+                        if(settingsFragment == null) {
+                            settingsFragment = new SettingsActivity();
+                            fm.beginTransaction().add(R.id.nav_host_fragment, settingsFragment, "navigation_options").commit();
+                        }
+                        newFragment = settingsFragment;
+                        break;
+                }
+                if(newFragment==currentFragment) {
+                    return true;
+                }
+                if(newFragment != null) {
+                    fm
+                            .beginTransaction()
+                            .show(newFragment)
+                            .hide(currentFragment)
+                            .commit();
+                    Log.d(TAG, "onNavigationItemSelected: hid "+currentFragment.toString()+ " shown "+newFragment.toString());
+                    currentFragment = newFragment;
+                    return true;
+                }
+                return false;
+            }
+        });
 
         preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         //initialising services
@@ -71,6 +135,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
+        currentFragment = fm.getPrimaryNavigationFragment();
+        if(currentFragment instanceof DailyDisplayActivity) {
+            dailyFragment = (DailyDisplayActivity) currentFragment;
+        }
         // Check if user is signed in (non-null) and update UI accordingly.
         //TODO improve new user sign in
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -145,11 +214,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void refresh() {
         //refresh child fragment if it can be
-        Fragment navHostFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        Fragment currentFragment = navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if(currentFragment instanceof DailyDisplayActivity) {
-            ((DailyDisplayActivity) currentFragment).refresh();
+        if(dailyFragment != null) {
+            dailyFragment.refresh();
+        } if(historyFragment != null) {
+            historyFragment.refresh();
         }
+//        Fragment navHostFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+//        Fragment currentFragment = navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
+//        if(currentFragment instanceof DailyDisplayActivity) {
+//            ((DailyDisplayActivity) currentFragment).refresh();
+//        } else if(currentFragment instanceof HistoryActivity) {
+//            ((HistoryActivity) currentFragment).refresh();
+//        }
     }
 
     /**

@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +47,6 @@ import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREF
 
 public class HistoryActivity extends Fragment {
     public static final String TAG = "HistoryActivity";
-//    private DietController dietController;
     private boolean trackWater;
     private boolean trackAlcohol;
     private boolean trackCaffeine;
@@ -96,6 +94,10 @@ public class HistoryActivity extends Fragment {
         }
     }
 
+    public void refresh() {
+        new ViewBuilder(this).execute();
+    }
+
     /**
      * This class is in charge of building the view of a HistoryActivity fragment it is given.
      */
@@ -138,7 +140,6 @@ public class HistoryActivity extends Fragment {
         WeekHistoryAdapter adapter = new WeekHistoryAdapter(getActivity(), 8);
         weeksHistory.setAdapter(adapter);
     }
-
 
     /**
      * Sets up all the values of the monthly view

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -37,6 +38,7 @@ import static com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox.DRINK
 import com.ganterpore.simplediet.Model.Meal.FoodType;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
+    public static final String TAG = "AddDrinkDialogBox";
     public static final int DRINK = 1;
     public static final int NEW_RECIPE = 2;
     public static final int RECIPE = 3;
@@ -300,10 +302,20 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         final String finalFoodExamplePrefix = foodExamplePrefix;
         int cheatScore = getCheatScoreFromID(cheatSelector.getCheckedRadioButtonId());
         //Getting the relevant string resource based on the information, and setting the example text to it
-        exampleDrink.setText(
-                activity.getResources()
-                        .getIdentifier(finalFoodExamplePrefix +"_"+cheatScore, "string", activity.getPackageName())
-        );
+        Log.d(TAG, "updateExampleDrink: "+exampleDrink.toString());
+        Log.d(TAG, "updateExampleDrink: "+finalFoodExamplePrefix +"_"+cheatScore);
+        try {
+            exampleDrink.setText(
+                    activity.getResources()
+                            .getIdentifier(finalFoodExamplePrefix +"_"+cheatScore, "string", activity.getPackageName())
+            );
+        } catch (Exception e) {
+            exampleDrink.setText(
+                    activity.getResources()
+                            .getIdentifier("drink__"+cheatScore, "string", activity.getPackageName())
+            );
+        }
+
     }
 
     /**
