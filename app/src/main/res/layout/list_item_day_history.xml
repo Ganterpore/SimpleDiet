@@ -15,7 +15,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        android:layout_marginBottom="8dp">
 
         <TextView
             android:id="@+id/date"
@@ -28,129 +29,93 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/completion_symbols"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
+        <Space
+            android:id="@+id/space"
+            android:layout_width="32dp"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@id/date"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/completed_water"/>
+
+        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
+            android:id="@+id/completed_water"
+            app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintTop_toBottomOf="@+id/date"
-            app:layout_constraintBottom_toTopOf="@+id/expanded_layout"
-            android:animateLayoutChanges="true">
+            app:layout_constraintStart_toEndOf="@id/space"
+            app:layout_constraintEnd_toStartOf="@+id/completed_food"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/symbol_water_completion_selctor" />
 
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="2"/>
+        <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
+            android:id="@+id/completed_food"
+            app:layout_constraintTop_toBottomOf="@id/date"
+            app:layout_constraintStart_toEndOf="@id/completed_water"
+            app:layout_constraintEnd_toStartOf="@id/cheat_progress_container"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/symbol_food_completion_selector" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
-                    android:id="@+id/completed_water"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/symbol_water_completion_selctor" />
-
-            </LinearLayout>
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"/>
         <LinearLayout
+            app:layout_constraintTop_toBottomOf="@+id/date"
+            app:layout_constraintStart_toEndOf="@id/completed_food"
+            app:layout_constraintEnd_toStartOf="@+id/dropdown_button"
+            android:layout_marginTop="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/cheat_progress_container">
+
+            <include
+                android:id="@+id/cheats_progress"
+                layout="@layout/progress_cheats"
+                android:layout_width="32dp"
+                android:layout_height="32dp" />
 
             <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
-                android:id="@+id/completed_food"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/symbol_food_completion_selector" />
+                android:layout_gravity="center"
+                android:id="@+id/didnt_cheat"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/symbol_check_selector"/>
 
         </LinearLayout>
 
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"/>
+        <ImageView
+            android:id="@+id/dropdown_button"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/date"
+            app:layout_constraintStart_toEndOf="@+id/cheat_progress_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/arrow_down_float"
+            android:contentDescription="@string/down_arrow" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/cheat_progress_container">
-
-                <include
-                    android:id="@+id/cheats_progress"
-                    layout="@layout/progress_cheats"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp" />
-
-                <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
-                    android:layout_gravity="center"
-                    android:id="@+id/didnt_cheat"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:background="@drawable/symbol_check_selector"/>
-
-            </LinearLayout>
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"/>
-
-            <ImageView
-                android:id="@+id/dropdown_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@android:drawable/arrow_down_float"
-                android:contentDescription="@string/down_arrow" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:id="@+id/expanded_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/completion_symbols"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/dropdown_button"
+            android:layout_marginTop="16dp"
             android:visibility="gone">
-
-            <include
-                layout="@layout/container_food_groups_counts_mini"
-                app:layout_constraintTop_toTopOf="parent"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/meals_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/header_information"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:nestedScrollingEnabled="false"
                 android:layout_marginTop="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"/>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/expanded_layout"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="8dp"/>
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

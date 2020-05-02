@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -15,18 +13,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
+
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
-import com.ganterpore.simplediet.View.Animation.MyBounceInterpolator;
-import com.ganterpore.simplediet.Model.Meal.FoodType;
-import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
-import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
-import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
-import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.UpdateCheatsDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.UpdateDrinkDietPlanDialogBox;
@@ -41,17 +41,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-public class MainActivity extends AppCompatActivity implements DietController.DietControllerListener,
-                                                            SnackbarReady {
+public class MainActivity extends AppCompatActivity
+        implements DietController.DietControllerListener, SnackbarReady {
 
     public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
     private static final String TAG = "MainActivity";

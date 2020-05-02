@@ -2,63 +2,36 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.ganterpore.simplediet.Model.Meal.FoodType;
-import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
-import com.ganterpore.simplediet.Controller.DietController;
-import com.ganterpore.simplediet.Controller.NotificationReciever;
-import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Controller.WeeklyIntake;
-import com.ganterpore.simplediet.Model.Meal;
+import com.ganterpore.simplediet.Model.DietPlan;
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
-import com.ganterpore.simplediet.View.DialogBoxes.UpdateCheatsDialogBox;
-import com.ganterpore.simplediet.View.DialogBoxes.UpdateDietDialogBox;
-import com.ganterpore.simplediet.View.DialogBoxes.UpdateDrinkDietPlanDialogBox;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -77,20 +50,22 @@ public class DailyDisplayActivity extends Fragment {
 
     private View dailyDisplayView;
 
+    private Activity activity;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         dailyDisplayView = inflater.inflate(R.layout.activity_daily_display, container, false);
+        activity = getActivity();
+        if(activity==null) {
+            System.exit(0);
+        }
 
-        preferences = getActivity().getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
 
-        //setting up toolbar
-        Toolbar toolbar = dailyDisplayView.findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-
-//        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         initialiseScrollEffect();
 
+        //creating click functionality
         View.OnClickListener addFoodOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,7 +78,6 @@ public class DailyDisplayActivity extends Fragment {
                 addSnack(v);
             }
         };
-
         dailyDisplayView.findViewById(R.id.FABBackground).setOnClickListener(addFoodOnClick);
         dailyDisplayView.findViewById(R.id.recipeBookFAB).setOnClickListener(addFoodOnClick);
         dailyDisplayView.findViewById(R.id.addDrinkFAB).setOnClickListener(addFoodOnClick);
@@ -123,7 +97,7 @@ public class DailyDisplayActivity extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mealView = new MealHistoryDisplay(getActivity(),
+        mealView = new MealHistoryDisplay(activity,
                 (RecyclerView) dailyDisplayView.findViewById(R.id.day_history_list));
     }
 
@@ -163,57 +137,33 @@ public class DailyDisplayActivity extends Fragment {
         }
         //if in one mode, and we are seeing the wrong image, update it
         if ((mode.equals("vegan") || mode.equals("vegetarian"))) {
-            meatProgress.setProgressDrawable(getActivity().getDrawable(R.drawable.progress_bar_meat_vegan));
+            meatProgress.setProgressDrawable(activity.getDrawable(R.drawable.progress_bar_meat_vegan));
         } else if(mode.equals("normal")) {
-            meatProgress.setProgressDrawable(getActivity().getDrawable(R.drawable.progress_bar_meat));
+            meatProgress.setProgressDrawable(activity.getDrawable(R.drawable.progress_bar_meat));
         }
-        if(!preferences.getBoolean("track_cheats", true)) {
-            dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(View.VISIBLE);
-            dailyDisplayView.findViewById(R.id.cheat_layout).setVisibility(View.GONE);
-            dailyDisplayView.findViewById(R.id.cheats_progress).setVisibility(View.GONE);
-            dailyDisplayView.findViewById(R.id.weekly_cheat_container).setVisibility(View.GONE);
-        } else {
-            dailyDisplayView.findViewById(R.id.cheat_layout).setVisibility(View.VISIBLE);
-            dailyDisplayView.findViewById(R.id.cheats_progress).setVisibility(View.VISIBLE);
-            dailyDisplayView.findViewById(R.id.weekly_cheat_container).setVisibility(View.VISIBLE);
-        }
-        if(preferences.getBoolean("track_water", true)) {
-            dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(View.VISIBLE);
-            dailyDisplayView.findViewById(R.id.drinks_progress).setVisibility(View.VISIBLE);
-            dailyDisplayView.findViewById(R.id.water_layout).setVisibility(View.VISIBLE);
-            if(!preferences.getBoolean("track_alcohol", true)) {
-                dailyDisplayView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.alcohol_image).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.alcohol_count).setVisibility(View.GONE);
-            } else {
-                dailyDisplayView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.VISIBLE);
-                dailyDisplayView.findViewById(R.id.alcohol_image).setVisibility(View.VISIBLE);
-                dailyDisplayView.findViewById(R.id.alcohol_count).setVisibility(View.VISIBLE);
-            }
-            if(!preferences.getBoolean("track_caffeine", true)) {
-                dailyDisplayView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(View.GONE);
-            } else {
-                dailyDisplayView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.VISIBLE);
-                dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(View.VISIBLE);
-                dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(View.VISIBLE);
-            }
-        } else {
-            if(!preferences.getBoolean("track_cheats", true)) {
-                dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(View.GONE);
-            } else {
-                dailyDisplayView.findViewById(R.id.drinks_progress).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.water_layout).setVisibility(View.GONE);
-
-                dailyDisplayView.findViewById(R.id.weekly_alcohol_container).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.alcohol_image).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.alcohol_count).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.weekly_caffeine_container).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(View.GONE);
-                dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(View.GONE);
-            }
-        }
+        //making sure to turn off any disabled view
+        boolean track_cheats = preferences.getBoolean("track_cheats", true);
+        boolean track_water = preferences.getBoolean("track_water", true);
+        boolean track_alcohol = preferences.getBoolean("track_alcohol", true);
+        boolean track_caffeine = preferences.getBoolean("track_caffeine", true);
+        dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(!(track_alcohol || track_caffeine || track_cheats) ? View.GONE : View.VISIBLE);
+        dailyDisplayView.findViewById(R.id.cheat_layout).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.cheats_progress).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.weekly_cheats_progress).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.weekly_cheat_count_header).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.weekly_cheat_count).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.drinks_progress).setVisibility(track_water ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.water_layout).setVisibility(track_water ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.weekly_alcohol_image).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.alcohol_count_header).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.weekly_alcohol_count).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.alcohol_image).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.alcohol_count).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.weekly_caffeine_image).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.caffeine_count_header).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.weekly_caffeine_count).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
         refresh();
     }
 
@@ -223,21 +173,21 @@ public class DailyDisplayActivity extends Fragment {
      * allows the user  to choose what type of food they want to add.
      * @param view, the view that called the function
      */
-    public void addFood(final View view) {
+    private void addFood(final View view) {
         switch (view.getId()) {
             case R.id.addFoodFAB:
                 openCloseFoodFAB();
                 break;
             case R.id.addMealFAB:
-                AddMealDialogBox.addMeal(getActivity());
+                AddMealDialogBox.addMeal(activity);
                 openCloseFoodFAB();
                 break;
             case R.id.addDrinkFAB:
-                AddDrinkDialogBox.addDrink(getActivity());
+                AddDrinkDialogBox.addDrink(activity);
                 openCloseFoodFAB();
                 break;
             case R.id.recipeBookFAB:
-                RecipeListDialogBox.openRecipeBook(getActivity());
+                RecipeListDialogBox.openRecipeBook(activity);
                 openCloseFoodFAB();
                 break;
             case R.id.FABBackground:
@@ -293,7 +243,7 @@ public class DailyDisplayActivity extends Fragment {
      * When a snack is pressed, get type from the view that clicked it, and open correct
      * window
      */
-    public void addSnack(final View view) {
+    private void addSnack(final View view) {
         FoodType type;
         Intent intent = new Intent();
         switch (view.getId()) {
@@ -323,18 +273,66 @@ public class DailyDisplayActivity extends Fragment {
                 break;
         }
         intent.putExtra("foodType", type);
-        AddServeDialogBox.addServe(getActivity(), intent, null);
+        AddServeDialogBox.addServe(activity, intent, null);
     }
 
     /**
      * updates the values of all the views on the screen to up to date values
      */
-    public void refresh() {
+    public static class DisplayRefresher extends AsyncTask<Void, Void, Void> {
+
+        DailyDisplayActivity parent;
+
+        private double[] counts;
+        private double[] plans;
+        private String cheatRatio;
+        private String cheatsToday;
+        private double dailyCheats;
+        private double totalCheats;
+
+        DisplayRefresher(DailyDisplayActivity parent) {
+            this.parent = parent;
+        }
+
+        @Override
+        protected Void doInBackground(Void[] voids) {
+            //getting variables to work with
+            NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
+            BasicDietController dietController = BasicDietController.getInstance();
+            DietPlan todaysDietPlan = dietController.getTodaysDietPlan();
+            DailyMeals today = dietController.getTodaysMeals();
+            WeeklyIntake thisWeek = dietController.getThisWeeksIntake();
+
+            //getting vaules to be sent to the refreshr to handle
+            totalCheats = today.getTotalCheats();
+            counts = new double[]{today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
+                    today.getGrainCount(), today.getFruitCount(), today.getHydrationScore(),
+                    today.getCaffieneCount(), today.getAlcoholCount(), totalCheats,
+                    thisWeek.getCaffieneCount(), thisWeek.getAlcoholCount(), thisWeek.getTotalCheats()};
+            dailyCheats = todaysDietPlan.getDailyCheats();
+            plans = new double[]{todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
+                    todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration(),
+                    todaysDietPlan.getDailyCaffeine(), todaysDietPlan.getDailyAlcohol(), dailyCheats,
+                    thisWeek.getWeeklyLimitCaffiene(), thisWeek.getWeeklyLimitAlcohol(), thisWeek.getWeeklyLimitCheats()};
+
+            cheatRatio = String.format("%s/%s", df.format(totalCheats), df.format(dailyCheats));
+            cheatsToday = String.format("%s today!", df.format(totalCheats));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            parent.refresh2(counts, plans, totalCheats, dailyCheats, cheatRatio, cheatsToday);
+        }
+    }
+
+    void refresh() {
+        new DisplayRefresher(this).execute();
+    }
+
+    private void refresh2(double[] counts, double[] plans, double totalCheats,  double dailyCheats,  String cheatRatio, String cheatsToday) {
         final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
-        DietPlan todaysDietPlan = BasicDietController.getInstance().getTodaysDietPlan();
-        DailyMeals today = BasicDietController.getInstance().getTodaysMeals();
-        WeeklyIntake thisWeek = BasicDietController.getInstance().getThisWeeksIntake();
         View weeklyContainer = dailyDisplayView.findViewById(R.id.weekly_intake);
 
         //get the text views from the main activity
@@ -377,14 +375,7 @@ public class DailyDisplayActivity extends Fragment {
                 null, null, null};
         ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB, null, null, null,
                 null, null, weeklyCheatsPB};
-        double[] counts = {today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
-                            today.getGrainCount(), today.getFruitCount(), today.getHydrationScore(),
-                            today.getCaffieneCount(), today.getAlcoholCount(), today.getTotalCheats(),
-                            thisWeek.getCaffieneCount(), thisWeek.getAlcoholCount(), thisWeek.getTotalCheats()};
-        double[] plans = {todaysDietPlan.getDailyVeges(), todaysDietPlan.getDailyProtein(), todaysDietPlan.getDailyDairy(),
-                            todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration(),
-                            todaysDietPlan.getDailyCaffeine(), todaysDietPlan.getDailyAlcohol(), todaysDietPlan.getDailyCheats(),
-                            thisWeek.getWeeklyLimitCaffiene(), thisWeek.getWeeklyLimitAlcohol(), thisWeek.getWeeklyLimitCheats()};
+
 
         //updating text for all the main food groups
         for(int i=0;i<textViewsCount.length;i++) {
@@ -399,9 +390,9 @@ public class DailyDisplayActivity extends Fragment {
             //if meal group has been completed, update the UI to reflect this
             if(servesLeft <= 0.2) {
                 if(countTV != null) {
-                    countTV.setText(df.format(count) + "/" + df.format(plan));
+                    countTV.setText(String.format("%s/%s", df.format(count), df.format(plan)));
                 } if(leftTV != null) {
-                    leftTV.setText("Done!");
+                    leftTV.setText(R.string.completed_text);
                 }
                 //TODO update colors when food is completed
 //                countTV.setTextColor(Color.GREEN);
@@ -410,9 +401,9 @@ public class DailyDisplayActivity extends Fragment {
 //                leftTV.setAlpha((float) 1);
             } else {
                 if(countTV != null) {
-                    countTV.setText(df.format(count) + "/" + df.format(plan));
+                    countTV.setText(String.format("%s/%s", df.format(count), df.format(plan)));
                 } if (leftTV != null) {
-                    leftTV.setText(df.format(servesLeft) + " left");
+                    leftTV.setText(String.format("%s left", df.format(servesLeft)));
                 }
                 //TODO update colors when food is completed
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -435,12 +426,12 @@ public class DailyDisplayActivity extends Fragment {
             }
         }
         //updating other texts
-        cheatTV.setText(String.format("%s/%s", df.format(today.getTotalCheats()), df.format(todaysDietPlan.getDailyCheats())));
-        cheatsTodayTV.setText(String.format("%s today!", df.format(today.getTotalCheats())));
+        cheatTV.setText(cheatRatio);
+        cheatsTodayTV.setText(cheatsToday);
         //animating any updates to the cheat progress bar
-        cheatsPB.setMax((int) (todaysDietPlan.getDailyCheats() * SCALE_FACTOR));
+        cheatsPB.setMax((int) (dailyCheats * SCALE_FACTOR));
         ObjectAnimator objectAnimator = ObjectAnimator.ofInt(cheatsPB, "progress",
-                (int) today.getTotalCheats()*SCALE_FACTOR);
+                (int) (totalCheats *SCALE_FACTOR));
         objectAnimator.setDuration(500);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();
@@ -448,6 +439,4 @@ public class DailyDisplayActivity extends Fragment {
         //refreshing the other views
         mealView.refreshRecommendations();
     }
-
-
 }

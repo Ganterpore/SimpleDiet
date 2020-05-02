@@ -145,7 +145,7 @@ public class HistoryActivity extends Fragment {
      */
     private static void setMonthlyView(View historyView, DietController dietController) {
         final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
-        NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
+        NumberFormat df = new DecimalFormat("##"); //format to show all decimal strings
         View monthlyContainer = historyView.findViewById(R.id.monthly_container);
 
         WeeklyIntake week1 = dietController.getWeeksIntake(0);
@@ -579,7 +579,6 @@ public class HistoryActivity extends Fragment {
         }
     }
 
-
     /**
      * View Holder for the information about a day.
      */
@@ -624,7 +623,6 @@ public class HistoryActivity extends Fragment {
                 itemView.findViewById(R.id.water_container).setVisibility(View.GONE);
             }
         }
-
     }
 
     /**

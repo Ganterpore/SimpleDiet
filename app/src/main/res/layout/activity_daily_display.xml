@@ -22,13 +22,6 @@
             android:fitsSystemWindows="true"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -190,10 +183,5 @@
             android:layout_margin="16dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-<!--    <include-->
-<!--        android:id="@+id/food_popup"-->
-<!--        layout="@layout/popup_food_completion_achievement"-->
-<!--        android:visibility="invisible"/>-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

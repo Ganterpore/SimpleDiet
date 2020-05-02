@@ -200,7 +200,7 @@ android:layout_height="wrap_content"
 android:text="Caffeine"
 android:textStyle="bold"
 android:textAlignment="center"
-app:layout_constraintBaseline_toBaselineOf="@id/water_count_header"
+app:layout_constraintTop_toBottomOf="@+id/weekly_veges_intake"
 app:layout_constraintStart_toEndOf="@+id/water_count_header"
 app:layout_constraintEnd_toStartOf="@id/alcohol_count_header"/>
 <TextView
@@ -229,7 +229,7 @@ android:layout_height="wrap_content"
 android:text="Alcohol"
 android:textStyle="bold"
 android:textAlignment="center"
-app:layout_constraintBaseline_toBaselineOf="@id/water_count_header"
+app:layout_constraintTop_toBottomOf="@+id/weekly_veges_intake"
 app:layout_constraintStart_toEndOf="@+id/caffeine_count_header"
 app:layout_constraintEnd_toStartOf="@id/cheat_count_header"/>
 
@@ -259,7 +259,7 @@ android:layout_height="wrap_content"
 android:text="Cheats"
 android:textStyle="bold"
 android:textAlignment="center"
-app:layout_constraintBaseline_toBaselineOf="@id/water_count_header"
+app:layout_constraintTop_toBottomOf="@+id/weekly_veges_intake"
 app:layout_constraintStart_toEndOf="@+id/alcohol_count_header"
 app:layout_constraintEnd_toEndOf="parent"/>
 
