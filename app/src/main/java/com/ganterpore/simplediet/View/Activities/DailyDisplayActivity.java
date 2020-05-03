@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,6 +64,10 @@ public class DailyDisplayActivity extends Fragment {
 
         initialiseScrollEffect();
 
+        mealView = new MealHistoryDisplay(activity,
+                (RecyclerView) dailyDisplayView.findViewById(R.id.day_history_list),
+                (ProgressBar) dailyDisplayView.findViewById(R.id.progress_bar));
+
         //creating click functionality
         View.OnClickListener addFoodOnClick = new View.OnClickListener() {
             @Override
@@ -92,13 +95,6 @@ public class DailyDisplayActivity extends Fragment {
         dailyDisplayView.findViewById(R.id.cheat_layout).setOnClickListener(addSnackOnClick);
 
         return dailyDisplayView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mealView = new MealHistoryDisplay(activity,
-                (RecyclerView) dailyDisplayView.findViewById(R.id.day_history_list));
     }
 
     /**
@@ -437,6 +433,6 @@ public class DailyDisplayActivity extends Fragment {
         objectAnimator.start();
 
         //refreshing the other views
-        mealView.refreshRecommendations();
+        mealView.refresh();
     }
 }

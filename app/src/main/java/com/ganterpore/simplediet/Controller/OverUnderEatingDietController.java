@@ -34,8 +34,8 @@ public class OverUnderEatingDietController extends BasicDietController{
     private static final String TAG = "OverUnderEatingDietCo";
     private SparseArray<DietPlan> daysAgoDiets;
 
-    public OverUnderEatingDietController(DietControllerListener listener) {
-        super(listener);
+    public OverUnderEatingDietController() {
+        super();
         //initialising variables
         daysAgoDiets = new SparseArray<>();
 
@@ -70,6 +70,11 @@ public class OverUnderEatingDietController extends BasicDietController{
                 }
             }
         });
+    }
+
+    public OverUnderEatingDietController(DietControllerListener listener) {
+        this();
+        super.addListener(listener);
     }
 
     @Override

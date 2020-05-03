@@ -2,6 +2,7 @@ package com.ganterpore.simplediet.Controller;
 
 import android.os.Build;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -33,7 +34,7 @@ public class  BasicDietController implements DietController {
     private static final String TAG = "BasicDietController";
     private static BasicDietController instance;
     private List<DocumentSnapshot> data;
-    private DietControllerListener listener;
+    private List<DietControllerListener> listeners;
     private String user;
     private DietPlan overallDiet;
     private FirebaseFirestore db;
@@ -42,13 +43,31 @@ public class  BasicDietController implements DietController {
 
     //TODO create factory for this method. Or remove interface.
     public static BasicDietController getInstance() {
-        return instance;
+        if(instance != null) {
+            Log.d(TAG, "getInstance: instance already exists");
+            return instance;
+        } else {
+            Log.d(TAG, "getInstance: No instance yet. Creating");
+            return new BasicDietController();
+        }
+    }
+    public static BasicDietController getInstance(DietControllerListener listener) {
+        if(instance != null) {
+            Log.d(TAG, "getInstance: instance already exists. Adding listener");
+            if(!instance.listeners.contains(listener)) {
+                instance.listeners.add(listener);
+            }
+            return instance;
+        } else {
+            Log.d(TAG, "getInstance: No instance yet. Creating with listeners");
+            return new BasicDietController(listener);
+        }
     }
 
-    public BasicDietController(DietControllerListener listener) {
+    public BasicDietController() {
         //initialising variables
         this.db = FirebaseFirestore.getInstance();
-        this.listener = listener;
+        this.listeners = new ArrayList<>();
         this.user = FirebaseAuth.getInstance().getCurrentUser().getUid();
         daysAgoMeals = new SparseArray<>();
         mealNeedsUpdate = new SparseBooleanArray();
@@ -58,6 +77,15 @@ public class  BasicDietController implements DietController {
         getCurrentDietPlanFromDB();
         getCurrentMealDataFromDB();
         instance = this;
+    }
+
+    public BasicDietController(DietControllerListener listener) {
+        this();
+        this.listeners.add(listener);
+    }
+
+    public void addListener(DietControllerListener listener) {
+        listeners.add(listener);
     }
 
     private void getCurrentMealDataFromDB() {
@@ -111,22 +139,30 @@ public class  BasicDietController implements DietController {
                 // then update the listener to know it was just completed
                 if(!todayCompleted) {
                     if(isFoodCompletedToday() && foodEnteredRecently) {
-                        listener.todaysFoodCompleted();
+                        for(DietControllerListener listener : listeners) {
+                            listener.todaysFoodCompleted();
+                        }
                     }
                 }
                 if(!yesterdayCompleted) {
                     if(isFoodCompleted(1) && foodEnteredRecently) {
-                        listener.yesterdaysFoodCompleted();
+                        for(DietControllerListener listener : listeners) {
+                            listener.yesterdaysFoodCompleted();
+                        }
                     }
                 }
                 if(!waterCompleted) {
                     if(isHydrationCompletedToday() && foodEnteredRecently) {
-                        listener.todaysHydrationCompleted();
+                        for(DietControllerListener listener : listeners) {
+                            listener.todaysHydrationCompleted();
+                        }
                     }
                 }
                 if(!cheatsOver) {
                     if(isOverCheatScoreToday() && foodEnteredRecently) {
-                        listener.todaysCheatsOver();
+                        for(DietControllerListener listener : listeners) {
+                            listener.todaysCheatsOver();
+                        }
                     }
                 }
                 //now that the data is updated, make sure it flows through to the listener
@@ -443,7 +479,9 @@ public class  BasicDietController implements DietController {
 
     @Override
     public void updateListener() {
-        listener.refresh();
+        for(DietControllerListener listener : listeners) {
+            listener.refresh();
+        }
     }
 
     /**

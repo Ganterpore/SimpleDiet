@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,21 +15,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DietController;
-import com.ganterpore.simplediet.Controller.NotificationReciever;
 import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.R;
@@ -45,8 +36,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 public class MainActivity extends AppCompatActivity
         implements DietController.DietControllerListener, SnackbarReady {
@@ -66,20 +55,20 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        dietController = BasicDietController.getInstance(this);
         final BottomNavigationView navView = findViewById(R.id.nav_view);
-//        FragmentContainerView navContainer = findViewById(R.id.nav_host_fragment);
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-//        NavigationUI.setupWithNavController(navView, navController);
+        buildNavigator(navView);
+        preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        mAuth = FirebaseAuth.getInstance();
+    }
 
+    private void buildNavigator(BottomNavigationView navView) {
         final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(currentFragment == null) {
                     currentFragment = fm.getPrimaryNavigationFragment();
-//                    if(currentFragment instanceof DailyDisplayActivity) {
-//                        dailyFragment = (DailyDisplayActivity) currentFragment;
-//                    }
                 }
                 Fragment newFragment = null;
                 switch (menuItem.getItemId()) {
@@ -114,22 +103,13 @@ public class MainActivity extends AppCompatActivity
                             .show(newFragment)
                             .hide(currentFragment)
                             .commit();
-                    Log.d(TAG, "onNavigationItemSelected: hid "+currentFragment.toString()+ " shown "+newFragment.toString());
                     currentFragment = newFragment;
+                    currentFragment.onResume();
                     return true;
                 }
                 return false;
             }
         });
-
-        preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
-        //initialising services
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
-        NotificationReciever.buildChannels(this);
     }
 
     @Override

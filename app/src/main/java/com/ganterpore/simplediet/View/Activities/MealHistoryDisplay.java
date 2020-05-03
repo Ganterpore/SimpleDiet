@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -20,9 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,12 +55,17 @@ class MealHistoryDisplay  {
     private Activity activity;
     private List<DietController.Recommendation> recommendations;
     private RecyclerView history;
+    private ProgressBar progressBar;
 
-    MealHistoryDisplay(Activity activity, RecyclerView history) {
+    MealHistoryDisplay(Activity activity, RecyclerView history, ProgressBar progressBar) {
         this.activity = activity;
         this.history = history;
+        this.progressBar = progressBar;
         recommendations = new ArrayList<>();
-        history.setAdapter(new DayHistoryAdapter(activity, 7));
+        //when a new display is create, make sure it loads in
+        this.history.setAdapter(new DayHistoryAdapter(activity, 7));
+        this.history.setVisibility(View.INVISIBLE);
+        this.progressBar.setVisibility(View.VISIBLE);
 
         //setting up ability to swipe recommendations
         RecommendationSwipeController swipeController = new RecommendationSwipeController(activity, history);
@@ -75,6 +79,9 @@ class MealHistoryDisplay  {
 
         RecommendationCollector(MealHistoryDisplay parent) {
             this.parent = parent;
+            if(parent.history!=null && parent.history.getAdapter()!= null) {
+                parent.history.getAdapter().notifyDataSetChanged();
+            }
         }
 
         @Override
@@ -85,18 +92,23 @@ class MealHistoryDisplay  {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            parent.refreshRecommendations2(recommendations);
+            parent.refreshRecommendations(recommendations);
         }
     }
 
-    void refreshRecommendations() {
+    void refresh() {
+        //collecting any changed recommendations
         new RecommendationCollector(this).execute();
+        //informing the history adapter of the refresh
+        if(history!=null && history.getAdapter()!= null) {
+            history.getAdapter().notifyDataSetChanged();
+        }
     }
 
     /**
      * Updates the list of recommendations
      */
-    private void refreshRecommendations2(List<DietController.Recommendation> allRecommendations) {
+    private void refreshRecommendations(List<DietController.Recommendation> allRecommendations) {
         if(recommendations != null) {
             recommendations.clear();
         } else {
@@ -207,7 +219,6 @@ class MealHistoryDisplay  {
     private static class MealBuilder extends AsyncTask<Void, Void, Void> {
         DayHistoryViewHolder parent;
         int nDaysAgo;
-        private Date date;
         private HashMap<Meal.FoodType, String> stringMap;
         private HashMap<String, Boolean> completionMap;
         private double dailyCheats;
@@ -254,7 +265,6 @@ class MealHistoryDisplay  {
             stringMap.put(Meal.FoodType.WATER, hydrationText);
 
             //getting other information
-            date = day.getDate();
             dailyCheats = daysPlan.getDailyCheats();
             totalCheats = day.getTotalCheats();
             return null;
@@ -262,7 +272,7 @@ class MealHistoryDisplay  {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            parent.buildMeals(nDaysAgo, meals, stringMap, completionMap, dailyCheats, totalCheats, date);
+            parent.buildMeals(nDaysAgo, meals, stringMap, completionMap, dailyCheats, totalCheats);
         }
     }
 
@@ -292,6 +302,8 @@ class MealHistoryDisplay  {
             if(daysAgo<0) {
                 buildRecommendation(position);
             } else {
+                TextView dateTV = itemView.findViewById(R.id.date);
+                dateTV.setText(dateFormat.format(new Date(System.currentTimeMillis() - DateUtils.DAY_IN_MILLIS*daysAgo)));
                 new MealBuilder(this, daysAgo).execute();
             }
         }
@@ -332,7 +344,7 @@ class MealHistoryDisplay  {
                             preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
 
                             //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
-                            refreshRecommendations();
+                            refresh();
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -361,18 +373,22 @@ class MealHistoryDisplay  {
             return calendar.getTime();
         }
 
-        private void buildMeals(final int nDaysAgo, List<Meal> meals, HashMap<Meal.FoodType, String> stringMap, HashMap<String, Boolean> completionMap, double dailyCheats, double totalCheats, Date date) {
+        private void buildMeals(final int nDaysAgo, List<Meal> meals, HashMap<Meal.FoodType, String> stringMap, HashMap<String, Boolean> completionMap, double dailyCheats, double totalCheats) {
             final int SCALE_FACTOR = 100;
             NumberFormat df = new DecimalFormat("##.##");
 
+            //if a day with meals is added, then dietcontroller has settled. Make history visisble.
+            if(progressBar.getVisibility() == View.VISIBLE && !meals.isEmpty()) {
+                progressBar.setVisibility(View.GONE);
+                history.setVisibility(View.VISIBLE);
+            }
+
             //getting and updating values for the views
-            TextView dateTV = itemView.findViewById(R.id.date);
             CompletableItemView completedFoodView = itemView.findViewById(R.id.completed_food);
             CompletableItemView completedWaterView = itemView.findViewById(R.id.completed_water);
             CompletableItemView didntCheatView = itemView.findViewById(R.id.didnt_cheat);
             ProgressBar cheatsProgress = itemView.findViewById(R.id.progress_cheats);
 
-            dateTV.setText(dateFormat.format(date));
             completedFoodView.setCompleted(completionMap.get("food"));
             completedWaterView.setCompleted(completionMap.get("water"));
             didntCheatView.setCompleted(!completionMap.get("cheats"));
