@@ -199,13 +199,6 @@ public class MainActivity extends AppCompatActivity
         } if(historyFragment != null) {
             historyFragment.refresh();
         }
-//        Fragment navHostFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-//        Fragment currentFragment = navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-//        if(currentFragment instanceof DailyDisplayActivity) {
-//            ((DailyDisplayActivity) currentFragment).refresh();
-//        } else if(currentFragment instanceof HistoryActivity) {
-//            ((HistoryActivity) currentFragment).refresh();
-//        }
     }
 
     /**

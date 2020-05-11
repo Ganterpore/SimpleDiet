@@ -44,22 +44,18 @@ public class  BasicDietController implements DietController {
     //TODO create factory for this method. Or remove interface.
     public static BasicDietController getInstance() {
         if(instance != null) {
-            Log.d(TAG, "getInstance: instance already exists");
             return instance;
         } else {
-            Log.d(TAG, "getInstance: No instance yet. Creating");
             return new BasicDietController();
         }
     }
     public static BasicDietController getInstance(DietControllerListener listener) {
         if(instance != null) {
-            Log.d(TAG, "getInstance: instance already exists. Adding listener");
             if(!instance.listeners.contains(listener)) {
                 instance.listeners.add(listener);
             }
             return instance;
         } else {
-            Log.d(TAG, "getInstance: No instance yet. Creating with listeners");
             return new BasicDietController(listener);
         }
     }
