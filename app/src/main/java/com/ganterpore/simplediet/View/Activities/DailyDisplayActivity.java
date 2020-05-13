@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,13 +43,9 @@ public class DailyDisplayActivity extends Fragment {
     private static final String TAG = "MainActivity";
 
     private SharedPreferences preferences;
-
     private MealHistoryDisplay mealView;
-
     private boolean isFABOpen = false;
-
     private View dailyDisplayView;
-
     private Activity activity;
 
     @Nullable
@@ -162,7 +159,6 @@ public class DailyDisplayActivity extends Fragment {
         dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
         refresh();
     }
-
 
     /**
      * called when a user taps the add food button
@@ -324,6 +320,7 @@ public class DailyDisplayActivity extends Fragment {
 
     void refresh() {
         new DisplayRefresher(this).execute();
+        mealView.refresh();
     }
 
     private void refresh2(double[] counts, double[] plans, double totalCheats,  double dailyCheats,  String cheatRatio, String cheatsToday) {
@@ -371,7 +368,6 @@ public class DailyDisplayActivity extends Fragment {
                 null, null, null};
         ProgressBar[] progressBars = {vegPB, meatPB, dairyPB, grainPB, fruitPB, waterPB, null, null, null,
                 null, null, weeklyCheatsPB};
-
 
         //updating text for all the main food groups
         for(int i=0;i<textViewsCount.length;i++) {
@@ -431,8 +427,5 @@ public class DailyDisplayActivity extends Fragment {
         objectAnimator.setDuration(500);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();
-
-        //refreshing the other views
-        mealView.refresh();
     }
 }

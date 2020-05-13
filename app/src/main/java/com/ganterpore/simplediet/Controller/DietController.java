@@ -3,6 +3,7 @@ package com.ganterpore.simplediet.Controller;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.google.android.gms.tasks.Task;
 
+import java.util.Date;
 import java.util.List;
 
 public interface DietController {
@@ -66,10 +67,18 @@ public interface DietController {
      * Interface for listeners to a diet controller
      */
     interface DietControllerListener {
+        void dataLoadComplete();
+
+        enum DataType {
+            MEAL,
+            DIET_PLAN;
+        }
+
         /**
-         * lets listener know that the data has been updated and the information need to be refreshed
+         * lets listener know that the data has been updated and the information needs to be refreshed
          */
-        void refresh();
+        //TODO refresh should say what has been refreshed, and if relevant, what time/day the data is from
+        void refresh();//DataType dataType, List<Date> daysUpdated);
 
         /**
          * Lets listener know that todays food was completed recently

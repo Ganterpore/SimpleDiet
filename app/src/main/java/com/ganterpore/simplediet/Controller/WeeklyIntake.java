@@ -41,18 +41,18 @@ public class WeeklyIntake {
     private Date endDate;
     private Date startDate;
 
-    public WeeklyIntake(List<DocumentSnapshot> data, DietPlan dietPlan) {
+    public WeeklyIntake(MealDataSorter data, DietPlan dietPlan) {
         this(data, dietPlan, 0);
     }
 
-    public WeeklyIntake(List<DocumentSnapshot> data, DietPlan dietPlan, int weeksAgo) {
+    public WeeklyIntake(MealDataSorter data, DietPlan dietPlan, int weeksAgo) {
         endDate = new Date(System.currentTimeMillis() - (weeksAgo * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
         endDate = getStartOfDay(endDate);
         startDate = new Date(System.currentTimeMillis() - ((weeksAgo + 1) * DateUtils.WEEK_IN_MILLIS) + DateUtils.DAY_IN_MILLIS);
         startDate = getStartOfDay(startDate);
 
         setLimits(dietPlan);
-        sortMeals(data, startDate, endDate);
+        sortMeals(data, weeksAgo);
         updateData();
     }
 
@@ -71,16 +71,14 @@ public class WeeklyIntake {
     /**
      * Takes a list of meals, and a list of days, and sorts the meals into the different days
      */
-    private void sortMeals(List<DocumentSnapshot> meals, Date startDate, Date endDate) {
+    private void sortMeals(MealDataSorter meals, int weeksAgo) {
         thisWeeksMeals = new ArrayList<>();
-        if(meals.isEmpty()) {
-            return;
-        }
-        for(DocumentSnapshot mealDS : meals) {
-            Meal meal = new Meal(mealDS);
-            if(meal.getDay() >= startDate.getTime() && meal.getDay() < endDate.getTime()) {
-                thisWeeksMeals.add(meal);
-            }
+        for(int i=0;i<7;i++) {
+            thisWeeksMeals.addAll(meals.getMealsOnDay(weeksAgo*7+i));
+//            Meal meal = new Meal(mealDS);
+//            if(meal.getDay() >= startDate.getTime() && meal.getDay() < endDate.getTime()) {
+//                thisWeeksMeals.add(meal);
+//            }
         }
     }
 

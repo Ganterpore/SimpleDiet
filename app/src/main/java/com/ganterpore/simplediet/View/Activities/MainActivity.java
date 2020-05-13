@@ -67,10 +67,12 @@ public class MainActivity extends AppCompatActivity
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                //finding the currently displayed fragment
                 if(currentFragment == null) {
                     currentFragment = fm.getPrimaryNavigationFragment();
                 }
                 Fragment newFragment = null;
+                //finding or creating the selected fragment
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_daily:
                         if(dailyFragment == null) {
@@ -94,10 +96,12 @@ public class MainActivity extends AppCompatActivity
                         newFragment = settingsFragment;
                         break;
                 }
+                //if we are not changing the fragment, don't do anything
                 if(newFragment==currentFragment) {
                     return true;
                 }
                 if(newFragment != null) {
+                    //otherwise display the selected fragment
                     fm
                             .beginTransaction()
                             .show(newFragment)
@@ -115,6 +119,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        //setting up daily fragment
         final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
         currentFragment = fm.getPrimaryNavigationFragment();
         if(currentFragment instanceof DailyDisplayActivity) {
@@ -136,6 +141,7 @@ public class MainActivity extends AppCompatActivity
                     }).show();
         } else {
             //if the dietController is not instantiated or is a member of the wrong class, update it.
+            //TODO move this to splash screen and settings page? Currently this is never called after initial load
             boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
             if (overUnderEatingFunctionality) {
                 if(dietController == null || !(dietController instanceof OverUnderEatingDietController)) {
@@ -236,7 +242,11 @@ public class MainActivity extends AppCompatActivity
         popupImage.startAnimation(popupAnimationDelayed);
     }
 
+    @Override
+    public void dataLoadComplete() {    }
+
     /** Methods to create achievements when goals are met */
+
 
 
     @Override

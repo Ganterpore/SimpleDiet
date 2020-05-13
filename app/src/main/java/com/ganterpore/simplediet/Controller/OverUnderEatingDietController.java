@@ -1,31 +1,25 @@
 package com.ganterpore.simplediet.Controller;
 
-import android.os.Build;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.util.SparseArray;
 
-import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Model.DietPlan;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
@@ -43,6 +37,7 @@ public class OverUnderEatingDietController extends BasicDietController{
         //these need to be removed so that if they are accessed again they will be correct
         Query dataQuery = FirebaseFirestore.getInstance().collection(DailyMeals.MEALS).whereEqualTo("user", FirebaseAuth.getInstance().getCurrentUser().getUid());
         //check to update the data when it changes. This will also run through on the first time
+        //TODO remove this snapshot when refresh updated, and override update listeners to do this
         dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {

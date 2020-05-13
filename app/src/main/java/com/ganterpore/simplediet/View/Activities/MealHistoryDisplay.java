@@ -78,6 +78,7 @@ class MealHistoryDisplay  {
         List<DietController.Recommendation> recommendations;
 
         RecommendationCollector(MealHistoryDisplay parent) {
+            Log.d(TAG, "RecommendationCollector: collecting recommendations!-!");
             this.parent = parent;
             if(parent.history!=null && parent.history.getAdapter()!= null) {
                 parent.history.getAdapter().notifyDataSetChanged();
@@ -101,6 +102,7 @@ class MealHistoryDisplay  {
         new RecommendationCollector(this).execute();
         //informing the history adapter of the refresh
         if(history!=null && history.getAdapter()!= null) {
+            Log.d(TAG, "refresh: refreshing adapter!-!");
             history.getAdapter().notifyDataSetChanged();
         }
     }
@@ -131,6 +133,7 @@ class MealHistoryDisplay  {
         if(history!=null && history.getAdapter()!= null) {
             history.getAdapter().notifyDataSetChanged();
         }
+        Log.d(TAG, "refreshRecommendations: Recommendations collected!-!");
     }
 
     /**
@@ -232,6 +235,7 @@ class MealHistoryDisplay  {
 
         @Override
         protected Void doInBackground(Void[] voids) {
+            Log.d(TAG, "doInBackground: building meals!-!");
             NumberFormat df = new DecimalFormat("##.##");
             //getting controller information
             DietController dietController = BasicDietController.getInstance();
@@ -475,6 +479,7 @@ class MealHistoryDisplay  {
             MealSwipeController swipeController = new MealSwipeController(activity, mealsList);
             ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
             itemTouchhelper.attachToRecyclerView(mealsList);
+            Log.d(TAG, "buildMeals: Meals Built!-!");
         }
     }
 
