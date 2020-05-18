@@ -37,6 +37,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
         implements DietController.DietControllerListener, SnackbarReady {
 
@@ -146,12 +148,12 @@ public class MainActivity extends AppCompatActivity
             if (overUnderEatingFunctionality) {
                 if(dietController == null || !(dietController instanceof OverUnderEatingDietController)) {
                     dietController = new OverUnderEatingDietController(this);
-                    refresh();
+                    refresh(null, null);
                 }
             } else {
                 if(dietController == null || (dietController instanceof OverUnderEatingDietController)) {
                     dietController = new BasicDietController(this);
-                    refresh();
+                    refresh(null, null);
                 }
             }
         }
@@ -198,12 +200,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void refresh() {
+    public void refresh(DietController.DataType dataType, List<Integer> daysAgoUpdated) {
         //refresh child fragment if it can be
         if(dailyFragment != null) {
-            dailyFragment.refresh();
+            dailyFragment.refresh(dataType, daysAgoUpdated);
         } if(historyFragment != null) {
-            historyFragment.refresh();
+            historyFragment.refresh(dataType, daysAgoUpdated);
         }
     }
 

@@ -23,6 +23,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
@@ -56,7 +57,7 @@ public class SplashScreen extends AppCompatActivity implements DietController.Di
     }
 
     @Override
-    public void refresh() { }
+    public void refresh(DietController.DataType dataType, List<Integer> daysAgoUpdated) { }
 
     @Override
     public void todaysFoodCompleted() { }

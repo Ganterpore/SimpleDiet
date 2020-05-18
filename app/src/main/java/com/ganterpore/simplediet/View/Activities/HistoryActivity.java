@@ -38,8 +38,10 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -94,8 +96,11 @@ public class HistoryActivity extends Fragment {
         }
     }
 
-    public void refresh() {
-        new ViewBuilder(this).execute();
+    public void refresh(DietController.DataType dataType, List<Integer> daysAgoUpdated) {
+        //if daysAgoUpdated is null (update all), or a day in the past month is updated, then refresh
+        if(daysAgoUpdated == null || Collections.min(daysAgoUpdated) < 28) {
+            new ViewBuilder(this).execute();
+        }
     }
 
     /**

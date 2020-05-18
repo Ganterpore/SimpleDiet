@@ -46,7 +46,11 @@ public class DailyMeals {
      */
     DailyMeals(int daysAgo, MealDataSorter data) {
         this.date = getStartOfDay(new Date(System.currentTimeMillis() - (daysAgo * DateUtils.DAY_IN_MILLIS)));
-        todaysMeals = data.getMealsOnDay(daysAgo);
+        if(data != null) {
+            todaysMeals = data.getMealsOnDay(daysAgo);
+        } else {
+            todaysMeals = new ArrayList<>();
+        }
         updateData();
     }
 

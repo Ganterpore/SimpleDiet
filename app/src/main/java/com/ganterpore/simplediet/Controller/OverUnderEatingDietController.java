@@ -4,72 +4,25 @@ import android.text.format.DateUtils;
 import android.util.SparseArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
-import com.ganterpore.simplediet.Model.Meal;
 import com.ganterpore.simplediet.Model.Meal.FoodType;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
 
 
 public class OverUnderEatingDietController extends BasicDietController{
     private static final String TAG = "OverUnderEatingDietCo";
-    private SparseArray<DietPlan> daysAgoDiets;
+    private SparseArray<DietPlan> daysAgoDiets = new SparseArray<>();
 
     public OverUnderEatingDietController() {
         super();
-        //initialising variables
-        daysAgoDiets = new SparseArray<>();
-
-        //if a meal is added on a day, all diet plans for days after that day become wrong
-        //these need to be removed so that if they are accessed again they will be correct
-        Query dataQuery = FirebaseFirestore.getInstance().collection(DailyMeals.MEALS).whereEqualTo("user", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        //check to update the data when it changes. This will also run through on the first time
-        //TODO remove this snapshot when refresh updated, and override update listeners to do this
-        dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(queryDocumentSnapshots != null) {
-                    //check the day of the data changes, and get the max days ago
-                    int maxDaysAgo = 0;
-                    List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();
-                    for(DocumentChange documentChange : changedData) {
-                        //getting how many days ago
-                        QueryDocumentSnapshot document = documentChange.getDocument();
-                        long changedDay = document.toObject(Meal.class).getDay();
-                        Date changedDayStart = getStartOfDay(new Date(changedDay));
-                        long msDiff = System.currentTimeMillis() - changedDayStart.getTime();
-                        int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
-                        //updating the max
-                        if(daysAgo > maxDaysAgo) {
-                            maxDaysAgo = daysAgo;
-                        }
-                    }
-                    //removing all days after the maxDaysAgo, so they are updated
-                    for(int i=maxDaysAgo-1;i>=0;i--) {
-                        daysAgoDiets.remove(i);
-                    }
-                    updateListener();
-                }
-            }
-        });
     }
 
     public OverUnderEatingDietController(DietControllerListener listener) {
-        this();
-        super.addListener(listener);
+        super(listener);
     }
 
     @Override
@@ -273,6 +226,24 @@ public class OverUnderEatingDietController extends BasicDietController{
             return new Recommendation(id, title, message, expiry);
         }
         return null;
+    }
+
+    @Override
+    public void updateListener(DataType dataType, List<Integer> daysAgoUpdated) {
+        //with this controller, all days after the first day changed are invalidated by a change
+        //So set them to be updated
+        if(dataType == DataType.MEAL && daysAgoUpdated !=null) {
+            int maxDaysAgo = Collections.max(daysAgoUpdated);
+            ArrayList<Integer> newNeedsUpdate = new ArrayList<>();
+            //removing all days after the maxDaysAgo, so they are updated, then setting them to be updated
+            for(int i=maxDaysAgo;i>=0;i--) {
+                daysAgoDiets.remove(i);
+                newNeedsUpdate.add(i);
+            }
+            super.updateListener(dataType, newNeedsUpdate);
+        } else {
+            super.updateListener(dataType, daysAgoUpdated);
+        }
     }
 
     /**

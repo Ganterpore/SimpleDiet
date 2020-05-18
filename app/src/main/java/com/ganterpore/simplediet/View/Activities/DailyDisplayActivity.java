@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
+import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Controller.WeeklyIntake;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal.FoodType;
@@ -30,11 +31,14 @@ import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
+import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
@@ -157,7 +161,7 @@ public class DailyDisplayActivity extends Fragment {
         dailyDisplayView.findViewById(R.id.weekly_caffeine_count).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
-        refresh();
+        refresh(null, null);
     }
 
     /**
@@ -318,9 +322,14 @@ public class DailyDisplayActivity extends Fragment {
         }
     }
 
-    void refresh() {
-        new DisplayRefresher(this).execute();
-        mealView.refresh();
+    void refresh(DietController.DataType dataType, List<Integer> daysAgoUpdated) {
+        //if null, all should be updated. If today or a day in the past week is changed, update data
+        if(daysAgoUpdated == null || daysAgoUpdated.contains(0) || daysAgoUpdated.contains(1)
+                || daysAgoUpdated.contains(2) || daysAgoUpdated.contains(3) || daysAgoUpdated.contains(4)
+                || daysAgoUpdated.contains(5) ||daysAgoUpdated.contains(6)) {
+            new DisplayRefresher(this).execute();
+        }
+        mealView.refresh(dataType, daysAgoUpdated);
     }
 
     private void refresh2(double[] counts, double[] plans, double totalCheats,  double dailyCheats,  String cheatRatio, String cheatsToday) {

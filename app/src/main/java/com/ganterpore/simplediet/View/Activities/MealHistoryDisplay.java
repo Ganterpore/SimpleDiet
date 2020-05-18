@@ -78,11 +78,7 @@ class MealHistoryDisplay  {
         List<DietController.Recommendation> recommendations;
 
         RecommendationCollector(MealHistoryDisplay parent) {
-            Log.d(TAG, "RecommendationCollector: collecting recommendations!-!");
             this.parent = parent;
-            if(parent.history!=null && parent.history.getAdapter()!= null) {
-                parent.history.getAdapter().notifyDataSetChanged();
-            }
         }
 
         @Override
@@ -97,13 +93,21 @@ class MealHistoryDisplay  {
         }
     }
 
-    void refresh() {
+    void refresh(DietController.DataType dataType, List<Integer> daysAgoUpdated) {
         //collecting any changed recommendations
         new RecommendationCollector(this).execute();
         //informing the history adapter of the refresh
         if(history!=null && history.getAdapter()!= null) {
-            Log.d(TAG, "refresh: refreshing adapter!-!");
-            history.getAdapter().notifyDataSetChanged();
+            if(daysAgoUpdated == null) {
+                //if null, all days should update
+                history.getAdapter().notifyDataSetChanged();
+            } else {
+                //otherwise only update the days that have changed
+                for(int day : daysAgoUpdated) {
+                    DayHistoryAdapter adapter = (DayHistoryAdapter) history.getAdapter();
+                    adapter.notifyItemChanged(adapter.getDaysPositionFromDaysAgo(day));
+                }
+            }
         }
     }
 
@@ -111,6 +115,7 @@ class MealHistoryDisplay  {
      * Updates the list of recommendations
      */
     private void refreshRecommendations(List<DietController.Recommendation> allRecommendations) {
+        int oldRecommendationsSize = recommendations.size();
         if(recommendations != null) {
             recommendations.clear();
         } else {
@@ -129,11 +134,19 @@ class MealHistoryDisplay  {
                 recommendations.add(recommendation);
             }
         }
-        //informing the history adapter of the change
+        //informing the history adapter of the changes to recommendations
         if(history!=null && history.getAdapter()!= null) {
-            history.getAdapter().notifyDataSetChanged();
+            DayHistoryAdapter adapter = (DayHistoryAdapter) history.getAdapter();
+            //if the number of recommendations have changed, update all items in adapter to move
+            if(oldRecommendationsSize != recommendations.size()) {
+                adapter.notifyDataSetChanged();
+            } else {
+                //otherwise only update the look of the recommendations
+                for (int i = 0; i < adapter.getNumberOfRecommendations(); i++) {
+                    adapter.notifyItemChanged(i);
+                }
+            }
         }
-        Log.d(TAG, "refreshRecommendations: Recommendations collected!-!");
     }
 
     /**
@@ -217,6 +230,14 @@ class MealHistoryDisplay  {
         public int getItemCount() {
             return recommendations.size() + nDays;
         }
+
+        public int getDaysPositionFromDaysAgo(int daysAgo) {
+            return recommendations.size() + daysAgo;
+        }
+
+        public int getNumberOfRecommendations() {
+            return recommendations.size();
+        }
     }
 
     private static class MealBuilder extends AsyncTask<Void, Void, Void> {
@@ -235,7 +256,6 @@ class MealHistoryDisplay  {
 
         @Override
         protected Void doInBackground(Void[] voids) {
-            Log.d(TAG, "doInBackground: building meals!-!");
             NumberFormat df = new DecimalFormat("##.##");
             //getting controller information
             DietController dietController = BasicDietController.getInstance();
@@ -348,7 +368,7 @@ class MealHistoryDisplay  {
                             preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
 
                             //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
-                            refresh();
+                            refresh(null, new ArrayList<Integer>());
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -479,7 +499,6 @@ class MealHistoryDisplay  {
             MealSwipeController swipeController = new MealSwipeController(activity, mealsList);
             ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
             itemTouchhelper.attachToRecyclerView(mealsList);
-            Log.d(TAG, "buildMeals: Meals Built!-!");
         }
     }
 

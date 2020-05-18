@@ -108,11 +108,11 @@ public class  BasicDietController implements DietController {
                     boolean waterCompleted = isHydrationCompletedToday();
                     boolean cheatsOver = isOverCheatScoreToday();
                     boolean foodEnteredRecently = false;
+                    ArrayList<Integer> daysNeedingUpdates = new ArrayList<>();
 
                     //check which data has changed, and set them to be updated when next accessed
                     List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();
                     for (DocumentChange documentChange : changedData) {
-                        //TODO can this be avoided on first go?
                         //getting how many days ago
                         QueryDocumentSnapshot document = documentChange.getDocument();
                         long changedDay = document.toObject(Meal.class).getDay();
@@ -124,6 +124,7 @@ public class  BasicDietController implements DietController {
                         int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
                         int weeksAgo = (int) daysAgo / 7;
                         mealNeedsUpdate.put(daysAgo, true);
+                        daysNeedingUpdates.add(daysAgo);
                         weekNeedsUpdate.put(weeksAgo, true);
                     }
 
@@ -159,7 +160,7 @@ public class  BasicDietController implements DietController {
                         }
                     }
                     //now that the data is updated, make sure it flows through to the listener
-                    updateListener();
+                    updateListener(DataType.MEAL, daysNeedingUpdates);
                     //if the data has finished loading, update listeners
                     if (!mealDataLoaded && dietPlanLoaded) {
                         for (DietControllerListener listener : listeners) {
@@ -188,7 +189,7 @@ public class  BasicDietController implements DietController {
                 } else {
                     overallDiet = documentSnapshot.toObject(DietPlan.class);
                 }
-                updateListener();
+                updateListener(DataType.DIET_PLAN, null);
                 //if the data has finished loading, update listeners
                 if(mealDataLoaded && !dietPlanLoaded) {
                     for(DietControllerListener listener : listeners) {
@@ -260,7 +261,7 @@ public class  BasicDietController implements DietController {
             @Override
             public void onSuccess(Void aVoid) {
                 overallDiet = newDietPlan;
-                updateListener();
+                updateListener(DataType.DIET_PLAN, null);
             }
         });
         return updateDiet;
@@ -485,10 +486,9 @@ public class  BasicDietController implements DietController {
         return new Recommendation(id, title, message, expiry);
     }
 
-    @Override
-    public void updateListener() {
+    public void updateListener(DietController.DataType dataType, List<Integer> daysAgoUpdated) {
         for(DietControllerListener listener : listeners) {
-            listener.refresh();
+            listener.refresh(dataType, daysAgoUpdated);
         }
     }
 
