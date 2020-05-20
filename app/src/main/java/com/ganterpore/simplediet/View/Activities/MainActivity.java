@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -70,8 +71,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 //finding the currently displayed fragment
-                if(currentFragment == null) {
-                    currentFragment = fm.getPrimaryNavigationFragment();
+                for(Fragment fragment : fm.getFragments()) {
+                    if(!fragment.isHidden()) {
+                        currentFragment = fragment;
+                        break;
+                    }
                 }
                 Fragment newFragment = null;
                 //finding or creating the selected fragment
@@ -100,9 +104,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 //if we are not changing the fragment, don't do anything
                 if(newFragment==currentFragment) {
+                    Log.d(TAG, "onNavigationItemSelected: new frag is current frag");
                     return true;
                 }
                 if(newFragment != null) {
+                    Log.d(TAG, "onNavigationItemSelected: new frag being shown, hiding old");
                     //otherwise display the selected fragment
                     fm
                             .beginTransaction()
@@ -120,11 +126,17 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onStart() {
+        Log.d(TAG, "onStart: starting");
         super.onStart();
         //setting up daily fragment
         final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
-        currentFragment = fm.getPrimaryNavigationFragment();
-        if(currentFragment instanceof DailyDisplayActivity) {
+        for(Fragment fragment : fm.getFragments()) {
+            if(!fragment.isHidden()) {
+                currentFragment = fragment;
+                break;
+            }
+        }
+        if(currentFragment instanceof DailyDisplayActivity && dailyFragment == null) {
             dailyFragment = (DailyDisplayActivity) currentFragment;
         }
         // Check if user is signed in (non-null) and update UI accordingly.

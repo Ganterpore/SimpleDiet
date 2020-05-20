@@ -55,17 +55,13 @@ class MealHistoryDisplay  {
     private Activity activity;
     private List<DietController.Recommendation> recommendations;
     private RecyclerView history;
-    private ProgressBar progressBar;
 
-    MealHistoryDisplay(Activity activity, RecyclerView history, ProgressBar progressBar) {
+    MealHistoryDisplay(Activity activity, RecyclerView history) {
         this.activity = activity;
         this.history = history;
-        this.progressBar = progressBar;
         recommendations = new ArrayList<>();
         //when a new display is create, make sure it loads in
         this.history.setAdapter(new DayHistoryAdapter(activity, 7));
-        this.history.setVisibility(View.INVISIBLE);
-        this.progressBar.setVisibility(View.VISIBLE);
 
         //setting up ability to swipe recommendations
         RecommendationSwipeController swipeController = new RecommendationSwipeController(activity, history);
@@ -400,12 +396,6 @@ class MealHistoryDisplay  {
         private void buildMeals(final int nDaysAgo, List<Meal> meals, HashMap<Meal.FoodType, String> stringMap, HashMap<String, Boolean> completionMap, double dailyCheats, double totalCheats) {
             final int SCALE_FACTOR = 100;
             NumberFormat df = new DecimalFormat("##.##");
-
-            //if a day with meals is added, then dietcontroller has settled. Make history visisble.
-            if(progressBar.getVisibility() == View.VISIBLE && !meals.isEmpty()) {
-                progressBar.setVisibility(View.GONE);
-                history.setVisibility(View.VISIBLE);
-            }
 
             //getting and updating values for the views
             CompletableItemView completedFoodView = itemView.findViewById(R.id.completed_food);

@@ -153,30 +153,38 @@ public class OverUnderEatingDietController extends BasicDietController{
         String id = "over_eating";
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Over eating";
-        String message = "Yesterday you ate too much ";
-        int count = 0;
+        String message = "Yesterday you ate too much";
+        ArrayList<String> overAteFoods = new ArrayList<>();
         if(todaysPlan.getDailyVeges() < overallDiet.getDailyVeges()) {
-            message += "veges, ";
-            count++;
+            overAteFoods.add("veges");
         }
         if(todaysPlan.getDailyProtein() < overallDiet.getDailyProtein()) {
-            message += "proteins, ";
-            count++;
+            overAteFoods.add("proteins");
         }
         if(todaysPlan.getDailyDairy() < overallDiet.getDailyDairy()) {
-            message += "dairy, ";
-            count++;
+            overAteFoods.add("dairy");
         }
         if(todaysPlan.getDailyGrain() < overallDiet.getDailyGrain()) {
-            message += "grain, ";
-            count++;
+            overAteFoods.add("grain");
         }
         if(todaysPlan.getDailyFruit() < overallDiet.getDailyFruit()) {
-            message += "fruit, ";
-            count++;
+            overAteFoods.add("fruit");
         }
-        if(count > 0) {
-            message = message.substring(0, message.length() - 2);
+        if(!overAteFoods.isEmpty()) {
+            for(int i=0;i<overAteFoods.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==overAteFoods.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += overAteFoods.get(i);
+            }
             message += ". Your recommended intake for today has been adjusted to compensate for this.";
             return new Recommendation(id, title, message, expiry);
         }
@@ -187,42 +195,56 @@ public class OverUnderEatingDietController extends BasicDietController{
         String id = "under_eating";
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Under eating";
-        String message = "Yesterday you didn't eat enough from each food category! You can still make up for it today if you eat ";
+        String message = "Yesterday you didn't eat enough from each food category! You can still make up for it today if you eat";
         int count = 0;
         DietPlan yesterdaysDietPlan = getDaysDietPlan(1);
         DailyMeals yesterdaysMeals = getDaysMeals(1);
+        ArrayList<String> underAteFood = new ArrayList<>();
         if(!isFoodCompleted(1, FoodType.VEGETABLE)) {
-            message += (yesterdaysDietPlan.getDailyVeges()
+            underAteFood.add((yesterdaysDietPlan.getDailyVeges()
                     - yesterdaysMeals.getVegCount() - getExcess(0, FoodType.VEGETABLE))
-                    + " more serves of veges, ";
+                    + " more serves of veges");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.MEAT)) {
-            message += (yesterdaysDietPlan.getDailyProtein()
+            underAteFood.add((yesterdaysDietPlan.getDailyProtein()
                     - yesterdaysMeals.getProteinCount() - getExcess(0, FoodType.MEAT))
-                    + " more serves of protein, ";
+                    + " more serves of protein");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.DAIRY)) {
-            message += (yesterdaysDietPlan.getDailyDairy()
+            underAteFood.add((yesterdaysDietPlan.getDailyDairy()
                     - yesterdaysMeals.getDairyCount() - getExcess(0, FoodType.DAIRY))
-                    + " more serves of dairy, ";
+                    + " more serves of dairy");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.GRAIN)) {
-            message += (yesterdaysDietPlan.getDailyGrain()
+            underAteFood.add((yesterdaysDietPlan.getDailyGrain()
                     - yesterdaysMeals.getGrainCount() - getExcess(0, FoodType.GRAIN))
-                    + " more serves of grain, ";
+                    + " more serves of grain");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.FRUIT)) {
-            message += (yesterdaysDietPlan.getDailyFruit()
+            underAteFood.add((yesterdaysDietPlan.getDailyFruit()
                     - yesterdaysMeals.getFruitCount() - getExcess(0, FoodType.FRUIT))
-                    + " more serves of fruit, ";
+                    + " more serves of fruit");
             count++;
         }
-        if(count > 0) {
-            message = message.substring(0, message.length() - 2);
+        if(!underAteFood.isEmpty()) {
+            for(int i=0;i<underAteFood.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==underAteFood.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += underAteFood.get(i);
+            }
             return new Recommendation(id, title, message, expiry);
         }
         return null;

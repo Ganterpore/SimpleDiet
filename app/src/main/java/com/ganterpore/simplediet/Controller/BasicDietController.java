@@ -342,12 +342,12 @@ public class  BasicDietController implements DietController {
         //if over or under by either of these numbers, update the message
         if(fortnightlyCheats > tooManyCheats) {
             title = "Increase your cheat score";
-            message = "Over the past two weeks you have been having too many cheat meals. " +
-                    "Consider giving yourself a break and increasing your maximum. You can always" +
-                    " reduce later at a more achievable rate.";
+            message = "Over the past two weeks you have been having too many cheat meals! " +
+                    "Try to reduce the amount of cheat meals you have, or adjust your goals." +
+                    "You can always change them again later!";
         } else if(fortnightlyCheats < tooFewCheats) {
             title = "Decrease your cheat score";
-            message = "Well done! Over the past two weeks you have been well under your maximum cheat score. " +
+            message = "Well done! Over the past two weeks you have been well under your maximum cheat score! " +
                     "Consider giving yourself a challenge and reducing your allowed cheat meals.";
         } else {
             return null;
@@ -372,69 +372,94 @@ public class  BasicDietController implements DietController {
         //creating the message to the user
         String message = "Over the past two weeks you have been eating ";
         boolean overAte = false;
-        String overAteMessage = "too much ";
+//        String overAteMessage = "too much ";
+        ArrayList<String> overAteFoods = new ArrayList<>();
         if(fortnightlyVeges > (14* overallDiet.getDailyVeges() + 7)) {
             overAte = true;
-            overAteMessage += "vegetables, ";
+            overAteFoods.add("vegetables");
         }
         if(fortnightlyProtein > (14* overallDiet.getDailyProtein() + 7)) {
             overAte = true;
-            overAteMessage += "proteins, ";
+            overAteFoods.add("proteins");
         }
         if(fortnightlyDairy > (14* overallDiet.getDailyDairy() + 7)) {
             overAte = true;
-            overAteMessage += "dairy, ";
+            overAteFoods.add("dairy");
         }
         if(fortnightlyGrain > (14* overallDiet.getDailyGrain() + 7)) {
             overAte = true;
-            overAteMessage += "grains, ";
+            overAteFoods.add("grains");
         }
         if(fortnightlyFruit > (14* overallDiet.getDailyFruit() + 7)) {
             overAte = true;
-            overAteMessage += "fruits, ";
+            overAteFoods.add("fruits");
+        }
+        if(!overAteFoods.isEmpty()) {
+            message += "too much";
+            for(int i=0;i<overAteFoods.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==overAteFoods.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += overAteFoods.get(i);
+            }
         }
 
         boolean underAte = false;
         String underAteMessage = "too little ";
         if(overAte) {
-            message += overAteMessage;
             underAteMessage = "and too little ";
         }
-
+        ArrayList<String> underAteFood = new ArrayList<>();
         if(fortnightlyVeges < (14* overallDiet.getDailyVeges() - 7)) {
             underAte = true;
-            underAteMessage += "vegetables, ";
+            underAteFood.add("vegetables");
         }
         if(fortnightlyProtein < (14* overallDiet.getDailyProtein() - 7)) {
             underAte = true;
-            underAteMessage += "proteins, ";
+            underAteFood.add("proteins");
         }
         if(fortnightlyDairy < (14* overallDiet.getDailyDairy() - 7)) {
             underAte = true;
-            underAteMessage += "dairy, ";
+            underAteFood.add("dairy");
         }
         if(fortnightlyGrain < (14* overallDiet.getDailyGrain() - 7)) {
             underAte = true;
-            underAteMessage += "grains, ";
+            underAteFood.add("grains");
         }
         if(fortnightlyFruit < (14* overallDiet.getDailyFruit() - 7)) {
             underAte = true;
-            underAteMessage += "fruit, ";
+            underAteFood.add("fruit");
         }
-        if(fortnightlyWater < (14* overallDiet.getDailyHydration() - 7)) {
-            underAte = true;
-            underAteMessage += "water, ";
-        }
-
-        if(underAte) {
-            message += underAteMessage;
+        if(!underAteFood.isEmpty()) {
+            message += "too little";
+            for(int i=0;i<underAteFood.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==underAteFood.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += underAteFood.get(i);
+            }
         }
 
         //finalising the recommendation, or returning null if no recommendation
         if(overAte || underAte) {
-            message = message.substring(0, message.length()-2) + ". ";
-            message += "Try to adjust your diet to make up for this. " +
-                    "Alternatively update your diet plan to reflect your actual planned diet";
+            message +=". ";
+            message += "Try to adjust your diet to make up for this.";
             return new Recommendation(id, title, message, expiry);
         }
         return null;

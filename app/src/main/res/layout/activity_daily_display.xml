@@ -62,14 +62,6 @@
                 android:id="@+id/weekly_intake"
                 layout="@layout/container_weekly_intake"/>
 
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center"
-                app:layout_constraintHorizontal_bias="0.5" />
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/day_history_list"
                 android:layout_width="match_parent"

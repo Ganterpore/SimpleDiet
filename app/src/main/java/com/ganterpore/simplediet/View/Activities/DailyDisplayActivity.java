@@ -66,8 +66,7 @@ public class DailyDisplayActivity extends Fragment {
         initialiseScrollEffect();
 
         mealView = new MealHistoryDisplay(activity,
-                (RecyclerView) dailyDisplayView.findViewById(R.id.day_history_list),
-                (ProgressBar) dailyDisplayView.findViewById(R.id.progress_bar));
+                (RecyclerView) dailyDisplayView.findViewById(R.id.day_history_list));
 
         //creating click functionality
         View.OnClickListener addFoodOnClick = new View.OnClickListener() {
