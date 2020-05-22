@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +30,11 @@ import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
-import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;

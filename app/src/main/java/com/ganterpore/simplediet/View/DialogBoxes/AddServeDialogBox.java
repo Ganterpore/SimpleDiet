@@ -79,10 +79,10 @@ public class AddServeDialogBox  {
 
         //setting up the serve text to change when buttons pressed
         ServeChanger serveChanger = new ServeChanger(numberOfServes, isDrink);
-        ImageButton addOneButton = addServeLayout.findViewById(R.id.add_one_serve);
-        ImageButton addOneQuarterButton = addServeLayout.findViewById(R.id.add_one_quarter_serve);
-        ImageButton minusOneButton = addServeLayout.findViewById(R.id.minus_one_serve);
-        ImageButton minusOneQuarterButton = addServeLayout.findViewById(R.id.minus_one_quarter_serve);
+        Button addOneButton = addServeLayout.findViewById(R.id.add_one_serve);
+        Button addOneQuarterButton = addServeLayout.findViewById(R.id.add_one_quarter_serve);
+        Button minusOneButton = addServeLayout.findViewById(R.id.minus_one_serve);
+        Button minusOneQuarterButton = addServeLayout.findViewById(R.id.minus_one_quarter_serve);
         addOneButton.setOnClickListener(serveChanger);
         addOneQuarterButton.setOnClickListener(serveChanger);
         minusOneButton.setOnClickListener(serveChanger);

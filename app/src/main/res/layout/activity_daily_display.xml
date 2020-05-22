@@ -180,7 +180,8 @@
             app:srcCompat="@drawable/baseline_close_black_18dp"
             android:rotation="45"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"/>
+            android:layout_margin="16dp"
+            android:translationZ="2dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

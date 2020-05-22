@@ -39,45 +39,26 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <LinearLayout
+        <Button
+            android:id="@+id/add_one_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:text="@string/plus_1"
+            android:padding="1dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_weight="1"
+            android:contentDescription="@string/up_arrow" />
 
-            <ImageButton
-                android:id="@+id/add_one_serve"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_up_float"
-                android:contentDescription="@string/up_arrow" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/plus_1"/>
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/add_one_quarter_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:text="@string/plus_one_quarter"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_weight="1"
+            android:padding="1dp"
+            android:contentDescription="@string/up_arrow" />
 
-            <ImageButton
-                android:id="@+id/add_one_quarter_serve"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_up_float"
-                android:contentDescription="@string/up_arrow" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/plus_one_quarter"/>
-        </LinearLayout>
 
         <EditText
             android:id="@+id/number_of_serves"
@@ -85,49 +66,27 @@
             android:inputType="numberDecimal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"/>
+            android:layout_gravity="center" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/minus_one_quarter_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/minus_one_quarter_serve"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_down_float"
-                android:layout_weight="1"
-                android:contentDescription="@string/down_arrow" />
+            android:text="@string/minus_one_quarter"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_weight="1"
+            android:padding="1dp"
+            android:contentDescription="@string/down_arrow" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/minus_one_quarter"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/minus_one_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:text="@string/minus_1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_weight="1"
+            android:padding="1dp"
+            android:contentDescription="@string/down_arrow" />
 
-            <ImageButton
-                android:id="@+id/minus_one_serve"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_down_float"
-                android:layout_weight="1"
-                android:contentDescription="@string/down_arrow" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/minus_1"/>
-        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
