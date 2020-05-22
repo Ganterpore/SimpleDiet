@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -301,12 +302,29 @@ public class AddServeDialogBox  {
         final SeekBar alcoholSeekbar = addServeLayout.findViewById(R.id.alcohol_seekbar);
         final EditText percentageValueET = addServeLayout.findViewById(R.id.alcohol_percent);
         final EditText numberOfStandards = addServeLayout.findViewById(R.id.number_of_serves);
+        final ImageButton minusPercentButton = addServeLayout.findViewById(R.id.minus_one_percent);
+        final ImageButton addPercentButton = addServeLayout.findViewById(R.id.add_one_percent);
 
         //updating the volume text
         TextView volume = addServeLayout.findViewById(R.id.current_volume);
         String volumeText = "Curent Volume: " + (int) servesLiquid * DRINK_STANDARD_SERVE + "mL";
         volume.setText(volumeText);
 
+
+        minusPercentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentPercent = (int) Double.parseDouble(percentageValueET.getText().toString());
+                percentageValueET.setText(df.format(currentPercent-1));
+            }
+        });
+        addPercentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentPercent = (int) Double.parseDouble(percentageValueET.getText().toString());
+                percentageValueET.setText(df.format(currentPercent+1));
+            }
+        });
         //when the seekbar is updated, we want to update the percentage text
         alcoholSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

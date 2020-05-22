@@ -30,7 +30,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/food_group_picture"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_gravity="center|top"/>
+                android:layout_gravity="center"/>
 
             <LinearLayout
                 android:id="@+id/percentage_values"
@@ -62,14 +62,36 @@
 
             </LinearLayout>
 
-            <SeekBar
-                app:layout_constraintTop_toBottomOf="@id/percentage_values"
-                android:id="@+id/alcohol_seekbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:progress="4"
-                android:max="100"/>
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/minus_one_percent"
+            app:layout_constraintTop_toBottomOf="@+id/percentage_values"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_remove_black_48dp"
+            android:scaleType="centerInside"/>
+
+        <SeekBar
+            app:layout_constraintTop_toBottomOf="@id/percentage_values"
+            app:layout_constraintStart_toEndOf="@id/minus_one_percent"
+            app:layout_constraintEnd_toStartOf="@id/add_one_percent"
+            android:id="@+id/alcohol_seekbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:progress="4"
+            android:max="100"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/add_one_percent"
+            app:layout_constraintTop_toBottomOf="@+id/percentage_values"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_add_black_48dp"
+            android:scaleType="centerInside"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

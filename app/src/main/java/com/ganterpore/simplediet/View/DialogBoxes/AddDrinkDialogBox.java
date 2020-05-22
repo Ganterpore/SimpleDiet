@@ -328,11 +328,11 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         //update the serve text
         switch (type) {
             case WATER:
-                waterCountTV.setText(String.format("%s/%smL", df.format(serve), df.format(serve * DRINK_STANDARD_SERVE)));
+                waterCountTV.setText(String.format("%s", df.format(serve)));
                 waterServes = serve;
                 break;
             case MILK:
-                milkCountTV.setText(String.format("%s/%smL", df.format(serve), df.format(serve * DRINK_STANDARD_SERVE)));
+                milkCountTV.setText(String.format("%s", df.format(serve)));
                 milkServes = serve;
                 break;
             case CAFFEINE:
@@ -340,7 +340,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                 caffieneServes = serve;
                 break;
             case ALCOHOL:
-                alcoholCountTV.setText(String.format("%s/%s%%", df.format(serve), df.format(Meal.getPercentFromStandards(waterServes, milkServes, serve))));
+                alcoholCountTV.setText(String.format("%s\n%s%%", df.format(serve), df.format(Meal.getPercentFromStandards(waterServes, milkServes, serve))));
                 alcoholServes = serve;
                 //if alcoholic, and the cheat score is 0, move to one as alcohol is unhealthy
                 if(alcoholServes > 0 && cheatSelector.getCheckedRadioButtonId()==R.id.cheat_0) {

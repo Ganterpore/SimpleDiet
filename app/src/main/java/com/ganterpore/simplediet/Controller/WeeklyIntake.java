@@ -73,6 +73,9 @@ public class WeeklyIntake {
      */
     private void sortMeals(MealDataSorter meals, int weeksAgo) {
         thisWeeksMeals = new ArrayList<>();
+        if(meals==null) {
+            return;
+        }
         for(int i=0;i<7;i++) {
             thisWeeksMeals.addAll(meals.getMealsOnDay(weeksAgo*7+i));
 //            Meal meal = new Meal(mealDS);
