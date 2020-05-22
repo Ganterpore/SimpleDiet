@@ -243,6 +243,10 @@ public class Meal {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public double getVegCount() {
         return vegCount;
     }

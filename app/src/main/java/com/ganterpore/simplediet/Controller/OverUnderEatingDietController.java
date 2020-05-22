@@ -266,6 +266,9 @@ public class OverUnderEatingDietController extends BasicDietController{
         } else {
             super.updateListener(dataType, daysAgoUpdated);
         }
+        if(dataType == DataType.DIET_PLAN) {
+            daysAgoDiets.clear();
+        }
     }
 
     /**

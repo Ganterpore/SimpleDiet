@@ -6,4 +6,6 @@
     <color name="colorAccent">#FF652F</color>
     <color name="textColor">#808080</color>
     <color name="colorBackground">#FFFFFF</color>
+    <color name="completedGood">#00EC00</color>
+    <color name="completedBad">#EC0000</color>
 </resources>

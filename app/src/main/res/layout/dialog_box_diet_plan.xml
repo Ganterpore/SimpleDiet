@@ -51,7 +51,7 @@
                 android:id="@+id/protein_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/meat"
+                android:hint="@string/protein"
                 android:inputType="numberDecimal"
                 android:imeOptions="actionNext"/>
         </com.google.android.material.textfield.TextInputLayout>

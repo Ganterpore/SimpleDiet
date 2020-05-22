@@ -37,6 +37,7 @@ public class MealDataSorter {
         //seperate the data into different slots for each day
         for(DocumentSnapshot mealData : data) {
             Meal meal = mealData.toObject(Meal.class);
+            meal.setId(mealData.getId());
             if(meal == null) {
                 continue;
             }

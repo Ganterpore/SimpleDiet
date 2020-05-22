@@ -4,8 +4,11 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -277,8 +280,6 @@ public class DailyDisplayActivity extends Fragment {
 
         private double[] counts;
         private double[] plans;
-        private String cheatRatio;
-        private String cheatsToday;
         private double dailyCheats;
         private double totalCheats;
 
@@ -295,7 +296,7 @@ public class DailyDisplayActivity extends Fragment {
             DailyMeals today = dietController.getTodaysMeals();
             WeeklyIntake thisWeek = dietController.getThisWeeksIntake();
 
-            //getting vaules to be sent to the refreshr to handle
+            //getting vaules to be sent to the refresher to handle
             totalCheats = today.getTotalCheats();
             counts = new double[]{today.getVegCount(), today.getProteinCount(), today.getDairyCount(),
                     today.getGrainCount(), today.getFruitCount(), today.getHydrationScore(),
@@ -306,15 +307,12 @@ public class DailyDisplayActivity extends Fragment {
                     todaysDietPlan.getDailyGrain(), todaysDietPlan.getDailyFruit(), todaysDietPlan.getDailyHydration(),
                     todaysDietPlan.getDailyCaffeine(), todaysDietPlan.getDailyAlcohol(), dailyCheats,
                     thisWeek.getWeeklyLimitCaffiene(), thisWeek.getWeeklyLimitAlcohol(), thisWeek.getWeeklyLimitCheats()};
-
-            cheatRatio = String.format("%s/%s", df.format(totalCheats), df.format(dailyCheats));
-            cheatsToday = String.format("%s today!", df.format(totalCheats));
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            parent.refresh2(counts, plans, totalCheats, dailyCheats, cheatRatio, cheatsToday);
+            parent.refresh2(counts, plans, totalCheats, dailyCheats);
         }
     }
 
@@ -328,7 +326,7 @@ public class DailyDisplayActivity extends Fragment {
         mealView.refresh(dataType, daysAgoUpdated);
     }
 
-    private void refresh2(double[] counts, double[] plans, double totalCheats,  double dailyCheats,  String cheatRatio, String cheatsToday) {
+    private void refresh2(double[] counts, double[] plans, double totalCheats,  double dailyCheats) {
         final int SCALE_FACTOR = 100; //how much to scale the progress bars by (to allow more granularity)
         NumberFormat df = new DecimalFormat("##.##"); //format to show all decimal strings
         View weeklyContainer = dailyDisplayView.findViewById(R.id.weekly_intake);
@@ -385,33 +383,36 @@ public class DailyDisplayActivity extends Fragment {
             double servesLeft = plan - count;
 
             //if meal group has been completed, update the UI to reflect this
-            if(servesLeft <= 0.2) {
+            if(servesLeft <= 0) {
                 if(countTV != null) {
                     countTV.setText(String.format("%s/%s", df.format(count), df.format(plan)));
                 } if(leftTV != null) {
                     leftTV.setText(R.string.completed_text);
                 }
-                //TODO update colors when food is completed
-//                countTV.setTextColor(Color.GREEN);
-//                leftTV.setTextColor(Color.GREEN);
-//                countTV.setAlpha((float) 1);
-//                leftTV.setAlpha((float) 1);
+                //if new enough version to set text appearance, then update text colour
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (countTV != null) {
+                        countTV.setTextColor(getResources().getColor(R.color.completedGood, null));
+                    }
+                    if (leftTV != null) {
+                        leftTV.setTextColor(getResources().getColor(R.color.completedGood, null));
+                    }
+                }
             } else {
+                //change text colour back to normal
                 if(countTV != null) {
                     countTV.setText(String.format("%s/%s", df.format(count), df.format(plan)));
                 } if (leftTV != null) {
                     leftTV.setText(String.format("%s left", df.format(servesLeft)));
                 }
-                //TODO update colors when food is completed
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    countTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));
-//                    leftTV.setTextColor(getResources().getColor(R.color.textColor, getTheme()));
-//                } else {
-//                    countTV.setTextColor(getResources().getColor(R.color.textColor));
-//                    leftTV.setTextColor(getResources().getColor(R.color.textColor));
-//                }
-//                countTV.setAlpha((float) 0.6);
-//                leftTV.setAlpha((float) 0.6);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (countTV != null) {
+                        countTV.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
+                    }
+                    if (leftTV != null) {
+                        leftTV.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
+                    }
+                }
             }
             //animating the updating of the progress bar
             if(progressBar != null) {
@@ -423,8 +424,17 @@ public class DailyDisplayActivity extends Fragment {
             }
         }
         //updating other texts
+        String cheatRatio = String.format("%s/%s", df.format(totalCheats), df.format(dailyCheats));
+        String cheatsToday = String.format("%s today!", df.format(totalCheats));
         cheatTV.setText(cheatRatio);
         cheatsTodayTV.setText(cheatsToday);
+        if(totalCheats > dailyCheats && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            cheatTV.setTextColor(getResources().getColor(R.color.completedBad, null));
+            cheatsTodayTV.setTextColor(getResources().getColor(R.color.completedBad, null));
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            cheatTV.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
+            cheatsTodayTV.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
+        }
         //animating any updates to the cheat progress bar
         cheatsPB.setMax((int) (dailyCheats * SCALE_FACTOR));
         ObjectAnimator objectAnimator = ObjectAnimator.ofInt(cheatsPB, "progress",
