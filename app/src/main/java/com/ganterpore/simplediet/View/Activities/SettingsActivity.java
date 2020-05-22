@@ -23,13 +23,16 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.NotificationReciever;
+import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.R;
 
 import java.util.Calendar;
 
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
+import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
 
 public class SettingsActivity extends Fragment {
     public static final String TAG = "SettingsActivity";
@@ -52,7 +55,7 @@ public class SettingsActivity extends Fragment {
      * This will cancel any notifications that have been turned off, and set any turned on.
      */
     private static void updateNotifications(Activity activity) {
-        SharedPreferences preferences = activity.getSharedPreferences(MainActivity.SHARED_PREFS_LOC, MODE_PRIVATE);
+        SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
         if(preferences.getBoolean(NotificationReciever.MORNING_NOTIFICATION_CHANNEL, false)) {
             //if we are doing morning notifications, then set it up
@@ -113,7 +116,7 @@ public class SettingsActivity extends Fragment {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             PreferenceManager preferenceManager = getPreferenceManager();
-            preferenceManager.setSharedPreferencesName(MainActivity.SHARED_PREFS_LOC);
+            preferenceManager.setSharedPreferencesName(SHARED_PREFS_LOC);
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
             final SwitchPreferenceCompat track_alcohol = findPreference("track_alcohol");
             final SwitchPreferenceCompat track_caffeine = findPreference("track_caffeine");
@@ -143,6 +146,20 @@ public class SettingsActivity extends Fragment {
             findPreference("morning_notification_time").setOnPreferenceChangeListener(updateNotificationsOnChange);
             findPreference("evening_notifications").setOnPreferenceChangeListener(updateNotificationsOnChange);
             findPreference("evening_notification_time").setOnPreferenceChangeListener(updateNotificationsOnChange);
+            findPreference("over_under_eating").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    BasicDietController currentController = BasicDietController.getInstance();
+                    boolean overUnderEatingFunctionality = (Boolean) newValue;
+                    Log.d(TAG, "onPreferenceChange: over under eating? "+overUnderEatingFunctionality);
+                    if(overUnderEatingFunctionality) {
+                        new OverUnderEatingDietController().addListeners(currentController.getListeners());
+                    } else {
+                        new BasicDietController().addListeners(currentController.getListeners());
+                    }
+                    return true;
+                }
+            });
         }
     }
 }

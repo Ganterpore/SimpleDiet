@@ -153,21 +153,6 @@ public class MainActivity extends AppCompatActivity
                             signUpAnonymous();
                         }
                     }).show();
-        } else {
-            //if the dietController is not instantiated or is a member of the wrong class, update it.
-            //TODO move this to splash screen and settings page? Currently this is never called after initial load
-            boolean overUnderEatingFunctionality = preferences.getBoolean("over_under_eating", false);
-            if (overUnderEatingFunctionality) {
-                if(dietController == null || !(dietController instanceof OverUnderEatingDietController)) {
-                    dietController = new OverUnderEatingDietController(this);
-                    refresh(null, null);
-                }
-            } else {
-                if(dietController == null || (dietController instanceof OverUnderEatingDietController)) {
-                    dietController = new BasicDietController(this);
-                    refresh(null, null);
-                }
-            }
         }
     }
 

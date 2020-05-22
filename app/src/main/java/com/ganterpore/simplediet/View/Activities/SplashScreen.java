@@ -29,6 +29,8 @@ import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREF
 
 public class SplashScreen extends AppCompatActivity implements DietController.DietControllerListener {
     public static final String TAG = "SplashScreen";
+    BasicDietController dietController;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,15 +44,16 @@ public class SplashScreen extends AppCompatActivity implements DietController.Di
         boolean overUnderEatingFunctionality = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE)
                                             .getBoolean("over_under_eating", false);
         if(overUnderEatingFunctionality) {
-            new OverUnderEatingDietController(this);
+            dietController = new OverUnderEatingDietController(this);
         } else {
-            new BasicDietController(this);
+            dietController = new BasicDietController(this);
         }
     }
 
 
     @Override
     public void dataLoadComplete() {
+        dietController.removeListener(this);
         //once the data has been loaded in the data controller, start main activity
         startActivity(new Intent(SplashScreen.this, MainActivity.class));
         finish();

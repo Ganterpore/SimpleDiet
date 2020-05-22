@@ -91,6 +91,14 @@ public class  BasicDietController implements DietController {
         listeners.add(listener);
     }
 
+    public void addListeners(List<DietControllerListener> listeners) {
+        this.listeners.addAll(listeners);
+    }
+
+    public void removeListener(DietControllerListener listener) {
+        this.listeners.remove(listener);
+    }
+
     private void getCurrentMealDataFromDB() {
         final Query dataQuery = db.collection(DailyMeals.MEALS).whereEqualTo("user", user);
         //check to update the data when it changes. This will also run through on the first time
@@ -531,5 +539,9 @@ public class  BasicDietController implements DietController {
         int day = calendar.get(Calendar.DATE);
         calendar.set(year, month, day, 0, 0, 0);
         return calendar.getTime();
+    }
+
+    public List<DietControllerListener> getListeners() {
+        return listeners;
     }
 }
