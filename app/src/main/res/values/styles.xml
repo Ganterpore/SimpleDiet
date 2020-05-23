@@ -19,6 +19,23 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="MyDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+<!--        <item name="android:padding">16dp</item>-->
+<!--        <item name="android:layout_margin">8dp</item>-->
+        <item name="android:windowTitleStyle">@style/DialogTitle</item>
+<!--        <item name="android:titleTextStyle">@style/DialogTitle</item>-->
+<!--        <item name="android:titleTextAppearance">@style/DialogTitle</item>-->
+<!--        <item name="android:windowTitleSize">50sp</item>-->
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+
+    <style name="DialogTitle" parent="TextAppearance.AppCompat.Large">
+        <item name="android:textSize">50sp</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight" />
