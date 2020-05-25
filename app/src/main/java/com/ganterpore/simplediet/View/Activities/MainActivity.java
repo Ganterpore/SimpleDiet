@@ -2,11 +2,16 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionProvider;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -46,82 +51,78 @@ public class MainActivity extends AppCompatActivity
     public static final String SHARED_PREFS_LOC = "com.ganterpore.simple_diet";
     private static final String TAG = "MainActivity";
     private FirebaseAuth mAuth;
-    private SharedPreferences preferences;
-    private DietController dietController;
 
     private Fragment currentFragment;
     private DailyDisplayActivity dailyFragment;
     private HistoryActivity historyFragment;
     private SettingsActivity settingsFragment;
+    private BottomNavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        dietController = BasicDietController.getInstance(this);
-        final BottomNavigationView navView = findViewById(R.id.nav_view);
-        buildNavigator(navView);
-        preferences = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(new navigator());
         mAuth = FirebaseAuth.getInstance();
     }
 
-    private void buildNavigator(BottomNavigationView navView) {
-        final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
-        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                //finding the currently displayed fragment
-                for(Fragment fragment : fm.getFragments()) {
-                    if(!fragment.isHidden()) {
-                        currentFragment = fragment;
-                        break;
-                    }
+    private class navigator implements BottomNavigationView.OnNavigationItemSelectedListener {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+            final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
+            //finding the currently displayed fragment
+            for(Fragment fragment : fm.getFragments()) {
+                if(!fragment.isHidden()) {
+                    currentFragment = fragment;
+                    break;
                 }
-                Fragment newFragment = null;
-                //finding or creating the selected fragment
-                switch (menuItem.getItemId()) {
-                    case R.id.navigation_daily:
-                        if(dailyFragment == null) {
-                            dailyFragment = new DailyDisplayActivity();
-                            fm.beginTransaction().add(R.id.nav_host_fragment, dailyFragment, "navigation_daily").commit();
-                        }
-                        newFragment = dailyFragment;
-                        break;
-                    case R.id.navigation_history:
-                        if(historyFragment == null) {
-                            historyFragment = new HistoryActivity();
-                            fm.beginTransaction().add(R.id.nav_host_fragment, historyFragment, "navigation_history").commit();
-                        }
-                        newFragment = historyFragment;
-                        break;
-                    case R.id.navigation_options:
-                        if(settingsFragment == null) {
-                            settingsFragment = new SettingsActivity();
-                            fm.beginTransaction().add(R.id.nav_host_fragment, settingsFragment, "navigation_options").commit();
-                        }
-                        newFragment = settingsFragment;
-                        break;
-                }
-                //if we are not changing the fragment, don't do anything
-                if(newFragment==currentFragment) {
-                    Log.d(TAG, "onNavigationItemSelected: new frag is current frag");
-                    return true;
-                }
-                if(newFragment != null) {
-                    Log.d(TAG, "onNavigationItemSelected: new frag being shown, hiding old");
-                    //otherwise display the selected fragment
-                    fm
-                            .beginTransaction()
-                            .show(newFragment)
-                            .hide(currentFragment)
-                            .commit();
-                    currentFragment = newFragment;
-                    currentFragment.onResume();
-                    return true;
-                }
-                return false;
             }
-        });
+            Fragment newFragment = null;
+            //finding or creating the selected fragment
+            switch (menuItem.getItemId()) {
+                case R.id.navigation_daily:
+                    if(dailyFragment == null) {
+                        dailyFragment = new DailyDisplayActivity();
+                        fm.beginTransaction().add(R.id.nav_host_fragment, dailyFragment, "navigation_daily").commit();
+                    }
+                    newFragment = dailyFragment;
+                    break;
+                case R.id.navigation_history:
+                    if(historyFragment == null) {
+                        historyFragment = new HistoryActivity();
+                        fm.beginTransaction().add(R.id.nav_host_fragment, historyFragment, "navigation_history").commit();
+                    }
+                    newFragment = historyFragment;
+                    break;
+                case R.id.navigation_options:
+                    if(settingsFragment == null) {
+                        settingsFragment = new SettingsActivity();
+                        fm.beginTransaction().add(R.id.nav_host_fragment, settingsFragment, "navigation_options").commit();
+                    }
+                    newFragment = settingsFragment;
+                    break;
+            }
+            //if we are not changing the fragment, don't do anything
+            if(newFragment==currentFragment) {
+                Log.d(TAG, "onNavigationItemSelected: new frag is current frag");
+                return true;
+            }
+            if(newFragment != null) {
+                Log.d(TAG, "onNavigationItemSelected: new frag being shown, hiding old");
+                //otherwise display the selected fragment
+                fm
+                        .beginTransaction()
+                        .show(newFragment)
+                        .hide(currentFragment)
+                        .commit();
+                currentFragment = newFragment;
+                currentFragment.onResume();
+                return true;
+            }
+            return false;
+        }
+
     }
 
     @Override
@@ -156,7 +157,34 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //if the dietController has been removed from memory and not replaced yet (say on a warm open)
+        DietController dietController = BasicDietController.getInstance();
+        if(dietController == null) {
+            //Then get the appropriate dietcontroller back again
+            boolean overUnderEatingFunctionality = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE)
+                    .getBoolean("over_under_eating", false);
+            if(overUnderEatingFunctionality) {
+                dietController = new OverUnderEatingDietController(this);
+            } else {
+                dietController = new BasicDietController(this);
+            }
+        }
+    }
 
+    @Override
+    public void onBackPressed() {
+        //if the current fragment is not the first one, then move to first page
+        int firstPageID = navView.getMenu().getItem(0).getItemId();
+        if(!(navView.getSelectedItemId() == firstPageID)) {
+            navView.setSelectedItemId(firstPageID);
+        } else {
+            //otherwise act normally
+            super.onBackPressed();
+        }
+    }
 
     public void signUpEmail(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)

@@ -37,12 +37,10 @@ import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREF
 public class SettingsActivity extends Fragment {
     public static final String TAG = "SettingsActivity";
 
-    private View settingsView;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        settingsView = inflater.inflate(R.layout.activity_settings, container, false);
+        View settingsView = inflater.inflate(R.layout.activity_settings, container, false);
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.settings, new SettingsFragment())

@@ -47,22 +47,16 @@ public class  BasicDietController implements DietController {
     private boolean mealDataLoaded = false;
 
     //TODO create factory for this method. Or remove interface.
-    public static BasicDietController getInstance() {
-        if(instance != null) {
-            return instance;
-        } else {
-            return new BasicDietController();
-        }
+    public static BasicDietController getInstance() throws NullPointerException {
+        return instance;
     }
-    public static BasicDietController getInstance(DietControllerListener listener) {
+    public static BasicDietController getInstance(DietControllerListener listener) throws NullPointerException {
         if(instance != null) {
-            if(!instance.listeners.contains(listener)) {
+            if (!instance.listeners.contains(listener)) {
                 instance.listeners.add(listener);
             }
-            return instance;
-        } else {
-            return new BasicDietController(listener);
         }
+        return instance;
     }
 
     public BasicDietController() {
