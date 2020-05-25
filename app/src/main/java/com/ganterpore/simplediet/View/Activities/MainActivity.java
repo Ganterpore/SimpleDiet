@@ -2,16 +2,9 @@ package com.ganterpore.simplediet.View.Activities;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.ActionProvider;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -62,6 +55,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        BasicDietController.getInstance().addListener(this);
         navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(new navigator());
         mAuth = FirebaseAuth.getInstance();
@@ -105,11 +99,9 @@ public class MainActivity extends AppCompatActivity
             }
             //if we are not changing the fragment, don't do anything
             if(newFragment==currentFragment) {
-                Log.d(TAG, "onNavigationItemSelected: new frag is current frag");
                 return true;
             }
             if(newFragment != null) {
-                Log.d(TAG, "onNavigationItemSelected: new frag being shown, hiding old");
                 //otherwise display the selected fragment
                 fm
                         .beginTransaction()
@@ -127,7 +119,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onStart() {
-        Log.d(TAG, "onStart: starting");
         super.onStart();
         //setting up daily fragment
         final FragmentManager fm = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment).getChildFragmentManager();
