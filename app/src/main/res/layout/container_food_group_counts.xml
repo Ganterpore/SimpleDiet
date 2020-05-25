@@ -10,40 +10,40 @@
     android:layout_gravity="center|bottom"
     app:layout_collapseMode="parallax">
 
-    <LinearLayout
-        android:id="@+id/water_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="1">
+<!--    <LinearLayout-->
+<!--        android:id="@+id/water_layout"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical"-->
+<!--        android:layout_weight="1">-->
 
-        <TextView
-            android:id="@+id/water_count_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Water"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+<!--        <TextView-->
+<!--            android:id="@+id/water_count_header"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Water"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textAlignment="center"/>-->
 
-        <TextView
-            android:id="@+id/water_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"/>
+<!--        <TextView-->
+<!--            android:id="@+id/water_count"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textAlignment="center"/>-->
 
-        <TextView
-            android:id="@+id/water_left"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"/>
+<!--        <TextView-->
+<!--            android:id="@+id/water_left"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textAlignment="center"/>-->
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:srcCompat="@android:drawable/ic_menu_add"/>
+<!--        <ImageView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            app:srcCompat="@android:drawable/ic_menu_add"/>-->
 
-    </LinearLayout>
+<!--    </LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/veg_layout"
@@ -219,38 +219,38 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/cheat_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="1">
+<!--    <LinearLayout-->
+<!--        android:id="@+id/cheat_layout"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical"-->
+<!--        android:layout_weight="1">-->
 
-        <TextView
-            android:id="@+id/cheat_count_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cheats"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+<!--        <TextView-->
+<!--            android:id="@+id/cheat_count_header"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Cheats"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textAlignment="center"/>-->
 
-        <TextView
-            android:id="@+id/cheat_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"/>
+<!--        <TextView-->
+<!--            android:id="@+id/cheat_count"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textAlignment="center"/>-->
 
-        <TextView
-            android:id="@+id/cheats_today"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"/>
+<!--        <TextView-->
+<!--            android:id="@+id/cheats_today"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textAlignment="center"/>-->
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:srcCompat="@android:drawable/ic_menu_add"/>
+<!--        <ImageView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            app:srcCompat="@android:drawable/ic_menu_add"/>-->
 
-    </LinearLayout>
+<!--    </LinearLayout>-->
 </LinearLayout>

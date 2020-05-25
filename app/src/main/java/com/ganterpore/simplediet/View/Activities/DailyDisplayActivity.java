@@ -92,7 +92,7 @@ public class DailyDisplayActivity extends Fragment {
         dailyDisplayView.findViewById(R.id.dairy_layout).setOnClickListener(addSnackOnClick);
         dailyDisplayView.findViewById(R.id.grain_layout).setOnClickListener(addSnackOnClick);
         dailyDisplayView.findViewById(R.id.fruit_layout).setOnClickListener(addSnackOnClick);
-        dailyDisplayView.findViewById(R.id.cheat_layout).setOnClickListener(addSnackOnClick);
+        dailyDisplayView.findViewById(R.id.cheats_container).setOnClickListener(addSnackOnClick);
 
         return dailyDisplayView;
     }
@@ -143,8 +143,7 @@ public class DailyDisplayActivity extends Fragment {
         boolean track_alcohol = preferences.getBoolean("track_alcohol", true);
         boolean track_caffeine = preferences.getBoolean("track_caffeine", true);
         dailyDisplayView.findViewById(R.id.weekly_intake).setVisibility(!(track_alcohol || track_caffeine || track_cheats) ? View.GONE : View.VISIBLE);
-        dailyDisplayView.findViewById(R.id.cheat_layout).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
-        dailyDisplayView.findViewById(R.id.cheats_progress).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.cheats_container).setVisibility(track_cheats ? View.VISIBLE : View.INVISIBLE);
         dailyDisplayView.findViewById(R.id.weekly_cheats_progress).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.weekly_cheat_count_header).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.weekly_cheat_count).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
@@ -260,7 +259,7 @@ public class DailyDisplayActivity extends Fragment {
             case R.id.fruit_layout:
                 type = FoodType.FRUIT;
                 break;
-            case R.id.cheat_layout:
+            case R.id.cheats_container:
                 type = FoodType.EXCESS;
                 break;
             default:
@@ -352,7 +351,7 @@ public class DailyDisplayActivity extends Fragment {
         TextView grainLeftTV = dailyDisplayView.findViewById(R.id.grain_left);
         TextView fruitLeftTV = dailyDisplayView.findViewById(R.id.fruit_left);
         TextView waterLeftTV = dailyDisplayView.findViewById(R.id.water_left);
-        TextView cheatsTodayTV = dailyDisplayView.findViewById(R.id.cheats_today);
+//        TextView cheatsTodayTV = dailyDisplayView.findViewById(R.id.cheats_today);
 
         //get the progress bars from the main activity
         ProgressBar vegPB = dailyDisplayView.findViewById(R.id.progress_vege);
@@ -427,13 +426,13 @@ public class DailyDisplayActivity extends Fragment {
         String cheatRatio = String.format("%s/%s", df.format(totalCheats), df.format(dailyCheats));
         String cheatsToday = String.format("%s today!", df.format(totalCheats));
         cheatTV.setText(cheatRatio);
-        cheatsTodayTV.setText(cheatsToday);
+//        cheatsTodayTV.setText(cheatsToday);
         if(totalCheats > dailyCheats && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             cheatTV.setTextColor(getResources().getColor(R.color.completedBad, null));
-            cheatsTodayTV.setTextColor(getResources().getColor(R.color.completedBad, null));
+//            cheatsTodayTV.setTextColor(getResources().getColor(R.color.completedBad, null));
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             cheatTV.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
-            cheatsTodayTV.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
+//            cheatsTodayTV.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
         }
         //animating any updates to the cheat progress bar
         cheatsPB.setMax((int) (dailyCheats * SCALE_FACTOR));
