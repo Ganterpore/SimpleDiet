@@ -250,50 +250,10 @@ public class HistoryActivity extends Fragment {
             parent.nWeeksAgo = nWeeksAgo;
 
             //delegate heavy methods to two background tasks
-            new WeekImageBuilder(parent).execute();
+//            new WeekImageBuilder(parent).execute();
             new WeekStringBuilder(parent).execute();
         }
-
-        /**
-         * builds the images for the view, and sends them off to the viewholder to build once ready
-         */
-        private static class WeekImageBuilder extends AsyncTask<Void, Void, Void> {
-            static HashMap<String, Drawable> imageMap;
-            WeekHistoryViewHolder parent;
-
-            WeekImageBuilder(WeekHistoryViewHolder parent) {
-                this.parent = parent;
-            }
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                //checking if drawables already found
-                if(imageMap != null) {
-                    return null;
-                } else {
-                    imageMap = new HashMap<>();
-                }
-
-                //getting drawables from the device
-                Drawable completableWater = parent.activity.getDrawable(R.drawable.symbol_water_completion_selctor);
-                Drawable completableFood = parent.activity.getDrawable(R.drawable.symbol_food_completion_selector);
-                Drawable checked = parent.activity.getDrawable(R.drawable.symbol_check_selector);
-                Drawable arrowDown = parent.activity.getDrawable(android.R.drawable.arrow_down_float);
-
-                //putting the drawables and completion information into hashmaps
-                imageMap.put("water", completableWater);
-                imageMap.put("food", completableFood);
-                imageMap.put("cheat", checked);
-                imageMap.put("arrow_down", arrowDown);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                parent.buildDrawables(imageMap);
-            }
-        }
-
+        
         private static class WeekStringBuilder extends AsyncTask<Void, Void, HashMap<Meal.FoodType, String>> {
             WeekHistoryViewHolder parent;
             DietController dietController;
@@ -375,67 +335,6 @@ public class HistoryActivity extends Fragment {
             this.adapter = adapter;
         }
 
-        /**
-         * Builds the drawables for the viewHolder
-         * @param imageMap, map of strings to the drawables that need to be updated
-         */
-        void buildDrawables(HashMap<String, Drawable> imageMap) {
-            final View expandableView = itemView.findViewById(R.id.expanded_layout);
-            final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
-
-            //getting views
-            CompletableItemView completedFoodView = itemView.findViewById(R.id.completed_food);
-            CompletableItemView completedWaterView = itemView.findViewById(R.id.completed_water);
-            CompletableItemView didntCheatView = itemView.findViewById(R.id.didnt_cheat);
-            ProgressBar cheatsProgressBar = itemView.findViewById(R.id.progress_cheats);
-
-            //setting images and completion status
-            completedFoodView.setBackground(imageMap.get("food"));
-
-            if(trackWater) {
-                completedWaterView.setBackground(imageMap.get("water"));
-            } else {
-                completedWaterView.setVisibility(View.GONE);
-            } if (trackCheats) {
-                didntCheatView.setBackground(imageMap.get("cheat"));
-            } else {
-                itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
-            }
-            dropdownButton.setBackground(imageMap.get("arrow_down"));
-
-            //making sure view is shown as it should be, either expanded or not
-            if (adapter.nDaysAgoVisible.get(nWeeksAgo, false)) {
-                expandableView.setVisibility(View.VISIBLE);
-                dropdownButton.setRotation(180);
-            } else {
-                expandableView.setVisibility(View.GONE);
-                dropdownButton.setRotation(0);
-            }
-
-            //creating functionality for the button that expands the card
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (expandableView.getVisibility() == View.GONE) {
-                        expandableView.setVisibility(View.VISIBLE);
-                        dropdownButton.animate().setDuration(200).rotation(180);
-                        adapter.nDaysAgoVisible.put(nWeeksAgo, true);
-//                        adapter.notifyItemChanged(nWeeksAgo);
-                    } else {
-                        expandableView.setVisibility(View.GONE);
-                        dropdownButton.animate().setDuration(200).rotation(0);
-                        adapter.nDaysAgoVisible.put(nWeeksAgo, false);
-//                        adapter.notifyItemChanged(nWeeksAgo);
-                    }
-                }
-            });
-
-            //setting up the dayHistory RecyclerView
-            DaysHistoryAdapter dayHistoryAdapter = new DaysHistoryAdapter(activity, 7, nWeeksAgo);
-            RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
-            daysHistory.setAdapter(dayHistoryAdapter);
-        }
-
         void buildText(HashMap<Meal.FoodType, String> stringMap, HashMap<String, Boolean> completedMap, double cheatMax, double cheatProgress, Date startDate, Date endDate) {
             final int SCALE_FACTOR = 100;
             //getting view objects
@@ -445,7 +344,7 @@ public class HistoryActivity extends Fragment {
             LayoutInflater inflater = LayoutInflater.from(activity);
             ConstraintLayout foodGroupContainer = (ConstraintLayout) inflater.inflate(R.layout.container_food_group_counts_expanded, null);
             foodGroupContainer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            LinearLayout expandableView = itemView.findViewById(R.id.expanded_layout);
+            final LinearLayout expandableView = itemView.findViewById(R.id.expanded_layout);
             expandableView.addView(foodGroupContainer, 0);
 
             //getting the text views
@@ -498,6 +397,44 @@ public class HistoryActivity extends Fragment {
                 itemView.findViewById(R.id.caffeine_count_header).setVisibility(View.GONE);
                 itemView.findViewById(R.id.weekly_caffeine_count).setVisibility(View.GONE);
             }
+            final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
+            if(!trackWater) {
+                completedWaterView.setVisibility(View.GONE);
+            } if (!trackCheats) {
+                itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
+            }
+
+            //making sure view is shown as it should be, either expanded or not
+            if (adapter.nDaysAgoVisible.get(nWeeksAgo, false)) {
+                expandableView.setVisibility(View.VISIBLE);
+                dropdownButton.setRotation(180);
+            } else {
+                expandableView.setVisibility(View.GONE);
+                dropdownButton.setRotation(0);
+            }
+
+            //creating functionality for the button that expands the card
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (expandableView.getVisibility() == View.GONE) {
+                        expandableView.setVisibility(View.VISIBLE);
+                        dropdownButton.animate().setDuration(200).rotation(180);
+                        adapter.nDaysAgoVisible.put(nWeeksAgo, true);
+//                        adapter.notifyItemChanged(nWeeksAgo);
+                    } else {
+                        expandableView.setVisibility(View.GONE);
+                        dropdownButton.animate().setDuration(200).rotation(0);
+                        adapter.nDaysAgoVisible.put(nWeeksAgo, false);
+//                        adapter.notifyItemChanged(nWeeksAgo);
+                    }
+                }
+            });
+
+            //setting up the dayHistory RecyclerView
+            DaysHistoryAdapter dayHistoryAdapter = new DaysHistoryAdapter(activity, 7, nWeeksAgo);
+            RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
+            daysHistory.setAdapter(dayHistoryAdapter);
         }
     }
 

@@ -55,7 +55,16 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BasicDietController.getInstance().addListener(this);
+        DietController dietController = BasicDietController.getInstance(this);
+        if(dietController == null) {
+            boolean overUnderEatingFunctionality = getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE)
+                    .getBoolean("over_under_eating", false);
+            if(overUnderEatingFunctionality) {
+                new OverUnderEatingDietController(this);
+            } else {
+                new BasicDietController(this);
+            }
+        }
         navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(new navigator());
         mAuth = FirebaseAuth.getInstance();

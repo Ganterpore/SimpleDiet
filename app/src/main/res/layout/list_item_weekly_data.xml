@@ -53,8 +53,8 @@
                 <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
                     android:id="@+id/completed_water"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"/>
-<!--                    android:background="@drawable/symbol_water_completion_selctor" />-->
+                    android:layout_height="40dp"
+                    android:background="@drawable/symbol_water_completion_selctor" />
 
 
             <Space
@@ -65,8 +65,8 @@
                 <com.ganterpore.simplediet.View.ItemViews.CompletableItemView
                     android:id="@+id/completed_food"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"/>
-<!--                    android:background="@drawable/symbol_food_completion_selector" />-->
+                    android:layout_height="40dp"
+                    android:background="@drawable/symbol_food_completion_selector" />
 
 
             <Space
@@ -90,8 +90,8 @@
                     android:layout_gravity="center"
                     android:id="@+id/didnt_cheat"
                     android:layout_width="12dp"
-                    android:layout_height="12dp"/>
-<!--                    android:background="@drawable/symbol_check_selector"/>-->
+                    android:layout_height="12dp"
+                    android:background="@drawable/symbol_check_selector"/>
 
             </LinearLayout>
 
@@ -104,8 +104,8 @@
                 android:id="@+id/dropdown_button"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:contentDescription="@string/down_arrow" />
-<!--                android:src="@android:drawable/arrow_down_float"-->
+                android:contentDescription="@string/down_arrow"
+                android:src="@android:drawable/arrow_down_float"/>
 
             <Space
                 android:layout_width="0dp"
