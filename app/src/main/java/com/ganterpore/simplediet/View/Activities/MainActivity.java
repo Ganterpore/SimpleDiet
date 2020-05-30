@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity
         }
         navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(new navigator());
-        mAuth = FirebaseAuth.getInstance();
     }
 
     private class navigator implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -140,20 +139,12 @@ public class MainActivity extends AppCompatActivity
         if(currentFragment instanceof DailyDisplayActivity && dailyFragment == null) {
             dailyFragment = (DailyDisplayActivity) currentFragment;
         }
-        // Check if user is signed in (non-null) and update UI accordingly.
-        //TODO improve new user sign in
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser==null) {
-            //if no user, then create an anonymous account
-            new AlertDialog.Builder(this)
-                    .setTitle(  "No account detected")
-                    .setMessage("Create new anonymous account?")
-                    .setPositiveButton("Create", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            signUpAnonymous();
-                        }
-                    }).show();
+
+        if(getIntent().getBooleanExtra("new_user", false)) {
+            // If new user, update settings for user
+            UpdateCheatsDialogBox.updateDiet(this);
+            UpdateDrinkDietPlanDialogBox.updateDiet(this);
+            UpdateDietDialogBox.updateDiet(this);
         }
     }
 
@@ -184,44 +175,6 @@ public class MainActivity extends AppCompatActivity
             //otherwise act normally
             super.onBackPressed();
         }
-    }
-
-    public void signUpEmail(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    public void signUpAnonymous() {
-        final Activity activity = this;
-        mAuth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            onStart();
-                            // Sign in success, update UI with the signed-in user's information
-                            UpdateCheatsDialogBox.updateDiet(activity);
-                            UpdateDrinkDietPlanDialogBox.updateDiet(activity);
-                            UpdateDietDialogBox.updateDiet(activity);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            task.getException().printStackTrace();
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
     }
 
     @Override

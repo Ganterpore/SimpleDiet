@@ -7,7 +7,10 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -23,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
+import com.ganterpore.simplediet.Controller.OverUnderEatingDietController;
 import com.ganterpore.simplediet.Controller.WeeklyIntake;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal.FoodType;
@@ -31,15 +35,23 @@ import com.ganterpore.simplediet.View.DialogBoxes.AddDrinkDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddMealDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox;
 import com.ganterpore.simplediet.View.DialogBoxes.RecipeListDialogBox;
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ganterpore.simplediet.View.Activities.MainActivity.SHARED_PREFS_LOC;
+import static com.ganterpore.simplediet.View.Activities.MealHistoryDisplay.EXPIRY_TAG;
 
 public class DailyDisplayActivity extends Fragment {
     private static final String TAG = "MainActivity";
@@ -158,6 +170,131 @@ public class DailyDisplayActivity extends Fragment {
         dailyDisplayView.findViewById(R.id.caffeine_image).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.caffeine_count).setVisibility(track_caffeine ? View.VISIBLE : View.GONE);
         refresh(null, null);
+
+        //if a new user, give them a tutorial
+        if(getActivity() != null && getActivity().getIntent().getBooleanExtra("new_user", false)) {
+            newUserTutorial();
+        }
+    }
+
+    /**
+     * Starts a tutorial instructing the user how to use the app
+     */
+    private void newUserTutorial() {
+        //hiding recommendations for new user
+        SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
+        Date fortnightExpiry = new Date(System.currentTimeMillis() + DateUtils.WEEK_IN_MILLIS*2);
+        Date dayExpiry = new Date(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
+        preferences.edit().putLong(BasicDietController.CHEAT_CHANGE_RECOMMENDATION_ID + EXPIRY_TAG, getStartOfDay(fortnightExpiry).getTime()).apply();
+        preferences.edit().putLong(BasicDietController.DIET_CHANGE_RECOMMENDATION_ID + EXPIRY_TAG, getStartOfDay(fortnightExpiry).getTime()).apply();
+        preferences.edit().putLong(BasicDietController.CHEAT_SCORE_RECOMMENDATION_ID + EXPIRY_TAG, getStartOfDay(dayExpiry).getTime()).apply();
+        preferences.edit().putLong(OverUnderEatingDietController.OVER_EATING_RECOMMENDATION_ID + EXPIRY_TAG, getStartOfDay(dayExpiry).getTime()).apply();
+        preferences.edit().putLong(OverUnderEatingDietController.UNDER_EATING_RECOMMENDATION_ID + EXPIRY_TAG, getStartOfDay(dayExpiry).getTime()).apply();
+
+        //getting targets for tutorial
+        ViewTarget addFoodTarget = new ViewTarget(R.id.addFoodFAB, getActivity());
+        ViewTarget goalsTarget = new ViewTarget(R.id.progress_sphere, getActivity());
+        ViewTarget waterTarget = new ViewTarget(R.id.progress_water, getActivity());
+        ViewTarget cheatsTarget = new ViewTarget(R.id.cheats_progress, getActivity());
+        ViewTarget daysTarget = new ViewTarget(R.id.weekly_intake, getActivity());
+
+        //building each tutorial page
+        final ShowcaseView.Builder foodShowcase = new ShowcaseView.Builder(getActivity())
+                .setTarget(addFoodTarget)
+                .blockAllTouches()
+                .hideOnTouchOutside()
+                .setStyle(R.style.CustomShowcaseTheme)
+                .setContentTitle("Adding Food")
+                .setContentText("To add food tap the add button");
+
+        final ShowcaseView.Builder goalsShowcase = new ShowcaseView.Builder(getActivity())
+                .setTarget(goalsTarget)
+                .blockAllTouches()
+                .setStyle(R.style.CustomShowcaseTheme)
+                .setContentTitle("Achieve Goals")
+                .setContentText("Try to achieve your goals throughout the day by eating all the food in each category");
+
+        final ShowcaseView.Builder drinksShowcase = new ShowcaseView.Builder(getActivity())
+                .setTarget(waterTarget)
+                .blockAllTouches()
+                .setStyle(R.style.CustomShowcaseTheme)
+                .setContentTitle("Achieve Goals")
+                .setContentText("Try to drink enough water, but don't have too much alcohol or caffeine!");
+
+        final ShowcaseView.Builder cheatsShowcase = new ShowcaseView.Builder(getActivity())
+                .setTarget(cheatsTarget)
+                .blockAllTouches()
+                .setStyle(R.style.CustomShowcaseTheme)
+                .setContentTitle("Be Careful!")
+                .setContentText("Make sure not to eat too much unhealthy food and drink while achieving your goals, otherwise you will go over your cheat limits!");
+
+        final ShowcaseView.Builder daysShowcase = new ShowcaseView.Builder(getActivity())
+                .setTarget(daysTarget)
+                .blockAllTouches()
+                .setStyle(R.style.CustomShowcaseTheme)
+                .setContentTitle("History")
+                .setContentText("You can find your history here.");
+
+        //ordering the tutorial
+        foodShowcase.setShowcaseEventListener(new OnShowcaseEventListener() {
+            @Override
+            public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                goalsShowcase.build();
+            }
+            @Override
+            public void onShowcaseViewDidHide(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewShow(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) { }
+        });
+        goalsShowcase.setShowcaseEventListener(new OnShowcaseEventListener() {
+            @Override
+            public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                drinksShowcase.build();
+            }
+            @Override
+            public void onShowcaseViewDidHide(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewShow(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) { }
+        });
+        drinksShowcase.setShowcaseEventListener(new OnShowcaseEventListener() {
+            @Override
+            public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                cheatsShowcase.build();
+            }
+            @Override
+            public void onShowcaseViewDidHide(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewShow(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) { }
+        });
+        cheatsShowcase.setShowcaseEventListener(new OnShowcaseEventListener() {
+            @Override
+            public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                daysShowcase.build();
+            }
+            @Override
+            public void onShowcaseViewDidHide(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewShow(ShowcaseView showcaseView) { }
+            @Override
+            public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) { }
+        });
+
+        //building
+        foodShowcase.build();
+
+//        foodShowcase.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        goalsShowcase.build();
+//                    }
+//                });
+
     }
 
     /**
@@ -439,5 +576,20 @@ public class DailyDisplayActivity extends Fragment {
         objectAnimator.setDuration(500);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.start();
+    }
+
+    /**
+     * get a date representing the start time of a given day
+     * @param date, the date with which you want the start time of the day from
+     * @return the date at the start of the given day
+     */
+    private Date getStartOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DATE);
+        calendar.set(year, month, day, 0, 0, 0);
+        return calendar.getTime();
     }
 }

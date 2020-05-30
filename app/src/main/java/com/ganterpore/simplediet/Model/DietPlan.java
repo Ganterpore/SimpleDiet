@@ -61,6 +61,10 @@ public class DietPlan {
         this.dailyCheats = 0;
         this.dailyCaffeine = 4;
         this.dailyAlcohol = 4;
+        this.weeklyAlcohol = 10;
+        this.weeklyCaffeine = 14;
+        this.dailyCheats = 40;
+        this.weeklyCheats = 280;
         this.user = FirebaseAuth.getInstance().getUid();
     }
 

@@ -39,6 +39,11 @@ public class UpdateCheatsDialogBox {
         final EditText dailyCheats = updateDietLayout.findViewById(R.id.daily_cheats);
         final EditText weeklyCheats = updateDietLayout.findViewById(R.id.weekly_cheats);
         final TextView cheatDescription = updateDietLayout.findViewById(R.id.cheat_description);
+
+        dailyCheats.setText(df.format(dietPlan.getDailyCheats()));
+        weeklyCheats.setText(df.format(dietPlan.getWeeklyCheats()));
+        updateCheatDescription(context, dietPlan, cheatDescription);
+
         //Making sure the description updates when cheats change
         dailyCheats.addTextChangedListener(new TextWatcher() {
             @Override
@@ -57,10 +62,7 @@ public class UpdateCheatsDialogBox {
                     dietPlan.setDailyCheats(Double.parseDouble(s.toString()));
                     dietPlan.setWeeklyCheats(7 * dietPlan.getDailyCheats());
                 }
-                String newCheatDescription = context.getResources().getString(R.string.cheat_description_template);
-                newCheatDescription = newCheatDescription.replace(" X ", " "+df.format(dietPlan.totalServes())+" ");
-                newCheatDescription = newCheatDescription.replace(" Y ", " "+df.format(dietPlan.getDailyCheats()/(dietPlan.totalServes()))+" ");
-                cheatDescription.setText(newCheatDescription);
+                updateCheatDescription(context, dietPlan, cheatDescription);
                 weeklyCheats.setText(df.format(dietPlan.getWeeklyCheats()));
             }
         });
@@ -80,8 +82,7 @@ public class UpdateCheatsDialogBox {
                 }
             }
         });
-        dailyCheats.setText(df.format(dietPlan.getDailyCheats()));
-        weeklyCheats.setText(df.format(dietPlan.getWeeklyCheats()));
+
 
         //Build the dialog box
         AlertDialog.Builder addMealDialog = new AlertDialog.Builder(context);
@@ -108,5 +109,12 @@ public class UpdateCheatsDialogBox {
 
             }
         }).show();
+    }
+
+    private static void updateCheatDescription(Context context, DietPlan dietPlan, TextView cheatDescription) {
+        String newCheatDescription = context.getResources().getString(R.string.cheat_description_template);
+        newCheatDescription = newCheatDescription.replace(" X ", " "+df.format(dietPlan.totalServes())+" ");
+        newCheatDescription = newCheatDescription.replace(" Y ", " "+df.format(dietPlan.getDailyCheats()/(dietPlan.totalServes()))+" ");
+        cheatDescription.setText(newCheatDescription);
     }
 }

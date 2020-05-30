@@ -250,10 +250,9 @@ public class HistoryActivity extends Fragment {
             parent.nWeeksAgo = nWeeksAgo;
 
             //delegate heavy methods to two background tasks
-//            new WeekImageBuilder(parent).execute();
             new WeekStringBuilder(parent).execute();
         }
-        
+
         private static class WeekStringBuilder extends AsyncTask<Void, Void, HashMap<Meal.FoodType, String>> {
             WeekHistoryViewHolder parent;
             DietController dietController;

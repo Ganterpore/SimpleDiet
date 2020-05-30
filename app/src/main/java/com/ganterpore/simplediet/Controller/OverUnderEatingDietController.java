@@ -15,6 +15,8 @@ import java.util.List;
 
 public class OverUnderEatingDietController extends BasicDietController{
     private static final String TAG = "OverUnderEatingDietCo";
+    public static final String UNDER_EATING_RECOMMENDATION_ID = "under_eating";
+    public static final String OVER_EATING_RECOMMENDATION_ID = "over_eating";
     private SparseArray<DietPlan> daysAgoDiets = new SparseArray<>();
 
     public OverUnderEatingDietController() {
@@ -150,7 +152,7 @@ public class OverUnderEatingDietController extends BasicDietController{
     private Recommendation getOverEatingRecommendation() {
         DietPlan todaysPlan = getTodaysDietPlan();
         DietPlan overallDiet = getOverallDietPlan();
-        String id = "over_eating";
+        String id = OVER_EATING_RECOMMENDATION_ID;
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Over eating";
         String message = "Yesterday you ate too much";
@@ -192,7 +194,7 @@ public class OverUnderEatingDietController extends BasicDietController{
     }
 
     private Recommendation getUnderEatingRecommendation() {
-        String id = "under_eating";
+        String id = UNDER_EATING_RECOMMENDATION_ID;
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Under eating";
         String message = "Yesterday you didn't eat enough from each food category! You can still make up for it today if you eat";

@@ -8,6 +8,7 @@ import android.util.SparseBooleanArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
+import com.ganterpore.simplediet.View.Activities.MainActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +33,9 @@ import javax.annotation.Nullable;
 
 public class  BasicDietController implements DietController {
     private static final String TAG = "BasicDietController";
+    public static final String CHEAT_CHANGE_RECOMMENDATION_ID = "cheat_change";
+    public static final String DIET_CHANGE_RECOMMENDATION_ID = "diet_change";
+    public static final String CHEAT_SCORE_RECOMMENDATION_ID = "cheat";
     private static BasicDietController instance;
     private MealDataSorter data;
     private List<DietControllerListener> listeners;
@@ -329,7 +333,7 @@ public class  BasicDietController implements DietController {
     private Recommendation getCheatChangeRecommendation() {
         //if we are over/under the target cheat points by more than this factor, suggest a change
         final double SCALE_FACTOR = 0.2;
-        String id = "cheat_change";
+        String id = CHEAT_CHANGE_RECOMMENDATION_ID;
         long expiry = DateUtils.WEEK_IN_MILLIS * 2;
         String title;
         String message;
@@ -358,7 +362,7 @@ public class  BasicDietController implements DietController {
     }
 
     private Recommendation getDietChangeRecommendation() {
-        String id = "diet_change";
+        String id = DIET_CHANGE_RECOMMENDATION_ID;
         long expiry = DateUtils.WEEK_IN_MILLIS * 2;
         String title = "Recommendations for diet changes";
 
@@ -468,7 +472,7 @@ public class  BasicDietController implements DietController {
     }
 
     private Recommendation getCheatScoreRecommendation() {
-        String id = "cheat";
+        String id = CHEAT_SCORE_RECOMMENDATION_ID;
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "";
         String message = "";

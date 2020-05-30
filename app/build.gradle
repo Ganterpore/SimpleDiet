@@ -27,6 +27,8 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-firestore:17.1.2'
 
+    implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
+
     //firebase ui
     implementation 'com.firebaseui:firebase-ui:0.6.0'
     implementation "com.firebaseui:firebase-ui-auth:4.1.0"
