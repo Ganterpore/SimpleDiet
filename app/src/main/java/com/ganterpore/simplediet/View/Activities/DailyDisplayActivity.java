@@ -8,6 +8,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -41,6 +44,7 @@ import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DecimalFormat;
@@ -114,22 +118,66 @@ public class DailyDisplayActivity extends Fragment {
         final ConstraintLayout progressCircle = dailyDisplayView.findViewById(R.id.progress_sphere);
         final ConstraintLayout progressCheats = dailyDisplayView.findViewById(R.id.cheats_progress);
         final ConstraintLayout progressDrinks = dailyDisplayView.findViewById(R.id.drinks_progress);
+        final View[] viewsToHide = {
+                dailyDisplayView.findViewById(R.id.header_information),
+                dailyDisplayView.findViewById(R.id.water_count_header),
+                dailyDisplayView.findViewById(R.id.water_count),
+                dailyDisplayView.findViewById(R.id.water_left),
+                dailyDisplayView.findViewById(R.id.cheat_count_header),
+                dailyDisplayView.findViewById(R.id.cheat_count)
+        };
         AppBarLayout appBarLayout = dailyDisplayView.findViewById(R.id.appBar);
+
+        //setting the min height to half that of the starting height of the progress circle
+        CollapsingToolbarLayout collapsingToolbarLayout = dailyDisplayView.findViewById(R.id.toolbar_layout);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int deviceWidth = displayMetrics.widthPixels;
+        int progressCircleWidth = deviceWidth*3/7;
+        final float paddingDIP = 8f;
+        int paddingPX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, paddingDIP*2, getResources().getDisplayMetrics());
+        int minHeight = progressCircleWidth *6/10 + paddingPX;
+        collapsingToolbarLayout.setMinimumHeight(minHeight);
+
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
+            boolean viewsHidden = false;
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 //making sure progress circle shrinks when scrolled upwards
+                //will become half the size at full scroll
                 int scrollRange = appBarLayout.getTotalScrollRange();
-                float offsetFactor = (float) (-verticalOffset) / (float) scrollRange;
-                float scaleFactor = 1F - offsetFactor * .5F ;
+                float percentScrolled = (float) (-verticalOffset) / (float) scrollRange;
+                float scaleFactor = 1F - percentScrolled * .4F ;
                 progressCircle.setScaleX(scaleFactor);
                 progressCircle.setScaleY(scaleFactor);
                 progressCheats.setScaleX(scaleFactor);
                 progressCheats.setScaleY(scaleFactor);
                 progressDrinks.setScaleX(scaleFactor);
                 progressDrinks.setScaleY(scaleFactor);
+
+                int paddingPX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, paddingDIP, getResources().getDisplayMetrics());
+                progressCircle.setTranslationY(paddingPX*percentScrolled);
+
+                //hid the viesToHide when the bar is fully scrolled up
+                if(verticalOffset + scrollRange == 0) { //fully scrolled
+                    for (View view : viewsToHide) {
+                        view.setVisibility(View.INVISIBLE);
+                    }
+                    viewsHidden = true;
+                } else if(viewsHidden) {
+                    for (View view : viewsToHide) {
+                        view.setVisibility(View.VISIBLE);
+                    }
+                    viewsHidden = false;
+                }
             }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
     }
 
     @Override
