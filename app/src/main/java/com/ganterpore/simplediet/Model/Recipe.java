@@ -93,36 +93,36 @@ public class Recipe {
         String output = "";
 
         if(getWaterCount() > 0){
-            output += "    W:" + df.format(getWaterCount());
+            output += "    Water: " + df.format(getWaterCount());
         }
         if(getVegCount() > 0){
-            output += "    V:" + df.format(getVegCount());
+            output += "    Veges: " + df.format(getVegCount());
         }
         if(getProteinCount() > 0){
-            output += "    P:" + df.format(getProteinCount());
+            output += "    Protein: " + df.format(getProteinCount());
         }
         if(getDairyCount() > 0){
-            output += "    D:" + df.format(getDairyCount());
+            output += "    Dairy: " + df.format(getDairyCount());
         }
         if(getGrainCount() > 0){
-            output += "    G:" + df.format(getGrainCount());
+            output += "    Grain: " + df.format(getGrainCount());
         }
         if(getFruitCount() > 0){
-            output += "    F:" + df.format(getFruitCount());
+            output += "    Fruit: " + df.format(getFruitCount());
         }
         if(getCaffeineCount() > 0){
-            output += "    C:" + df.format(getCaffeineCount());
+            output += "    Caffeine: " + df.format(getCaffeineCount());
         }
         if(getAlcoholStandards() > 0){
-            output += "    A:" + df.format(getAlcoholStandards());
+            output += "    Alcohol: " + df.format(getAlcoholStandards());
         }
         if(getExcessServes() > 0){
-            output += "    Ex:" + df.format(getExcessServes());
+            output += "    Excess: " + df.format(getExcessServes());
         }
         if(isDrink) {
-            output  += "    Hydration:" + df.format(getHydrationScore());
+            output  += "    Hydration: " + df.format(getHydrationScore());
         }
-        output += "    Total Cheats:" + df.format(calculateTotalCheats());
+        output += "    Total Cheats: " + df.format(calculateTotalCheats());
 
         return output.trim();
     }
