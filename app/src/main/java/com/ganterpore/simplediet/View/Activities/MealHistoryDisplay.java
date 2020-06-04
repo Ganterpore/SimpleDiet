@@ -351,11 +351,11 @@ class MealHistoryDisplay  {
          */
         private void hideRecommendation() {
             //confirm with the user if they actually want to remove notification
-            new AlertDialog.Builder(activity)
-                    .setTitle("Are you sure you want to remove this?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+//            new AlertDialog.Builder(activity)
+//                    .setTitle("Are you sure you want to remove this?")
+//                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
                             //if so, proceed with removal
                             final DietController.Recommendation recommendation = recommendations.get(position);
                             //updating the expiry of the recommendation id
@@ -365,17 +365,17 @@ class MealHistoryDisplay  {
 
                             //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
                             refresh(null, new ArrayList<Integer>());
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //if not, move back if swiped away
-                            adapter.notifyItemChanged(getAdapterPosition());
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
+//                        }
+//                    })
+//                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            //if not, move back if swiped away
+//                            adapter.notifyItemChanged(getAdapterPosition());
+//                        }
+//                    })
+//                    .setCancelable(false)
+//                    .show();
         }
 
         /**

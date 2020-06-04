@@ -149,12 +149,26 @@ public class SettingsActivity extends Fragment {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     BasicDietController currentController = BasicDietController.getInstance();
                     boolean overUnderEatingFunctionality = (Boolean) newValue;
-                    Log.d(TAG, "onPreferenceChange: over under eating? "+overUnderEatingFunctionality);
                     if(overUnderEatingFunctionality) {
                         new OverUnderEatingDietController().addListeners(currentController.getListeners());
                     } else {
                         new BasicDietController().addListeners(currentController.getListeners());
                     }
+                    return true;
+                }
+            });
+
+            //reset recommendations if selected
+            findPreference("recommendation_reset").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    getActivity().getPreferences(MODE_PRIVATE).edit()
+                            .putLong(BasicDietController.CHEAT_SCORE_RECOMMENDATION_ID+MealHistoryDisplay.EXPIRY_TAG, 0)
+                            .putLong(BasicDietController.DIET_CHANGE_RECOMMENDATION_ID+MealHistoryDisplay.EXPIRY_TAG, 0)
+                            .putLong(BasicDietController.CHEAT_CHANGE_RECOMMENDATION_ID+MealHistoryDisplay.EXPIRY_TAG, 0)
+                            .putLong(OverUnderEatingDietController.UNDER_EATING_RECOMMENDATION_ID+MealHistoryDisplay.EXPIRY_TAG, 0)
+                            .putLong(OverUnderEatingDietController.OVER_EATING_RECOMMENDATION_ID+MealHistoryDisplay.EXPIRY_TAG, 0)
+                            .apply();
                     return true;
                 }
             });

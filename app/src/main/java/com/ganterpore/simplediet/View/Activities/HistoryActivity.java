@@ -431,9 +431,9 @@ public class HistoryActivity extends Fragment {
             });
 
             //setting up the dayHistory RecyclerView
-            DaysHistoryAdapter dayHistoryAdapter = new DaysHistoryAdapter(activity, 7, nWeeksAgo);
-            RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
-            daysHistory.setAdapter(dayHistoryAdapter);
+//            DaysHistoryAdapter dayHistoryAdapter = new DaysHistoryAdapter(activity, 7, nWeeksAgo);
+//            RecyclerView daysHistory = itemView.findViewById(R.id.days_list);
+//            daysHistory.setAdapter(dayHistoryAdapter);
         }
     }
 
