@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.ganterpore.simplediet.R;
 import com.ganterpore.simplediet.View.Activities.DailyDisplayActivity;
+import com.ganterpore.simplediet.View.Activities.MainActivity;
 
 public class NotificationReciever extends BroadcastReceiver {
     public static final String TAG = "NotificationReceiver";
@@ -42,7 +43,7 @@ public class NotificationReciever extends BroadcastReceiver {
     private void createEveningNotification(Context context) {
         String content = "Don't forget to add your dinner and any forgotten meals for the day!";
 
-        Intent intent = new Intent(context, DailyDisplayActivity.class);
+        Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
@@ -63,7 +64,7 @@ public class NotificationReciever extends BroadcastReceiver {
      private void createMorningNotification(Context context) {
         String content = "Have a happy, healthy breakfast! Don't forget to add any meals you may have missed yesterday!";
 
-        Intent intent = new Intent(context, DailyDisplayActivity.class);
+        Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
