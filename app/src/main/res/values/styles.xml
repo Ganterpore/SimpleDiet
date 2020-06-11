@@ -3,10 +3,15 @@
     <!-- Base application theme. -->
     <style name="AppTheme"
         parent="Theme.AppCompat.DayNight.DarkActionBar">
+<!--        <item name="android:windowBackground">@drawable/symbol_food_completed</item>-->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 <!--        <item name="android:textColor">@color/textColor</item>-->
+    </style>
+
+    <style name="AppTheme.Launcher">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -14,7 +19,43 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="MyDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+<!--        <item name="android:padding">16dp</item>-->
+<!--        <item name="android:layout_margin">8dp</item>-->
+        <item name="android:windowTitleStyle">@style/DialogTitle</item>
+<!--        <item name="android:titleTextStyle">@style/DialogTitle</item>-->
+<!--        <item name="android:titleTextAppearance">@style/DialogTitle</item>-->
+<!--        <item name="android:windowTitleSize">50sp</item>-->
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+
+    <style name="DialogTitle" parent="TextAppearance.AppCompat.Large">
+        <item name="android:textSize">50sp</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight" />
+
+    <style name="CustomShowcaseTheme" parent="ShowcaseView.Light">
+        <item name="sv_backgroundColor">#DD00574B</item>
+        <item name="sv_showcaseColor">@color/colorAccent</item>
+<!--        <item name="sv_titleTextColor">@color/colorAccent</item>-->
+<!--        <item name="sv_detailTextColor">#ffffff</item>-->
+<!--        <item name="sv_buttonText">Hide</item>-->
+<!--        <item name="sv_tintButtonColor">false</item>-->
+        <item name="sv_titleTextAppearance">@style/CustomTitle</item>
+        <item name="sv_detailTextAppearance">@style/CustomText</item>
+    </style>
+
+    <style name="CustomTitle" parent="TextAppearance.ShowcaseView.Title">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="CustomText" parent="TextAppearance.ShowcaseView.Detail.Light">
+        <item name="android:textColor">#ffffff</item>
+    </style>
 </resources>

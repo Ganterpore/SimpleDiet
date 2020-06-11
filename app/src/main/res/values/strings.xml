@@ -3,8 +3,8 @@
     <string name="title_activity_settings">Settings</string>
 
     <string name="cheat_score_description">Select a cheat score that measures how much of a cheat meal this was. The higher the score, the worse it is for you.</string>
-    <string name="cheat_description_template">Your current diet plan has you having X serves per day. At this current daily limit, you are having Y points per serve.</string>
-    <string name="cheat_points_description">Cheat points determine how bad a meal is for you. The worse the meal, the more cheat points it costs. Choose an amount of cheat points you are allowed to use each day.</string>
+    <string name="cheat_description_template">Your current diet plan has you having X serves of food per day. At this level you are having Y cheats per serve of food.</string>
+    <string name="cheat_points_description">Cheat points determine how bad a meal is for you, between 0 and 3. The worse the meal, the more cheat points it costs. Typically 0 cheat points means it is just health food, 1 cheat point means it has 1 negative additive to it (eg. added salt, fried), 2 cheat points would have 2 or 3 negative additives, and 3 cheat points would mean it is more unhealthy than healthy (eg. ice cream). Choose an amount of cheat points you are allowed to have each day.</string>
     <string name="daily_cheat_points">Daily Cheat Points</string>
     <string name="default_daily_cheats">0</string>
     <string name="select_default_diet_explanation">Select a default diet plan from the list</string>
@@ -53,7 +53,7 @@
     <string name="drink">Drink</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
-    <string name="tap_to_add_serves_to_your_drink">Tap to add serves to your drink</string>
+    <string name="tap_to_add_serves_to_your_drink">Tap to add the base liquid to your drink (anything not dairy based is considered water)</string>
     <string name="water_slash_other">Water/ Other</string>
     <string name="milk">Milk</string>
     <string name="tap_to_add_additions_to_your_drink">Tap to add additions to your drink</string>
@@ -73,4 +73,7 @@
     <string name="achievement_over_cheats_text">Oh No! You have had too many cheats today!</string>
     <string name="last_7_days">Last 7 Days</string>
     <string name="last_28_days">Last 28 days</string>
+    <string name="completed_text">Done!</string>
+    <string name="water">Water</string>
+    <string name="protein">Protein</string>
 </resources>

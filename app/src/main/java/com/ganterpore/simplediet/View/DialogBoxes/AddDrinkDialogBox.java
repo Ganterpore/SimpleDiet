@@ -38,6 +38,7 @@ import static com.ganterpore.simplediet.View.DialogBoxes.AddServeDialogBox.DRINK
 import com.ganterpore.simplediet.Model.Meal.FoodType;
 
 public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
+    public static final String TAG = "AddDrinkDialogBox";
     public static final int DRINK = 1;
     public static final int NEW_RECIPE = 2;
     public static final int RECIPE = 3;
@@ -301,10 +302,20 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         final String finalFoodExamplePrefix = foodExamplePrefix;
         int cheatScore = getCheatScoreFromID(cheatSelector.getCheckedRadioButtonId());
         //Getting the relevant string resource based on the information, and setting the example text to it
-        exampleDrink.setText(
-                activity.getResources()
-                        .getIdentifier(finalFoodExamplePrefix +"_"+cheatScore, "string", activity.getPackageName())
-        );
+        Log.d(TAG, "updateExampleDrink: "+exampleDrink.toString());
+        Log.d(TAG, "updateExampleDrink: "+finalFoodExamplePrefix +"_"+cheatScore);
+        try {
+            exampleDrink.setText(
+                    activity.getResources()
+                            .getIdentifier(finalFoodExamplePrefix +"_"+cheatScore, "string", activity.getPackageName())
+            );
+        } catch (Exception e) {
+            exampleDrink.setText(
+                    activity.getResources()
+                            .getIdentifier("drink__"+cheatScore, "string", activity.getPackageName())
+            );
+        }
+
     }
 
     /**
@@ -317,11 +328,11 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
         //update the serve text
         switch (type) {
             case WATER:
-                waterCountTV.setText(String.format("%s/%smL", df.format(serve), df.format(serve * DRINK_STANDARD_SERVE)));
+                waterCountTV.setText(String.format("%s", df.format(serve)));
                 waterServes = serve;
                 break;
             case MILK:
-                milkCountTV.setText(String.format("%s/%smL", df.format(serve), df.format(serve * DRINK_STANDARD_SERVE)));
+                milkCountTV.setText(String.format("%s", df.format(serve)));
                 milkServes = serve;
                 break;
             case CAFFEINE:
@@ -329,7 +340,7 @@ public class AddDrinkDialogBox implements AddServeDialogBox.ServeListener {
                 caffieneServes = serve;
                 break;
             case ALCOHOL:
-                alcoholCountTV.setText(String.format("%s/%s%%", df.format(serve), df.format(Meal.getPercentFromStandards(waterServes, milkServes, serve))));
+                alcoholCountTV.setText(String.format("%s\n%s%%", df.format(serve), df.format(Meal.getPercentFromStandards(waterServes, milkServes, serve))));
                 alcoholServes = serve;
                 //if alcoholic, and the cheat score is 0, move to one as alcohol is unhealthy
                 if(alcoholServes > 0 && cheatSelector.getCheckedRadioButtonId()==R.id.cheat_0) {

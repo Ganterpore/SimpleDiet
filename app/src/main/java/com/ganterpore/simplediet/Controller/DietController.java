@@ -3,9 +3,14 @@ package com.ganterpore.simplediet.Controller;
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.google.android.gms.tasks.Task;
 
+import java.util.Date;
 import java.util.List;
 
 public interface DietController {
+    enum DataType {
+        MEAL,
+        DIET_PLAN;
+    }
     /**
      * gets the meals that have been eaten today
      * @return object containing todays meals
@@ -58,18 +63,15 @@ public interface DietController {
     List<Recommendation> getRecommendations();
 
     /**
-     * Update the listener to the diet controller of a change
-     */
-    void updateListener();
-
-    /**
      * Interface for listeners to a diet controller
      */
     interface DietControllerListener {
+        void dataLoadComplete();
+
         /**
-         * lets listener know that the data has been updated and the information need to be refreshed
+         * lets listener know that the data has been updated and the information needs to be refreshed
          */
-        void refresh();
+        void refresh(DataType dataType, List<Integer> daysAgoUpdated);
 
         /**
          * Lets listener know that todays food was completed recently

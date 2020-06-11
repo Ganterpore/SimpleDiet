@@ -119,9 +119,9 @@ public class AddMealDialogBox implements AddServeDialogBox.ServeListener {
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         if(timeOfDay >= 4 && timeOfDay < 11){
             mealNameTV.setText("Breakfast Meal");
-        }else if(timeOfDay >= 11 && timeOfDay < 16){
+        }else if(timeOfDay >= 11 && timeOfDay < 17){
             mealNameTV.setText("Lunch");
-        }else if(timeOfDay >= 16 && timeOfDay < 22){
+        }else if(timeOfDay >= 17 && timeOfDay < 22){
             mealNameTV.setText("Dinner");
         }else if(timeOfDay >= 22 || timeOfDay < 4){
             mealNameTV.setText("Midnight Meal");

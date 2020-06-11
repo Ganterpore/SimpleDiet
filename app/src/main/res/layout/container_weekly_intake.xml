@@ -9,399 +9,172 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_marginTop="8dp"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/last_7_days"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:text="@string/last_7_days"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+<!--        <LinearLayout-->
+<!--            android:layout_marginBottom="8dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:baselineAligned="false">-->
 
-            <TextView
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tap for more"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+<!--            <LinearLayout-->
+<!--                android:id="@+id/weekly_caffeine_container"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_weight="1">-->
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <LinearLayout
-        android:id="@+id/header_information"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:orientation="horizontal"
-        android:layout_gravity="center|bottom"
-        android:baselineAligned="false">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center">
-
-                <ImageView
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_vege_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:src="@drawable/vegetables_full_thumbnail"
-                    android:rotation="270"
-                    app:layout_constraintDimensionRatio="1:1"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/veg_count_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Veges"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:id="@+id/weekly_veges_intake"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center">
-
-                <ImageView
-                    android:scaleType="fitXY"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_protein_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:src="@drawable/meat_full_thumbnail"
-                    android:rotation="270"
-                    app:layout_constraintDimensionRatio="1:1"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/protein_count_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Protein"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:id="@+id/weekly_protein_intake"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center">
-
-                <ImageView
-                    android:scaleType="fitXY"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_dairy_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:src="@drawable/dairy_full_thumbnail"
-                    android:rotation="270"
-                    app:layout_constraintDimensionRatio="1:1"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/dairy_count_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Dairy"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:id="@+id/weekly_dairy_intake"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center">
-
-                <ImageView
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_grain_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:src="@drawable/grain_full_thumbnail"
-                    android:rotation="270"
-                    app:layout_constraintDimensionRatio="1:1"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/grain_count_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Grain"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:id="@+id/weekly_grain_intake"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center">
-
-                <ImageView
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:id="@+id/weekly_fruit_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:src="@drawable/fruit_full_thumbnail"
-                    android:rotation="270"
-                    app:layout_constraintDimensionRatio="1:1"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/fruit_count_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Fruit"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:id="@+id/weekly_fruit_intake"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-        <LinearLayout
-            android:layout_marginBottom="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:id="@+id/weekly_water_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                android:layout_weight="1">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center">
+<!--                <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:layout_gravity="center">-->
 
                     <ImageView
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:id="@+id/weekly_water_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:src="@drawable/symbol_water_completed"
-                        app:layout_constraintDimensionRatio="1:1"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <TextView
-                    android:id="@+id/water_count_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Water"
-                    android:textStyle="bold"
-                    android:textAlignment="center"/>
-
-                <TextView
-                    android:id="@+id/weekly_water_intake"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/weekly_caffeine_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                android:layout_weight="1">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center">
-
-                    <ImageView
-                        app:layout_constraintTop_toTopOf="parent"
                         android:id="@+id/weekly_caffeine_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:layout_constraintTop_toBottomOf="@id/title"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/weekly_alcohol_image"
                         android:src="@drawable/caffiene"
                         app:layout_constraintDimensionRatio="1:1"/>
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+<!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
 
 
                 <TextView
                     android:id="@+id/caffeine_count_header"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Caffeine"
                     android:textStyle="bold"
-                    android:textAlignment="center"/>
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toBottomOf="@id/weekly_caffeine_image"
+                    app:layout_constraintStart_toStartOf="@id/weekly_caffeine_image"
+                    app:layout_constraintEnd_toEndOf="@id/weekly_caffeine_image" />
                 <TextView
                     android:id="@+id/weekly_caffeine_count"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"/>
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toBottomOf="@id/caffeine_count_header"
+                    app:layout_constraintStart_toStartOf="@id/caffeine_count_header"
+                    app:layout_constraintEnd_toEndOf="@id/caffeine_count_header"/>
 
-            </LinearLayout>
+<!--            </LinearLayout>-->
 
-            <LinearLayout
-                android:id="@+id/weekly_alcohol_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                android:layout_weight="1">
+<!--            <LinearLayout-->
+<!--                android:id="@+id/weekly_alcohol_container"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_weight="1">-->
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center">
+<!--                <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:layout_gravity="center">-->
 
                     <ImageView
-                        app:layout_constraintTop_toTopOf="parent"
                         android:id="@+id/weekly_alcohol_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:layout_constraintTop_toBottomOf="@+id/title"
+                        app:layout_constraintStart_toEndOf="@id/weekly_caffeine_image"
+                        app:layout_constraintEnd_toStartOf="@id/weekly_cheats_progress"
                         android:src="@drawable/alcohol"
                         app:layout_constraintDimensionRatio="1:1"/>
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+<!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
 
                 <TextView
                     android:id="@+id/alcohol_count_header"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Alcohol"
                     android:textStyle="bold"
-                    android:textAlignment="center"/>
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toBottomOf="@id/weekly_alcohol_image"
+                    app:layout_constraintStart_toStartOf="@id/weekly_alcohol_image"
+                    app:layout_constraintEnd_toEndOf="@id/weekly_alcohol_image"/>
 
                 <TextView
                     android:id="@+id/weekly_alcohol_count"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"/>
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toBottomOf="@id/alcohol_count_header"
+                    app:layout_constraintStart_toStartOf="@id/alcohol_count_header"
+                    app:layout_constraintEnd_toEndOf="@id/alcohol_count_header"/>
 
-            </LinearLayout>
+<!--            </LinearLayout>-->
 
-            <LinearLayout
-                android:id="@+id/weekly_cheat_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                android:layout_weight="1">
+<!--            <LinearLayout-->
+<!--                android:id="@+id/weekly_cheat_container"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_weight="1">-->
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center">
+<!--                <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:layout_gravity="center">-->
 
                     <include
                         android:id="@+id/weekly_cheats_progress"
                         layout="@layout/progress_cheats"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:layout_constraintTop_toBottomOf="@+id/title"
+                        app:layout_constraintStart_toEndOf="@id/weekly_alcohol_image"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintDimensionRatio="1:1" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+<!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
 
                 <TextView
-                    android:id="@+id/cheat_count_header"
-                    android:layout_width="match_parent"
+                    android:id="@+id/weekly_cheat_count_header"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cheats"
                     android:textStyle="bold"
-                    android:textAlignment="center"/>
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toBottomOf="@id/weekly_cheats_progress"
+                    app:layout_constraintStart_toStartOf="@id/weekly_cheats_progress"
+                    app:layout_constraintEnd_toEndOf="@id/weekly_cheats_progress"/>
 
                 <TextView
                     android:id="@+id/weekly_cheat_count"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toBottomOf="@id/weekly_cheat_count_header"
+                    app:layout_constraintStart_toStartOf="@id/weekly_cheat_count_header"
+                    app:layout_constraintEnd_toEndOf="@id/weekly_cheat_count_header"/>
 
-            </LinearLayout>
+<!--            </LinearLayout>-->
+<!---->
+<!--        </LinearLayout>-->
 
-        </LinearLayout>
-
-
-    </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

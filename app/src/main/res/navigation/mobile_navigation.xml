@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_daily">
+
+    <fragment
+        android:id="@+id/navigation_daily"
+        android:name="com.ganterpore.simplediet.View.Activities.DailyDisplayActivity"
+        android:label="Daily"
+        tools:layout="@layout/activity_daily_display" />
+
+    <fragment
+        android:id="@+id/navigation_history"
+        android:name="com.ganterpore.simplediet.View.Activities.HistoryActivity"
+        android:label="History"
+        tools:layout="@layout/activity_history" />
+
+    <fragment
+        android:id="@+id/navigation_options"
+        android:name="com.ganterpore.simplediet.View.Activities.SettingsActivity"
+        android:label="Options"
+        tools:layout="@layout/activity_settings" />
+</navigation>

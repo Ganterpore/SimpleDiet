@@ -29,7 +29,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="7"
-        android:layout_gravity="center|top"/>
+        android:layout_gravity="center"/>
 
     <LinearLayout
         android:id="@+id/add_serves"
@@ -39,112 +39,56 @@
         android:layout_height="match_parent"
         android:layout_weight="3">
 
-        <LinearLayout
+        <Button
+            android:id="@+id/add_one_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="@string/plus_cup"
+            android:padding="1dp"
+            android:contentDescription="@string/up_arrow" />
 
-            <ImageButton
-                android:id="@+id/add_one_serve"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_up_float"
-                android:contentDescription="@string/up_arrow" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/plus_cup"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/add_one_quarter_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:text="@string/plus_shot"
+            android:layout_weight="1"
+            android:padding="1dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:contentDescription="@string/up_arrow" />
 
-            <ImageButton
-                android:id="@+id/add_one_quarter_serve"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_up_float"
-                android:contentDescription="@string/up_arrow" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/plus_shot"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <EditText
+            android:id="@+id/number_of_serves"
+            android:text="@string/num_250"
+            android:inputType="number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_gravity="center" />
 
-            <EditText
-                android:id="@+id/number_of_serves"
-                android:text="@string/num_250"
-                android:inputType="number"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ml"
-                android:layout_gravity="bottom"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/minus_one_quarter_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:text="@string/minus_shot"
+            android:layout_weight="1"
+            android:padding="1dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:contentDescription="@string/down_arrow" />
 
-            <ImageButton
-                android:id="@+id/minus_one_quarter_serve"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_down_float"
-                android:layout_weight="1"
-                android:contentDescription="@string/down_arrow" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/minus_shot"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/minus_one_serve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:text="@string/minus_cup"
+            android:layout_weight="1"
+            android:padding="1dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:contentDescription="@string/down_arrow" />
 
-            <ImageButton
-                android:id="@+id/minus_one_serve"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:src="@android:drawable/arrow_down_float"
-                android:layout_weight="1"
-                android:contentDescription="@string/down_arrow" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/minus_cup"/>
-
-        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -35,7 +35,7 @@ public class DailyMeals {
     /**
      * Constructor for getting todays meals
      */
-    DailyMeals(List<DocumentSnapshot> data) {
+    DailyMeals(MealDataSorter data) {
         //todays meals, aka zero days ago
         this(0, data);
     }
@@ -44,38 +44,14 @@ public class DailyMeals {
      * Constructor for getting meals from previous days
      * @param daysAgo, the number of days ago to get meals from
      */
-    DailyMeals(int daysAgo, List<DocumentSnapshot> data) {
-        this(new Date(System.currentTimeMillis() - (daysAgo * DateUtils.DAY_IN_MILLIS)), data);
-    }
-
-    /**
-     * Get the daily update from meals on the given date
-     * @param day, date to look at meals from
-     */
-    DailyMeals(Date day, List<DocumentSnapshot> data) {
-        //update date to start of the day, and get other important dates
-        day = getStartOfDay(day);
-        final Date nextDay = new Date(day.getTime() + DateUtils.DAY_IN_MILLIS);
-        this.date = day;
-
-        sortMeals(data, day, nextDay);
+    DailyMeals(int daysAgo, MealDataSorter data) {
+        this.date = getStartOfDay(new Date(System.currentTimeMillis() - (daysAgo * DateUtils.DAY_IN_MILLIS)));
+        if(data != null) {
+            todaysMeals = data.getMealsOnDay(daysAgo);
+        } else {
+            todaysMeals = new ArrayList<>();
+        }
         updateData();
-    }
-
-    /**
-     * Takes a list of meals, and a list of days, and sorts the meals into the different days
-     */
-    private void sortMeals(List<DocumentSnapshot> meals, Date today, Date nextDay) {
-        todaysMeals = new ArrayList<>();
-        if(meals.isEmpty()) {
-            return;
-        }
-        for(DocumentSnapshot mealDS : meals) {
-            Meal meal = new Meal(mealDS);
-            if(meal.getDay() >= today.getTime() && meal.getDay() < nextDay.getTime()) {
-                todaysMeals.add(meal);
-            }
-        }
     }
 
     /**

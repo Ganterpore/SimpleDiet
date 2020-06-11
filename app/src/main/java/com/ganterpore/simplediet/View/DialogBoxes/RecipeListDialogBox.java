@@ -53,7 +53,7 @@ public class RecipeListDialogBox implements SnackbarReady {
         recipeBookLayout = layoutInflater.inflate(R.layout.dialog_box_recipe_book, null);
 
         //creating the Dialog box
-        final AlertDialog.Builder recipeBookDialogBuilder = new AlertDialog.Builder(activity);
+        final AlertDialog.Builder recipeBookDialogBuilder = new AlertDialog.Builder(activity, R.style.MyDialog);
         recipeBookDialogBuilder.setTitle("Recipe Book");
         recipeBookDialogBuilder.setView(recipeBookLayout);
         recipeBookDialogBuilder.setNeutralButton("Create New Recipe", new DialogInterface.OnClickListener() {
@@ -114,13 +114,13 @@ public class RecipeListDialogBox implements SnackbarReady {
                         recipeListItem = LayoutInflater.from(viewGroup.getContext())
                                 .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
                         header = recipeListItem.findViewById(R.id.header);
-                        header.setText("  Meals");
+                        header.setText("Meals");
                         break;
                     case DRINK_W_HEADER:
                         recipeListItem = LayoutInflater.from(viewGroup.getContext())
                                 .inflate(R.layout.list_item_recipe_with_header, viewGroup, false);
                         header = recipeListItem.findViewById(R.id.header);
-                        header.setText("  Drinks");
+                        header.setText("Drinks");
                         break;
                     default:
                         recipeListItem = LayoutInflater.from(viewGroup.getContext())

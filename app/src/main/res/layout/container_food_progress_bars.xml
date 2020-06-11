@@ -11,20 +11,54 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_collapseMode="parallax"
     app:layout_collapseParallaxMultiplier="0.75"
-    tools:showIn="@layout/activity_main">
+    tools:showIn="@layout/activity_daily_display">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/water_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="2">
 
         <include
             android:id="@+id/drinks_progress"
+            app:layout_constraintTop_toBottomOf="@id/water_count_header"
             layout="@layout/progress_drinks"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1" />
+
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/water_count_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Water"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
+
+        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/drinks_progress"
+            app:layout_constraintStart_toStartOf="@+id/drinks_progress"
+            app:layout_constraintEnd_toStartOf="@+id/water_left"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            android:id="@+id/water_count"
+            android:text="0/10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"/>
+
+        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/drinks_progress"
+            app:layout_constraintEnd_toEndOf="@id/drinks_progress"
+            app:layout_constraintStart_toEndOf="@+id/water_count"
+            android:id="@+id/water_left"
+            android:text="10 left!"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -51,10 +85,31 @@
 
         <include
             android:id="@+id/cheats_progress"
+            app:layout_constraintTop_toBottomOf="@id/cheat_count_header"
             layout="@layout/progress_cheats"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1" />
+
+        <TextView
+            android:id="@+id/cheat_count_header"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cheats"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
+
+        <TextView
+            android:id="@+id/cheat_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0/20"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@id/cheats_progress"
+            app:layout_constraintEnd_toEndOf="@id/cheat_count_header"
+            app:layout_constraintStart_toStartOf="@id/cheat_count_header" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

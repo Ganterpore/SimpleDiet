@@ -2,11 +2,13 @@ package com.ganterpore.simplediet.Controller;
 
 import android.os.Build;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.ganterpore.simplediet.Model.DietPlan;
 import com.ganterpore.simplediet.Model.Meal;
+import com.ganterpore.simplediet.View.Activities.MainActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,106 +33,148 @@ import javax.annotation.Nullable;
 
 public class  BasicDietController implements DietController {
     private static final String TAG = "BasicDietController";
+    public static final String CHEAT_CHANGE_RECOMMENDATION_ID = "cheat_change";
+    public static final String DIET_CHANGE_RECOMMENDATION_ID = "diet_change";
+    public static final String CHEAT_SCORE_RECOMMENDATION_ID = "cheat";
     private static BasicDietController instance;
-    private List<DocumentSnapshot> data;
-    private DietControllerListener listener;
+    private MealDataSorter data;
+    private List<DietControllerListener> listeners;
     private String user;
     private DietPlan overallDiet;
     private FirebaseFirestore db;
     private SparseArray<DailyMeals> daysAgoMeals;
     private SparseBooleanArray mealNeedsUpdate;
+    private SparseArray<WeeklyIntake> weeksAgoMeals;
+    private SparseBooleanArray weekNeedsUpdate;
+
+    private boolean dietPlanLoaded = false;
+    private boolean mealDataLoaded = false;
 
     //TODO create factory for this method. Or remove interface.
-    public static BasicDietController getInstance() {
+    public static BasicDietController getInstance() throws NullPointerException {
+        return instance;
+    }
+    public static BasicDietController getInstance(DietControllerListener listener) throws NullPointerException {
+        if(instance != null) {
+            if (!instance.listeners.contains(listener)) {
+                instance.listeners.add(listener);
+            }
+        }
         return instance;
     }
 
-    public BasicDietController(DietControllerListener listener) {
+    public BasicDietController() {
         //initialising variables
         this.db = FirebaseFirestore.getInstance();
-        this.listener = listener;
+        this.listeners = new ArrayList<>();
         this.user = FirebaseAuth.getInstance().getCurrentUser().getUid();
         daysAgoMeals = new SparseArray<>();
         mealNeedsUpdate = new SparseBooleanArray();
-        this.data = new ArrayList<>();
+        weeksAgoMeals = new SparseArray<>();
+        weekNeedsUpdate = new SparseBooleanArray();
 
         //updating data
         getCurrentDietPlanFromDB();
         getCurrentMealDataFromDB();
         instance = this;
+
+    }
+
+    public BasicDietController(DietControllerListener listener) {
+        this();
+        this.listeners.add(listener);
+    }
+
+    public void addListener(DietControllerListener listener) {
+        listeners.add(listener);
+    }
+
+    public void addListeners(List<DietControllerListener> listeners) {
+        this.listeners.addAll(listeners);
+    }
+
+    public void removeListener(DietControllerListener listener) {
+        this.listeners.remove(listener);
     }
 
     private void getCurrentMealDataFromDB() {
-        Query dataQuery = db.collection(DailyMeals.MEALS).whereEqualTo("user", user);
+        final Query dataQuery = db.collection(DailyMeals.MEALS).whereEqualTo("user", user);
         //check to update the data when it changes. This will also run through on the first time
         dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                //check if today is completed before the update
-                boolean todayCompleted = isFoodCompletedToday();
-                boolean yesterdayCompleted = isFoodCompleted(1);
-                boolean waterCompleted = isHydrationCompletedToday();
-                boolean cheatsOver = isOverCheatScoreToday();
-                boolean foodEnteredRecently = false;
                 if(queryDocumentSnapshots != null) {
                     //update data to the new changes
-                    data = queryDocumentSnapshots.getDocuments();
-                    //if running new enough android, sort the data by day
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        data.sort(new Comparator<DocumentSnapshot>() {
-                            @Override
-                            public int compare(DocumentSnapshot o1, DocumentSnapshot o2) {
-                                double rawScore =  o1.getDouble("day") - o2.getDouble("day");
-                                if(rawScore > 0) {return -1;}
-                                else if(rawScore < 0) {return 1;}
-                                else {return 0;}
-                            }
-                        });
-                    }
+                    //TODO find a way to only update for things that have changed
+                    data = new MealDataSorter(queryDocumentSnapshots.getDocuments());
+
+                    //check if today is completed before the update
+                    boolean todayCompleted = isFoodCompletedToday();
+                    boolean yesterdayCompleted = isFoodCompleted(1);
+                    boolean waterCompleted = isHydrationCompletedToday();
+                    boolean cheatsOver = isOverCheatScoreToday();
+                    boolean foodEnteredRecently = false;
+                    ArrayList<Integer> daysNeedingUpdates = new ArrayList<>();
 
                     //check which data has changed, and set them to be updated when next accessed
                     List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();
-                    for(DocumentChange documentChange : changedData) {
+                    for (DocumentChange documentChange : changedData) {
                         //getting how many days ago
                         QueryDocumentSnapshot document = documentChange.getDocument();
                         long changedDay = document.toObject(Meal.class).getDay();
-                        if(changedDay > System.currentTimeMillis() - DateUtils.MINUTE_IN_MILLIS) {
+                        if (changedDay > System.currentTimeMillis() - DateUtils.MINUTE_IN_MILLIS) {
                             foodEnteredRecently = true;
                         }
                         Date changedDayStart = getStartOfDay(new Date(changedDay));
                         long msDiff = System.currentTimeMillis() - changedDayStart.getTime();
                         int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
-                        //setting that day to needing an update
-                        for(int i=0;i<8;i++) {
-                            mealNeedsUpdate.put(daysAgo+i, true);
+                        int weeksAgo = (int) daysAgo / 7;
+                        mealNeedsUpdate.put(daysAgo, true);
+                        daysNeedingUpdates.add(daysAgo);
+                        weekNeedsUpdate.put(weeksAgo, true);
+                    }
+
+                    //checking if any achievable was not completed before, and it is completed now,
+                    //and this change was recent
+                    // then update the listener to know it was just completed
+                    if (!todayCompleted) {
+                        if (isFoodCompletedToday() && foodEnteredRecently) {
+                            for (DietControllerListener listener : listeners) {
+                                listener.todaysFoodCompleted();
+                            }
                         }
                     }
-                }
-                //checking if any achievable was not completed before, and it is completed now,
-                //and this change was recent
-                // then update the listener to know it was just completed
-                if(!todayCompleted) {
-                    if(isFoodCompletedToday() && foodEnteredRecently) {
-                        listener.todaysFoodCompleted();
+                    if (!yesterdayCompleted) {
+                        if (isFoodCompleted(1) && foodEnteredRecently) {
+                            for (DietControllerListener listener : listeners) {
+                                listener.yesterdaysFoodCompleted();
+                            }
+                        }
                     }
-                }
-                if(!yesterdayCompleted) {
-                    if(isFoodCompleted(1) && foodEnteredRecently) {
-                        listener.yesterdaysFoodCompleted();
+                    if (!waterCompleted) {
+                        if (isHydrationCompletedToday() && foodEnteredRecently) {
+                            for (DietControllerListener listener : listeners) {
+                                listener.todaysHydrationCompleted();
+                            }
+                        }
                     }
-                }
-                if(!waterCompleted) {
-                    if(isHydrationCompletedToday() && foodEnteredRecently) {
-                        listener.todaysHydrationCompleted();
+                    if (!cheatsOver) {
+                        if (isOverCheatScoreToday() && foodEnteredRecently) {
+                            for (DietControllerListener listener : listeners) {
+                                listener.todaysCheatsOver();
+                            }
+                        }
                     }
-                }
-                if(!cheatsOver) {
-                    if(isOverCheatScoreToday() && foodEnteredRecently) {
-                        listener.todaysCheatsOver();
+                    //now that the data is updated, make sure it flows through to the listener
+                    updateListener(DataType.MEAL, daysNeedingUpdates);
+                    //if the data has finished loading, update listeners
+                    if (!mealDataLoaded && dietPlanLoaded) {
+                        for (DietControllerListener listener : listeners) {
+                            listener.dataLoadComplete();
+                        }
                     }
+                    mealDataLoaded = true;
                 }
-                //now that the data is updated, make sure it flows through to the listener
-                updateListener();
             }
         });
     }
@@ -151,7 +195,14 @@ public class  BasicDietController implements DietController {
                 } else {
                     overallDiet = documentSnapshot.toObject(DietPlan.class);
                 }
-                updateListener();
+                updateListener(DataType.DIET_PLAN, null);
+                //if the data has finished loading, update listeners
+                if(mealDataLoaded && !dietPlanLoaded) {
+                    for(DietControllerListener listener : listeners) {
+                        listener.dataLoadComplete();
+                    }
+                }
+                dietPlanLoaded = true;
             }
         });
     }
@@ -184,12 +235,20 @@ public class  BasicDietController implements DietController {
 
     @Override
     public WeeklyIntake getThisWeeksIntake() {
-        return new WeeklyIntake(data, overallDiet);
+        return getWeeksIntake(0);
     }
 
     @Override
     public WeeklyIntake getWeeksIntake(int weeksAgo) {
-        return new WeeklyIntake(data, overallDiet, weeksAgo);
+        WeeklyIntake weeksIntake = weeksAgoMeals.get(weeksAgo);
+        //updating if null or data has changed
+        if(weeksIntake == null || weekNeedsUpdate.get(weeksAgo, false)) {
+            weeksIntake = new WeeklyIntake(data, overallDiet, weeksAgo);
+            weeksAgoMeals.put(weeksAgo, weeksIntake);
+            //now that it has been updated, it doesn't need one.
+            weekNeedsUpdate.put(weeksAgo, false);
+        }
+        return weeksIntake;
     }
 
     @Override
@@ -208,7 +267,7 @@ public class  BasicDietController implements DietController {
             @Override
             public void onSuccess(Void aVoid) {
                 overallDiet = newDietPlan;
-                updateListener();
+                updateListener(DataType.DIET_PLAN, null);
             }
         });
         return updateDiet;
@@ -274,28 +333,27 @@ public class  BasicDietController implements DietController {
     private Recommendation getCheatChangeRecommendation() {
         //if we are over/under the target cheat points by more than this factor, suggest a change
         final double SCALE_FACTOR = 0.2;
-        String id = "cheat_change";
+        String id = CHEAT_CHANGE_RECOMMENDATION_ID;
         long expiry = DateUtils.WEEK_IN_MILLIS * 2;
         String title;
         String message;
 
+        WeeklyIntake week1 = getWeeksIntake(0);
+        WeeklyIntake week2 = getWeeksIntake(1);
         //get the number of cheats in the last fortnight
-        double fortnightlyCheats = 0;
-        for(int i=0;i<14;i++) {
-            fortnightlyCheats += getDaysMeals(i).getTotalCheats();
-        }
-        //finding te max and min cheat points we should have
-        double tooManyCheats = getOverallDietPlan().getDailyCheats()*14*(1+SCALE_FACTOR);
-        double tooFewCheats = getOverallDietPlan().getDailyCheats()*14*(1-SCALE_FACTOR);
+        double fortnightlyCheats = week1.getTotalCheats() + week2.getTotalCheats();
+        //finding the max and min cheat points we should have
+        double tooManyCheats = (week1.getWeeklyLimitCheats() + week2.getWeeklyLimitCheats() )*(1+SCALE_FACTOR);
+        double tooFewCheats = (week1.getWeeklyLimitCheats() + week2.getWeeklyLimitCheats() )*(1-SCALE_FACTOR);
         //if over or under by either of these numbers, update the message
         if(fortnightlyCheats > tooManyCheats) {
             title = "Increase your cheat score";
-            message = "Over the past two weeks you have been having too many cheat meals. " +
-                    "Consider giving yourself a break and increasing your maximum. You can always" +
-                    " reduce later at a more achievable rate.";
+            message = "Over the past two weeks you have been having too many cheat meals! " +
+                    "Try to reduce the amount of cheat meals you have, or adjust your goals." +
+                    "You can always change them again later!";
         } else if(fortnightlyCheats < tooFewCheats) {
             title = "Decrease your cheat score";
-            message = "Well done! Over the past two weeks you have been well under your maximum cheat score. " +
+            message = "Well done! Over the past two weeks you have been well under your maximum cheat score! " +
                     "Consider giving yourself a challenge and reducing your allowed cheat meals.";
         } else {
             return null;
@@ -304,99 +362,117 @@ public class  BasicDietController implements DietController {
     }
 
     private Recommendation getDietChangeRecommendation() {
-        String id = "diet_change";
+        String id = DIET_CHANGE_RECOMMENDATION_ID;
         long expiry = DateUtils.WEEK_IN_MILLIS * 2;
         String title = "Recommendations for diet changes";
+
+        WeeklyIntake week1 = getWeeksIntake(0);
+        WeeklyIntake week2 = getWeeksIntake(1);
         //over or under ate by a large degree over the past fortnight
-        double fortnightlyVeges = 0;
-        double fortnightlyProtein = 0;
-        double fortnightlyDairy = 0;
-        double fortnightlyGrain = 0;
-        double fortnightlyFruit = 0;
-        double fortnightlyWater = 0;
-        //getting the food from the last fortnight
-        for(int i=0;i<14;i++) {
-            DailyMeals daysMeals = getDaysMeals(i);
-            fortnightlyVeges += daysMeals.getVegCount();
-            fortnightlyProtein += daysMeals.getProteinCount();
-            fortnightlyDairy += daysMeals.getDairyCount();
-            fortnightlyGrain += daysMeals.getGrainCount();
-            fortnightlyFruit += daysMeals.getFruitCount();
-            fortnightlyWater += daysMeals.getWaterCount();
-        }
+        double fortnightlyVeges = week1.getVegCount() + week2.getVegCount();
+        double fortnightlyProtein = week1.getVegCount() + week2.getVegCount();
+        double fortnightlyDairy = week1.getDairyCount()+week2.getDairyCount();
+        double fortnightlyGrain = week1.getGrainCount()+week2.getGrainCount();
+        double fortnightlyFruit = week1.getFruitCount()+week2.getFruitCount();
+        double fortnightlyWater = week1.getHydrationScore()+week2.getHydrationScore();
         //creating the message to the user
         String message = "Over the past two weeks you have been eating ";
         boolean overAte = false;
-        String overAteMessage = "too much ";
+//        String overAteMessage = "too much ";
+        ArrayList<String> overAteFoods = new ArrayList<>();
         if(fortnightlyVeges > (14* overallDiet.getDailyVeges() + 7)) {
             overAte = true;
-            overAteMessage += "vegetables, ";
+            overAteFoods.add("vegetables");
         }
         if(fortnightlyProtein > (14* overallDiet.getDailyProtein() + 7)) {
             overAte = true;
-            overAteMessage += "proteins, ";
+            overAteFoods.add("proteins");
         }
         if(fortnightlyDairy > (14* overallDiet.getDailyDairy() + 7)) {
             overAte = true;
-            overAteMessage += "dairy, ";
+            overAteFoods.add("dairy");
         }
         if(fortnightlyGrain > (14* overallDiet.getDailyGrain() + 7)) {
             overAte = true;
-            overAteMessage += "grains, ";
+            overAteFoods.add("grains");
         }
         if(fortnightlyFruit > (14* overallDiet.getDailyFruit() + 7)) {
             overAte = true;
-            overAteMessage += "fruits, ";
+            overAteFoods.add("fruits");
+        }
+        if(!overAteFoods.isEmpty()) {
+            message += "too much";
+            for(int i=0;i<overAteFoods.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==overAteFoods.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += overAteFoods.get(i);
+            }
         }
 
         boolean underAte = false;
         String underAteMessage = "too little ";
         if(overAte) {
-            message += overAteMessage;
             underAteMessage = "and too little ";
         }
-
+        ArrayList<String> underAteFood = new ArrayList<>();
         if(fortnightlyVeges < (14* overallDiet.getDailyVeges() - 7)) {
             underAte = true;
-            underAteMessage += "vegetables, ";
+            underAteFood.add("vegetables");
         }
         if(fortnightlyProtein < (14* overallDiet.getDailyProtein() - 7)) {
             underAte = true;
-            underAteMessage += "proteins, ";
+            underAteFood.add("proteins");
         }
         if(fortnightlyDairy < (14* overallDiet.getDailyDairy() - 7)) {
             underAte = true;
-            underAteMessage += "dairy, ";
+            underAteFood.add("dairy");
         }
         if(fortnightlyGrain < (14* overallDiet.getDailyGrain() - 7)) {
             underAte = true;
-            underAteMessage += "grains, ";
+            underAteFood.add("grains");
         }
         if(fortnightlyFruit < (14* overallDiet.getDailyFruit() - 7)) {
             underAte = true;
-            underAteMessage += "fruit, ";
+            underAteFood.add("fruit");
         }
-        if(fortnightlyWater < (14* overallDiet.getDailyHydration() - 7)) {
-            underAte = true;
-            underAteMessage += "water, ";
-        }
-
-        if(underAte) {
-            message += underAteMessage;
+        if(!underAteFood.isEmpty()) {
+            message += "too little";
+            for(int i=0;i<underAteFood.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==underAteFood.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += underAteFood.get(i);
+            }
         }
 
         //finalising the recommendation, or returning null if no recommendation
         if(overAte || underAte) {
-            message = message.substring(0, message.length()-2) + ". ";
-            message += "Try to adjust your diet to make up for this. " +
-                    "Alternatively update your diet plan to reflect your actual planned diet";
+            message +=". ";
+            message += "Try to adjust your diet to make up for this.";
             return new Recommendation(id, title, message, expiry);
         }
         return null;
     }
 
     private Recommendation getCheatScoreRecommendation() {
-        String id = "cheat";
+        String id = CHEAT_SCORE_RECOMMENDATION_ID;
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "";
         String message = "";
@@ -441,11 +517,13 @@ public class  BasicDietController implements DietController {
         return new Recommendation(id, title, message, expiry);
     }
 
-    @Override
-    public void updateListener() {
-        listener.refresh();
+    public void updateListener(DietController.DataType dataType, List<Integer> daysAgoUpdated) {
+        for(DietControllerListener listener : listeners) {
+            listener.refresh(dataType, daysAgoUpdated);
+        }
     }
 
+    //TODO this really needs to be moved to its own class or something
     /**
      * get a date representing the start time of a given day
      * @param date, the date with which you want the start time of the day from
@@ -459,5 +537,9 @@ public class  BasicDietController implements DietController {
         int day = calendar.get(Calendar.DATE);
         calendar.set(year, month, day, 0, 0, 0);
         return calendar.getTime();
+    }
+
+    public List<DietControllerListener> getListeners() {
+        return listeners;
     }
 }

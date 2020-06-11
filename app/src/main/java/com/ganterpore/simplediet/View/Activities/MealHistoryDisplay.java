@@ -8,21 +8,25 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ganterpore.simplediet.Controller.BasicDietController;
 import com.ganterpore.simplediet.Controller.DailyMeals;
 import com.ganterpore.simplediet.Controller.DietController;
 import com.ganterpore.simplediet.Model.DietPlan;
@@ -38,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -48,17 +53,15 @@ class MealHistoryDisplay  {
     public static final String EXPIRY_TAG = "_expiry";
     public static final String TAG = "MealHistoryDisplay";
     private Activity activity;
-    private DietController dietController;
     private List<DietController.Recommendation> recommendations;
     private RecyclerView history;
 
-    MealHistoryDisplay(Activity activity, DietController dietController) {
+    MealHistoryDisplay(Activity activity, RecyclerView history) {
         this.activity = activity;
-        this.dietController = dietController;
-        RecyclerView history = activity.findViewById(R.id.day_history_list);
-        recommendations = new ArrayList<>();
-        history.setAdapter(new DayHistoryAdapter(activity, 7));
         this.history = history;
+        recommendations = new ArrayList<>();
+        //when a new display is create, make sure it loads in
+        this.history.setAdapter(new DayHistoryAdapter(activity, 7));
 
         //setting up ability to swipe recommendations
         RecommendationSwipeController swipeController = new RecommendationSwipeController(activity, history);
@@ -66,34 +69,79 @@ class MealHistoryDisplay  {
         itemTouchhelper.attachToRecyclerView(history);
     }
 
+    static class RecommendationCollector extends AsyncTask<Void, Void, Void> {
+        MealHistoryDisplay parent;
+        List<DietController.Recommendation> recommendations;
+
+        RecommendationCollector(MealHistoryDisplay parent) {
+            this.parent = parent;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            recommendations = BasicDietController.getInstance().getRecommendations();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            parent.refreshRecommendations(recommendations);
+        }
+    }
+
+    void refresh(DietController.DataType dataType, List<Integer> daysAgoUpdated) {
+        //collecting any changed recommendations
+        new RecommendationCollector(this).execute();
+        //informing the history adapter of the refresh
+        if(history!=null && history.getAdapter()!= null) {
+            if(daysAgoUpdated == null) {
+                //if null, all days should update
+                history.getAdapter().notifyDataSetChanged();
+            } else {
+                //otherwise only update the days that have changed
+                for(int day : daysAgoUpdated) {
+                    DayHistoryAdapter adapter = (DayHistoryAdapter) history.getAdapter();
+                    adapter.notifyItemChanged(adapter.getDaysPositionFromDaysAgo(day));
+                }
+            }
+        }
+    }
+
     /**
      * Updates the list of recommendations
      */
-    void refreshRecommendations() {
-        //getting all recommendations, and clearing the list of visible recommendations.
-        List<DietController.Recommendation> allRecomendations = dietController.getRecommendations();
+    private void refreshRecommendations(List<DietController.Recommendation> allRecommendations) {
+        int oldRecommendationsSize = recommendations.size();
         if(recommendations != null) {
             recommendations.clear();
         } else {
             recommendations = new ArrayList<>();
         }
-
         //check if the recommendation should be hidden. If not, then add it to the viewable recommendations.
         SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
-        for(DietController.Recommendation recommendation : allRecomendations) {
+        for(DietController.Recommendation recommendation : allRecommendations) {
             if(recommendation.getId().equals("cheat_change") && !preferences.getBoolean("track_cheats", true)) {
                 //if it is a cheat recommendation, and we are not tracking cheats, skip
                 continue;
             }
-            //getting the expiry date of the notification hide feature
+            //if the recommendation is not hidden, show the reco
             long hideNotificationExpiry = preferences.getLong(recommendation.getId() + EXPIRY_TAG, 0);
             if(hideNotificationExpiry <= System.currentTimeMillis()) {
                 recommendations.add(recommendation);
             }
         }
-        //informing the history adapter of the change
+        //informing the history adapter of the changes to recommendations
         if(history!=null && history.getAdapter()!= null) {
-            history.getAdapter().notifyDataSetChanged();
+            DayHistoryAdapter adapter = (DayHistoryAdapter) history.getAdapter();
+            //if the number of recommendations have changed, update all items in adapter to move
+            if(oldRecommendationsSize != recommendations.size()) {
+                adapter.notifyDataSetChanged();
+            } else {
+                //otherwise only update the look of the recommendations
+                for (int i = 0; i < adapter.getNumberOfRecommendations(); i++) {
+                    adapter.notifyItemChanged(i);
+                }
+            }
         }
     }
 
@@ -166,8 +214,6 @@ class MealHistoryDisplay  {
             dayHistoryViewHolder.build(position);
         }
 
-
-
         @Override
         public int getItemViewType(int position) {
             if(position < recommendations.size()) {
@@ -179,6 +225,74 @@ class MealHistoryDisplay  {
         @Override
         public int getItemCount() {
             return recommendations.size() + nDays;
+        }
+
+        public int getDaysPositionFromDaysAgo(int daysAgo) {
+            return recommendations.size() + daysAgo;
+        }
+
+        public int getNumberOfRecommendations() {
+            return recommendations.size();
+        }
+    }
+
+    private static class MealBuilder extends AsyncTask<Void, Void, Void> {
+        DayHistoryViewHolder parent;
+        int nDaysAgo;
+        private HashMap<Meal.FoodType, String> stringMap;
+        private HashMap<String, Boolean> completionMap;
+        private double dailyCheats;
+        private double totalCheats;
+        private List<Meal> meals;
+
+        MealBuilder(DayHistoryViewHolder parent, int nDaysAgo) {
+            this.parent = parent;
+            this.nDaysAgo = nDaysAgo;
+        }
+
+        @Override
+        protected Void doInBackground(Void[] voids) {
+            NumberFormat df = new DecimalFormat("##.##");
+            //getting controller information
+            DietController dietController = BasicDietController.getInstance();
+            DailyMeals day = dietController.getDaysMeals(nDaysAgo);
+            DietPlan daysPlan = dietController.getDaysDietPlan(nDaysAgo);
+            meals = day.getMeals();
+
+            //getting completion status
+            boolean foodCompleted = dietController.isFoodCompleted(nDaysAgo);
+            boolean hydrationCompleted = dietController.isHydrationCompleted(nDaysAgo);
+            boolean overCheatScore = dietController.isOverCheatScore(nDaysAgo);
+            completionMap = new HashMap<>();
+            completionMap.put("food", foodCompleted);
+            completionMap.put("water", hydrationCompleted);
+            completionMap.put("cheats", overCheatScore);
+
+            //getting and building strings
+            String vegText = df.format(day.getVegCount()) + "/" + df.format(daysPlan.getDailyVeges());
+            String proteinText = df.format(day.getProteinCount()) + "/" + df.format(daysPlan.getDailyProtein());
+            String dairyText = df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy());
+            String grainText = df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain());
+            String fruitText = df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit());
+            String hydrationText = df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration());
+
+            stringMap = new HashMap<>();
+            stringMap.put(Meal.FoodType.VEGETABLE, vegText);
+            stringMap.put(Meal.FoodType.MEAT, proteinText);
+            stringMap.put(Meal.FoodType.DAIRY, dairyText);
+            stringMap.put(Meal.FoodType.GRAIN, grainText);
+            stringMap.put(Meal.FoodType.FRUIT, fruitText);
+            stringMap.put(Meal.FoodType.WATER, hydrationText);
+
+            //getting other information
+            dailyCheats = daysPlan.getDailyCheats();
+            totalCheats = day.getTotalCheats();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            parent.buildMeals(nDaysAgo, meals, stringMap, completionMap, dailyCheats, totalCheats);
         }
     }
 
@@ -208,7 +322,9 @@ class MealHistoryDisplay  {
             if(daysAgo<0) {
                 buildRecommendation(position);
             } else {
-                buildMeal(daysAgo);
+                TextView dateTV = itemView.findViewById(R.id.date);
+                dateTV.setText(dateFormat.format(new Date(System.currentTimeMillis() - DateUtils.DAY_IN_MILLIS*daysAgo)));
+                new MealBuilder(this, daysAgo).execute();
             }
         }
 
@@ -235,11 +351,11 @@ class MealHistoryDisplay  {
          */
         private void hideRecommendation() {
             //confirm with the user if they actually want to remove notification
-            new AlertDialog.Builder(activity)
-                    .setTitle("Are you sure you want to remove this?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+//            new AlertDialog.Builder(activity)
+//                    .setTitle("Are you sure you want to remove this?")
+//                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
                             //if so, proceed with removal
                             final DietController.Recommendation recommendation = recommendations.get(position);
                             //updating the expiry of the recommendation id
@@ -248,18 +364,18 @@ class MealHistoryDisplay  {
                             preferences.edit().putLong(recommendation.getId() + EXPIRY_TAG, getStartOfDay(expiry).getTime()).apply();
 
                             //updating the list of recommendations. The recommendation will be hidden because of the new expiry.
-                            refreshRecommendations();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //if not, move back if swiped away
-                            adapter.notifyItemChanged(getAdapterPosition());
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
+                            refresh(null, new ArrayList<Integer>());
+//                        }
+//                    })
+//                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            //if not, move back if swiped away
+//                            adapter.notifyItemChanged(getAdapterPosition());
+//                        }
+//                    })
+//                    .setCancelable(false)
+//                    .show();
         }
 
         /**
@@ -277,30 +393,27 @@ class MealHistoryDisplay  {
             return calendar.getTime();
         }
 
-        private void buildMeal(final int nDaysAgo) {
+        private void buildMeals(final int nDaysAgo, List<Meal> meals, HashMap<Meal.FoodType, String> stringMap, HashMap<String, Boolean> completionMap, double dailyCheats, double totalCheats) {
             final int SCALE_FACTOR = 100;
+            NumberFormat df = new DecimalFormat("##.##");
 
-            DailyMeals day = dietController.getDaysMeals(nDaysAgo);
-            DietPlan daysPlan = dietController.getDaysDietPlan(nDaysAgo);
             //getting and updating values for the views
-            TextView dateTV = itemView.findViewById(R.id.date);
             CompletableItemView completedFoodView = itemView.findViewById(R.id.completed_food);
             CompletableItemView completedWaterView = itemView.findViewById(R.id.completed_water);
             CompletableItemView didntCheatView = itemView.findViewById(R.id.didnt_cheat);
             ProgressBar cheatsProgress = itemView.findViewById(R.id.progress_cheats);
 
-            dateTV.setText(dateFormat.format(day.getDate()));
-            completedFoodView.setCompleted(dietController.isFoodCompleted(nDaysAgo));
-            completedWaterView.setCompleted(dietController.isHydrationCompleted(nDaysAgo));
-            didntCheatView.setCompleted(!dietController.isOverCheatScore(nDaysAgo));
-            cheatsProgress.setMax((int) daysPlan.getDailyCheats() * SCALE_FACTOR);
-            cheatsProgress.setProgress((int) day.getTotalCheats() * SCALE_FACTOR);
+            completedFoodView.setCompleted(completionMap.get("food"));
+            completedWaterView.setCompleted(completionMap.get("water"));
+            didntCheatView.setCompleted(!completionMap.get("cheats"));
+            cheatsProgress.setMax((int) (dailyCheats * SCALE_FACTOR));
+            cheatsProgress.setProgress((int) totalCheats * SCALE_FACTOR);
 
-            //creating a list of the meals eaten that day
+            //building mealsList recyclerview
             RecyclerView mealsList = itemView.findViewById(R.id.meals_list);
-            mealsList.setAdapter(new MealsAdapter(activity, day.getMeals()));
+            mealsList.setAdapter(new MealsAdapter(activity, meals));
 
-            final ConstraintLayout expandableView = itemView.findViewById(R.id.expanded_layout);
+            final LinearLayout expandableView = itemView.findViewById(R.id.expanded_layout);
             final ImageView dropdownButton = itemView.findViewById(R.id.dropdown_button);
 
             //making sure view is shown as it should be
@@ -330,8 +443,14 @@ class MealHistoryDisplay  {
                 }
             });
 
+            if(itemView.findViewById(R.id.header_information)==null) {
+                LayoutInflater inflater = LayoutInflater.from(activity);
+                LinearLayout foodCounts = (LinearLayout) inflater.inflate(R.layout.container_food_groups_counts_mini, null);
+                foodCounts.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                expandableView.addView(foodCounts, 0);
+            }
+
             //updating text views
-            NumberFormat df = new DecimalFormat("##.##");
             TextView vegCount = itemView.findViewById(R.id.veg_count);
             TextView proteinCount = itemView.findViewById(R.id.protein_count);
             TextView dairyCount = itemView.findViewById(R.id.dairy_count);
@@ -341,14 +460,15 @@ class MealHistoryDisplay  {
             TextView cheatCount = itemView.findViewById(R.id.cheat_count);
             TextView proteinCountHeader = itemView.findViewById(R.id.protein_count_header);
 
-            vegCount.setText((df.format(day.getVegCount()) + "/" + df.format(daysPlan.getDailyVeges())));
-            proteinCount.setText((df.format(day.getProteinCount()) + "/" + df.format(daysPlan.getDailyProtein())));
-            dairyCount.setText((df.format(day.getDairyCount()) + "/" + df.format(daysPlan.getDailyDairy())));
-            grainCount.setText((df.format(day.getGrainCount()) + "/" + df.format(daysPlan.getDailyGrain())));
-            fruitCount.setText((df.format(day.getFruitCount()) + "/" + df.format(daysPlan.getDailyFruit())));
-            waterCount.setText((df.format(day.getHydrationScore()) + "/" + df.format(daysPlan.getDailyHydration())));
-            cheatCount.setText((df.format(day.getTotalCheats())));
+            vegCount.setText(stringMap.get(Meal.FoodType.VEGETABLE));
+            proteinCount.setText(stringMap.get(Meal.FoodType.MEAT));
+            dairyCount.setText(stringMap.get(Meal.FoodType.DAIRY));
+            grainCount.setText(stringMap.get(Meal.FoodType.GRAIN));
+            fruitCount.setText(stringMap.get(Meal.FoodType.FRUIT));
+            waterCount.setText(stringMap.get(Meal.FoodType.WATER));
+            cheatCount.setText((df.format(totalCheats)));
 
+            //removing/changing disabled views
             SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
             String mode = preferences.getString("mode", "normal");
             if (mode != null && (mode.equals("vegan") || mode.equals("vegetarian"))) {
@@ -359,11 +479,13 @@ class MealHistoryDisplay  {
             if(!trackWater) {
                 itemView.findViewById(R.id.water_container).setVisibility(View.GONE);
                 itemView.findViewById(R.id.completed_water).setVisibility(View.GONE);
-            } if(!trackCheats) {
+            }
+            if(!trackCheats) {
                 itemView.findViewById(R.id.cheat_container).setVisibility(View.GONE);
                 itemView.findViewById(R.id.cheat_progress_container).setVisibility(View.GONE);
             }
 
+            //setting up swiping ability
             MealSwipeController swipeController = new MealSwipeController(activity, mealsList);
             ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
             itemTouchhelper.attachToRecyclerView(mealsList);
@@ -497,17 +619,17 @@ class MealHistoryDisplay  {
         }
 
         @Override
-        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         }
 
         @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;
         }
 
         @Override
-        public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+        public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
             new AlertDialog.Builder(activity)
                     .setTitle("Are you sure you want to remove this?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {

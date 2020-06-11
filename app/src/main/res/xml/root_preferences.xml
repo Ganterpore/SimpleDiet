@@ -63,6 +63,11 @@
             app:title="Track caffeine intake"
             app:dependency="track_water"/>
 
+        <Preference
+            android:key="recommendation_reset"
+            android:title="Un-hide all recommendations"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Notifications">
@@ -94,9 +99,8 @@
 
         <SwitchPreferenceCompat
             app:key="over_under_eating"
-            app:title="Over/Under Eating functionality"
-            app:summary="Premium feature that will update today's diet plan based on yesterdays eating habits.
-                        For example if you ate too many grains yesterday, you will require less today."/>
+            app:title="Diet Plan adjustments"
+            app:summary="Adjusts today's diet plan based on whether you hit your goals yesterday."/>
 
     </PreferenceCategory>
 

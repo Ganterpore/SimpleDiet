@@ -4,7 +4,7 @@
 
     <item android:id="@android:id/progress">
         <clip>
-            <bitmap android:src="@drawable/fruit_full" />
+            <bitmap android:src="@drawable/fruit_full_thumbnail" />
         </clip>
     </item>
 

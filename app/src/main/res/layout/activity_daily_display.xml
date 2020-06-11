@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".View.Activities.DailyDisplayActivity">
+    <!--Toolbar layout-->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/toolbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.75"
+                android:layout_marginBottom="8dp">
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="TODAY"-->
+<!--                    app:layout_constraintTop_toTopOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    android:textSize="25sp"-->
+<!--                    android:textStyle="bold"-->
+<!--                    app:layout_collapseMode="parallax"/>-->
+
+                <include layout="@layout/container_food_progress_bars" />
+
+                <include layout="@layout/container_food_group_counts"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/weekly_intake_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/weekly_intake"
+                layout="@layout/container_weekly_intake"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/day_history_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:nestedScrollingEnabled="false"
+                app:layout_anchor="@id/weekly_intake_container"
+                app:layout_anchorGravity="bottom"
+                android:layout_gravity="bottom"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+    <!--  Layout for the Floating Action Buttons  -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:elevation="320dp"
+        android:layout_gravity="bottom"
+        android:id="@+id/coordinator_overlay">
+
+        <FrameLayout
+            android:id="@+id/FABBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#B3000000"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/recipeBookTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#212121"
+            android:padding="8dp"
+            android:text="Open Recipe Book"
+            app:layout_anchor="@id/recipeBookFAB"
+            app:layout_anchorGravity="start|center_vertical"
+            android:layout_marginRight="70dp"
+            android:visibility="gone"
+            android:textColor="#ffffff"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/recipeBookFAB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
+            android:layout_marginEnd="16dp"
+            app:fabSize="mini"
+            android:src="@drawable/recipe_book"
+            app:layout_anchor="@id/addFoodFAB"
+            android:visibility="gone"
+            app:layout_anchorGravity="top|center" />
+
+        <TextView
+            android:id="@+id/addDrinkTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#212121"
+            android:padding="8dp"
+            android:text="Add Drink"
+            app:layout_anchor="@id/addDrinkFAB"
+            app:layout_anchorGravity="start|center_vertical"
+            android:layout_marginRight="70dp"
+            android:visibility="gone"
+            android:textColor="#ffffff"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addDrinkFAB"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            app:fabSize="mini"
+            android:src="@drawable/drink"
+            app:layout_anchor="@id/addFoodFAB"
+            android:visibility="gone"
+            app:layout_anchorGravity="top|center"
+            android:layout_gravity="top|center"
+            android:layout_marginBottom="180dp" />
+
+        <TextView
+            android:id="@+id/addMealTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#212121"
+            android:padding="8dp"
+            android:text="Add Meal"
+            app:layout_anchor="@id/addMealFAB"
+            app:layout_anchorGravity="start|center_vertical"
+            android:layout_marginRight="70dp"
+            android:visibility="gone"
+            android:textColor="#ffffff"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addMealFAB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="130dp"
+            android:layout_marginEnd="16dp"
+            app:fabSize="mini"
+            android:src="@drawable/meal"
+            app:layout_anchor="@id/addFoodFAB"
+            android:visibility="gone"
+            app:layout_anchorGravity="top|center" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addFoodFAB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/baseline_close_black_18dp"
+            android:rotation="45"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:translationZ="2dp"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.ganterpore.simplediet.R;
+import com.ganterpore.simplediet.View.Activities.DailyDisplayActivity;
 import com.ganterpore.simplediet.View.Activities.MainActivity;
 
 public class NotificationReciever extends BroadcastReceiver {

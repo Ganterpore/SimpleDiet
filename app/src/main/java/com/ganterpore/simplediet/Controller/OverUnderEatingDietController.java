@@ -1,75 +1,30 @@
 package com.ganterpore.simplediet.Controller;
 
-import android.os.Build;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.util.SparseArray;
 
-import com.ganterpore.simplediet.Model.Meal.FoodType;
 import com.ganterpore.simplediet.Model.DietPlan;
+import com.ganterpore.simplediet.Model.Meal.FoodType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import com.ganterpore.simplediet.Model.Meal;
-import com.ganterpore.simplediet.Model.Meal.FoodType;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import javax.annotation.Nullable;
 
 
 public class OverUnderEatingDietController extends BasicDietController{
     private static final String TAG = "OverUnderEatingDietCo";
-    private SparseArray<DietPlan> daysAgoDiets;
+    public static final String UNDER_EATING_RECOMMENDATION_ID = "under_eating";
+    public static final String OVER_EATING_RECOMMENDATION_ID = "over_eating";
+    private SparseArray<DietPlan> daysAgoDiets = new SparseArray<>();
+
+    public OverUnderEatingDietController() {
+        super();
+    }
 
     public OverUnderEatingDietController(DietControllerListener listener) {
         super(listener);
-        //initialising variables
-        daysAgoDiets = new SparseArray<>();
-
-        //if a meal is added on a day, all diet plans for days after that day become wrong
-        //these need to be removed so that if they are accessed again they will be correct
-        Query dataQuery = FirebaseFirestore.getInstance().collection(DailyMeals.MEALS).whereEqualTo("user", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        //check to update the data when it changes. This will also run through on the first time
-        dataQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(queryDocumentSnapshots != null) {
-                    //check the day of the data changes, and get the max days ago
-                    int maxDaysAgo = 0;
-                    List<DocumentChange> changedData = queryDocumentSnapshots.getDocumentChanges();
-                    for(DocumentChange documentChange : changedData) {
-                        //getting how many days ago
-                        QueryDocumentSnapshot document = documentChange.getDocument();
-                        long changedDay = document.toObject(Meal.class).getDay();
-                        Date changedDayStart = getStartOfDay(new Date(changedDay));
-                        long msDiff = System.currentTimeMillis() - changedDayStart.getTime();
-                        int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(msDiff);
-                        //updating the max
-                        if(daysAgo > maxDaysAgo) {
-                            maxDaysAgo = daysAgo;
-                        }
-                    }
-                    //removing all days after the maxDaysAgo, so they are updated
-                    for(int i=maxDaysAgo-1;i>=0;i--) {
-                        daysAgoDiets.remove(i);
-                    }
-                    updateListener();
-                }
-            }
-        });
     }
 
     @Override
@@ -197,33 +152,41 @@ public class OverUnderEatingDietController extends BasicDietController{
     private Recommendation getOverEatingRecommendation() {
         DietPlan todaysPlan = getTodaysDietPlan();
         DietPlan overallDiet = getOverallDietPlan();
-        String id = "over_eating";
+        String id = OVER_EATING_RECOMMENDATION_ID;
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Over eating";
-        String message = "Yesterday you ate too much ";
-        int count = 0;
+        String message = "Yesterday you ate too much";
+        ArrayList<String> overAteFoods = new ArrayList<>();
         if(todaysPlan.getDailyVeges() < overallDiet.getDailyVeges()) {
-            message += "veges, ";
-            count++;
+            overAteFoods.add("veges");
         }
         if(todaysPlan.getDailyProtein() < overallDiet.getDailyProtein()) {
-            message += "proteins, ";
-            count++;
+            overAteFoods.add("proteins");
         }
         if(todaysPlan.getDailyDairy() < overallDiet.getDailyDairy()) {
-            message += "dairy, ";
-            count++;
+            overAteFoods.add("dairy");
         }
         if(todaysPlan.getDailyGrain() < overallDiet.getDailyGrain()) {
-            message += "grain, ";
-            count++;
+            overAteFoods.add("grain");
         }
         if(todaysPlan.getDailyFruit() < overallDiet.getDailyFruit()) {
-            message += "fruit, ";
-            count++;
+            overAteFoods.add("fruit");
         }
-        if(count > 0) {
-            message = message.substring(0, message.length() - 2);
+        if(!overAteFoods.isEmpty()) {
+            for(int i=0;i<overAteFoods.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==overAteFoods.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += overAteFoods.get(i);
+            }
             message += ". Your recommended intake for today has been adjusted to compensate for this.";
             return new Recommendation(id, title, message, expiry);
         }
@@ -231,48 +194,83 @@ public class OverUnderEatingDietController extends BasicDietController{
     }
 
     private Recommendation getUnderEatingRecommendation() {
-        String id = "under_eating";
+        String id = UNDER_EATING_RECOMMENDATION_ID;
         long expiry = DateUtils.DAY_IN_MILLIS;
         String title = "Under eating";
-        String message = "Yesterday you didn't eat enough from each food category! You can still make up for it today if you eat ";
+        String message = "Yesterday you didn't eat enough from each food category! You can still make up for it today if you eat";
         int count = 0;
         DietPlan yesterdaysDietPlan = getDaysDietPlan(1);
         DailyMeals yesterdaysMeals = getDaysMeals(1);
+        ArrayList<String> underAteFood = new ArrayList<>();
         if(!isFoodCompleted(1, FoodType.VEGETABLE)) {
-            message += (yesterdaysDietPlan.getDailyVeges()
+            underAteFood.add((yesterdaysDietPlan.getDailyVeges()
                     - yesterdaysMeals.getVegCount() - getExcess(0, FoodType.VEGETABLE))
-                    + " more serves of veges, ";
+                    + " more serves of veges");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.MEAT)) {
-            message += (yesterdaysDietPlan.getDailyProtein()
+            underAteFood.add((yesterdaysDietPlan.getDailyProtein()
                     - yesterdaysMeals.getProteinCount() - getExcess(0, FoodType.MEAT))
-                    + " more serves of protein, ";
+                    + " more serves of protein");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.DAIRY)) {
-            message += (yesterdaysDietPlan.getDailyDairy()
+            underAteFood.add((yesterdaysDietPlan.getDailyDairy()
                     - yesterdaysMeals.getDairyCount() - getExcess(0, FoodType.DAIRY))
-                    + " more serves of dairy, ";
+                    + " more serves of dairy");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.GRAIN)) {
-            message += (yesterdaysDietPlan.getDailyGrain()
+            underAteFood.add((yesterdaysDietPlan.getDailyGrain()
                     - yesterdaysMeals.getGrainCount() - getExcess(0, FoodType.GRAIN))
-                    + " more serves of grain, ";
+                    + " more serves of grain");
             count++;
         }
         if(!isFoodCompleted(1, FoodType.FRUIT)) {
-            message += (yesterdaysDietPlan.getDailyFruit()
+            underAteFood.add((yesterdaysDietPlan.getDailyFruit()
                     - yesterdaysMeals.getFruitCount() - getExcess(0, FoodType.FRUIT))
-                    + " more serves of fruit, ";
+                    + " more serves of fruit");
             count++;
         }
-        if(count > 0) {
-            message = message.substring(0, message.length() - 2);
+        if(!underAteFood.isEmpty()) {
+            for(int i=0;i<underAteFood.size();i++) {
+                if(i==0) {
+                    //dont add a joiner at start
+                    message += " ";
+                }
+                else if(i==underAteFood.size()-1) {
+                    //if the final one, the joiner is an and
+                    message += " and ";
+                } else {
+                    //otherwise a comma
+                    message += ", ";
+                }
+                message += underAteFood.get(i);
+            }
             return new Recommendation(id, title, message, expiry);
         }
         return null;
+    }
+
+    @Override
+    public void updateListener(DataType dataType, List<Integer> daysAgoUpdated) {
+        //with this controller, all days after the first day changed are invalidated by a change
+        //So set them to be updated
+        if(dataType == DataType.MEAL && daysAgoUpdated !=null) {
+            int maxDaysAgo = Collections.max(daysAgoUpdated);
+            ArrayList<Integer> newNeedsUpdate = new ArrayList<>();
+            //removing all days after the maxDaysAgo, so they are updated, then setting them to be updated
+            for(int i=maxDaysAgo;i>=0;i--) {
+                daysAgoDiets.remove(i);
+                newNeedsUpdate.add(i);
+            }
+            super.updateListener(dataType, newNeedsUpdate);
+        } else {
+            super.updateListener(dataType, daysAgoUpdated);
+        }
+        if(dataType == DataType.DIET_PLAN) {
+            daysAgoDiets.clear();
+        }
     }
 
     /**
