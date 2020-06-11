@@ -183,6 +183,13 @@ public class DailyDisplayActivity extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(preferences == null || activity == null) {
+            activity = getActivity();
+            if(activity == null) {
+                System.exit(0);
+            }
+            preferences = activity.getSharedPreferences(SHARED_PREFS_LOC, MODE_PRIVATE);
+        }
         String mode = preferences.getString("mode", "normal");
         ProgressBar meatProgress = dailyDisplayView.findViewById(R.id.progress_meat);
         //if the mode has not been set, then just leave as is
