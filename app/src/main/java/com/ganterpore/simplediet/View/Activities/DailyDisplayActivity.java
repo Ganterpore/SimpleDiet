@@ -213,7 +213,7 @@ public class DailyDisplayActivity extends Fragment {
         dailyDisplayView.findViewById(R.id.weekly_cheat_count_header).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.weekly_cheat_count).setVisibility(track_cheats ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.drinks_progress).setVisibility(track_water ? View.VISIBLE : View.GONE);
-        dailyDisplayView.findViewById(R.id.water_layout).setVisibility(track_water ? View.VISIBLE : View.GONE);
+        dailyDisplayView.findViewById(R.id.water_layout).setVisibility(track_water ? View.VISIBLE : View.INVISIBLE);
         dailyDisplayView.findViewById(R.id.weekly_alcohol_image).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.alcohol_count_header).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
         dailyDisplayView.findViewById(R.id.weekly_alcohol_count).setVisibility(track_alcohol ? View.VISIBLE : View.GONE);
